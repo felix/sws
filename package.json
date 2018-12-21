@@ -1,5 +1,6 @@
 {
-  "dependencies": {
-    "uglify-js": "3.4.9"
-  }
+    "license": "MIT",
+    "dependencies": {
+        "uglify-js": "3.4.9"
+    }
 }

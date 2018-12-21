@@ -20,7 +20,9 @@ func handleIndex() http.HandlerFunc {
 func handleSnippet() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/javascript")
-		http.ServeFile(w, r, "client/sws.min.js")
+		//w.Header().Set("Expires", "600")
+		w.Write([]byte(snippet))
+		//http.ServeFile(w, r, "client/sws.min.js")
 	}
 }
 
@@ -50,7 +52,6 @@ func handlePageView(db models.Queryer) http.HandlerFunc {
 		w.Header().Set("Pragma", "no-cache")
 		w.Header().Set("Expires", "0")
 		w.Write(b)
-		//w.WriteHeader(http.StatusNoContent)
 		return
 	}
 }
