@@ -1,7 +1,7 @@
 
-binary	:= server
+binary	:= collector server
 src		:= $(shell find . -type f -name '*.go')
-extras	:= cmd/server/snippet.go
+extras	:= cmd/collector/snippet.go
 tests	:= $(shell find . -type f -name '*_test.go')
 
 .PHONY: help build lint clean
@@ -9,16 +9,18 @@ tests	:= $(shell find . -type f -name '*_test.go')
 build: $(binary) ## Build a binary
 
 $(binary): $(src) $(extras)
-	go build -ldflags "-w -s -X main.version=$(version)" \
-		-o $(binary) ./cmd/$(binary)
+	go build -ldflags "-w -s -X main.version=$(version)" -o $@ ./cmd/$@
 
-cmd/server/snippet.go: client/sws.min.js
+cmd/collector/snippet.go: client/sws.min.js
 	@printf "package main\n\nconst snippet = \`" >$@
 	@cat $< >>$@
 	@printf "\`\n" >>$@
 
-%.min.js: %.js
+%.min.js: %.js node_modules
 	@yarn run uglifyjs -o $@ $<
+
+node_modules: package.json
+	yarn
 
 test: lint $(tests) $(src) ## Run tests
 	go test -v -short -coverprofile=coverage.out -cover ./...

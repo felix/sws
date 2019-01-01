@@ -7,9 +7,7 @@ import (
 	"os"
 
 	"github.com/go-chi/chi"
-	"github.com/go-chi/cors"
 	_ "github.com/jackc/pgx/stdlib"
-	"src.userspace.com.au/go-migrate"
 )
 
 func main() {
@@ -27,45 +25,17 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
-	if err := upgradeDB(db); err != nil {
+	if err := db.Ping(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	r := chi.NewRouter()
 
-	cors := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
-		//AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedMethods: []string{"GET", "OPTIONS"},
-		AllowedHeaders: []string{"Accept", "Content-Type", "X-CSRF-Token"},
-		MaxAge:         300, // Maximum value not ignored by any of major browsers
-	})
-	r.Use(cors.Handler)
-
-	r.Get("/sws.js", handleSnippet())
-	r.Get("/sws.gif", handlePageView(db))
+	r.Get("/page_views", handlePageViews(db))
+	r.Get("/domains", handleDomains(db))
 	r.Get("/", handleIndex())
 	http.ListenAndServe(":5000", r)
-}
-
-func upgradeDB(db *sql.DB) error {
-	// Relative path to migration files
-	migrator, err := migrate.NewFileMigrator(db, "file://migrations/")
-	if err != nil {
-		return fmt.Errorf("failed to create migrator: %s", err)
-	}
-
-	// Migrate all the way
-	err = migrator.Migrate()
-	if err != nil {
-		return fmt.Errorf("failed to migrate: %s", err)
-	}
-
-	v, err := migrator.Version()
-	fmt.Printf("database at version %d\n", v)
-	return err
 }
 
 // Get envvar string with default
