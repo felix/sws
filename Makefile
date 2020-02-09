@@ -1,38 +1,49 @@
 
-binary	:= collector server
-src		:= $(shell find . -type f -name '*.go')
-extras	:= cmd/collector/snippet.go
-tests	:= $(shell find . -type f -name '*_test.go')
+BINARY=	$(patsubst %,dist/%,$(shell find cmd/* -maxdepth 0 -type d -exec basename {} \;))
+SRC=	$(shell find . -type f -name '*.go')
+SQL=	$(shell find sql -type f)
+EXTRAS=	cmd/server/migrations.go counter/sws.min.js cmd/server/counter.go
 
-.PHONY: help build lint clean
+.PHONY: build
+build: $(BINARY)
 
-build: $(binary) ## Build a binary
+dist/%: $(SRC) $(EXTRAS)
+	go build -ldflags "-X main.Version=$(VERSION)" -o $@ ./cmd/$*
 
-$(binary): $(src) $(extras)
-	go build -ldflags "-w -s -X main.version=$(version)" -o $@ ./cmd/$@
+# cmd/server/counter.go: counter/sws.min.js
+# 	go generate ./counter >$@
 
-cmd/collector/snippet.go: client/sws.min.js
-	@printf "package main\n\nconst snippet = \`" >$@
+cmd/server/counter.go: counter/sws.min.js
+	@printf "package main\n\nconst counter = \`" >$@
 	@cat $< >>$@
 	@printf "\`\n" >>$@
 
+
+cmd/server/migrations.go: $(SQL)
+	go generate ./sql >$@
+
 %.min.js: %.js node_modules
-	@yarn run uglifyjs -o $@ $<
+	yarn run uglifyjs -c -m -o $@ $<
 
 node_modules: package.json
 	yarn
 
-test: lint $(tests) $(src) ## Run tests
-	go test -v -short -coverprofile=coverage.out -cover ./...
-	go tool cover -html=coverage.out -o coverage.html
+.PHONY: test
+test: lint
+	go test -v -short -coverprofile=coverage.out -cover ./... \
+		&& go tool cover -html=coverage.out -o coverage.html
 
-lint: $(src)
-	golint $<
+.PHONY: lint
+lint:
+	go vet ./...
 
-clean: ## Clean all test files
-	rm -f $(binary) $(extras)
+.PHONY: clean
+clean:
+	rm -fr dist
 	rm -f client/sws.min.js
-	rm -rf coverage*
+	rm -f $(EXTRAS)
+	rm -fr coverage*
 
-help: ## This help
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) |sort |awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+.PHONY: dist-clean
+dist-clean: clean
+	rm -fr node_modules

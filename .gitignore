@@ -1,4 +1,7 @@
-collector
-server
-client/sws.min.js
+dist/
 node_modules/
+
+# Generated content
+counter/sws.min.js
+cmd/server/migrations.go
+cmd/server/counter.go
