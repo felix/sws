@@ -48,7 +48,7 @@ func handleHitCounter(db sws.Queryer) http.HandlerFunc {
 		domain, err := sws.GetDomainByName(db, *hit.Host)
 		if err != nil {
 			log("failed to get domain", err)
-			http.Error(w, err.Error(), http.StatusNotFound)
+			http.Error(w, "invalid domain", http.StatusNotFound)
 			return
 		}
 		hit.DomainID = domain.ID
@@ -56,8 +56,8 @@ func handleHitCounter(db sws.Queryer) http.HandlerFunc {
 
 		if err := hit.Save(db); err != nil {
 			log("failed to save hit", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+			//http.Error(w, err.Error(), http.StatusInternalServerError)
+			//return
 		}
 		w.Header().Set("Content-Type", "image/gif")
 		w.Write(gifBytes)

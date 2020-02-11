@@ -14,7 +14,6 @@ require (
 	github.com/shopspring/decimal v0.0.0-20200105231215-408a2507e114 // indirect
 	github.com/speps/go-hashids v2.0.0+incompatible
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-	src.userspace.com.au/flags v0.0.0-20200208094111-eef94fa594cc
 	src.userspace.com.au/go-migrate v0.0.0-20200208102934-cf11cf76db3f
 )
 

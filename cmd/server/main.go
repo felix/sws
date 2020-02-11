@@ -13,7 +13,6 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
-	"src.userspace.com.au/flags"
 	"src.userspace.com.au/go-migrate"
 	"src.userspace.com.au/sws"
 )
@@ -29,10 +28,10 @@ var (
 var log, debug sws.Logger
 
 func init() {
-	verbose = flags.Bool("verbose", "v", false, "VERBOSE", "enable verbose output")
-	addr = flags.String("listen", "l", "localhost:5000", "LISTEN", "listen address")
-	dsn = flags.String("dsn", "", "file:sws.db?cache=shared", "DSN", "database password")
-	noMigrate = flags.Bool("no-migrate", "m", false, "NOMIGRATE", "disable migrations")
+	verbose = boolFlag("verbose", "v", false, "VERBOSE", "enable verbose output")
+	addr = stringFlag("listen", "l", "localhost:5000", "LISTEN", "listen address")
+	dsn = stringFlag("dsn", "", "file:sws.db?cache=shared", "DSN", "database password")
+	noMigrate = boolFlag("no-migrate", "m", false, "NOMIGRATE", "disable migrations")
 
 	// Default to no log
 	log = func(v ...interface{}) {}
@@ -59,6 +58,16 @@ func main() {
 	if driver == "file" {
 		driver = "sqlite3"
 	}
+
+	if noMigrate == nil || !*noMigrate {
+		version, err := migrateDatabase(driver, *dsn)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to migrate: %s", err)
+			os.Exit(2)
+		}
+		log("database at version", version)
+	}
+
 	db, err := sqlx.Open(driver, *dsn)
 	if err != nil {
 		fmt.Println(err)
@@ -70,29 +79,27 @@ func main() {
 		os.Exit(1)
 	}
 
-	if noMigrate == nil || !*noMigrate {
-		version, err := migrateDatabase(db, driver)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "failed to migrate: %s", err)
-			os.Exit(2)
-		}
-		log("database at version", version)
-	}
-
 	r := chi.NewRouter()
 
 	r.Get("/sws.js", handleCounter(*addr))
 	r.Get("/sws.gif", handleHitCounter(db))
 	r.Get("/hits", handleHits(db))
 	r.Get("/domains", handleDomains(db))
-	r.Get("/test.html", handleTest())
+	r.Get("/test.html", handleExample())
 	r.Get("/", handleIndex())
 
 	log("listening at", *addr)
 	http.ListenAndServe(*addr, r)
 }
 
-func migrateDatabase(db *sql.DB, driver string) (int64, error) {
+func migrateDatabase(driver, dsn string) (int64, error) {
+	db, err := sql.Open(driver, dsn)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	defer db.Close()
+
 	var v int64
 	// Load migrations
 	ms, err := decodeMigrations(driver)
