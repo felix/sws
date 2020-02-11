@@ -15,6 +15,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"src.userspace.com.au/go-migrate"
 	"src.userspace.com.au/sws"
+	"src.userspace.com.au/sws/store"
 )
 
 // Flags
@@ -78,15 +79,26 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	var st sws.Store
+	if driver == "pgx" {
+		//st = store.P{db}
+	} else {
+		st = store.NewSqlite3Store(db)
+	}
 
 	r := chi.NewRouter()
 
+	// For counter
 	r.Get("/sws.js", handleCounter(*addr))
-	r.Get("/sws.gif", handleHitCounter(db))
-	r.Get("/hits", handleHits(db))
-	r.Get("/domains", handleDomains(db))
-	r.Get("/test.html", handleExample())
+	r.Get("/sws.gif", handleHitCounter(st))
+
+	// For UI
+	r.Get("/hits", handleHits(st))
+	r.Get("/domains", handleDomains(st))
 	r.Get("/", handleIndex())
+
+	// Example
+	r.Get("/test.html", handleExample())
 
 	log("listening at", *addr)
 	http.ListenAndServe(*addr, r)
@@ -100,8 +112,8 @@ func migrateDatabase(driver, dsn string) (int64, error) {
 	}
 	defer db.Close()
 
-	var v int64
-	// Load migrations
+	var version int64
+	// Load migrations from generated file
 	ms, err := decodeMigrations(driver)
 	if err != nil {
 		return 0, err
@@ -109,14 +121,13 @@ func migrateDatabase(driver, dsn string) (int64, error) {
 	debug("found", len(ms), "migrations for driver", driver)
 	migrator, err := migrate.NewStringMigrator(db, ms)
 	if err != nil {
-		return v, fmt.Errorf("failed to initialise: %w", err)
+		return version, fmt.Errorf("failed to initialise: %w", err)
 	}
 
 	err = migrator.Migrate()
 	if err != nil {
-		return v, fmt.Errorf("failed to migrate: %w", err)
+		return version, fmt.Errorf("failed to migrate: %w", err)
 	}
 
-	v, err = migrator.Version()
-	return v, nil
+	return migrator.Version()
 }

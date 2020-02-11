@@ -1,4 +1,4 @@
-package sws
+package store
 
 import (
 	"strconv"

@@ -19,19 +19,19 @@ func handleIndex() http.HandlerFunc {
 	}
 }
 
-func handleDomains(db sws.Queryer) http.HandlerFunc {
+func handleDomains(db sws.DomainStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
 
-func handleHits(db sws.Queryer) http.HandlerFunc {
+func handleHits(db sws.HitStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
 
-func handleHitCounter(db sws.Queryer) http.HandlerFunc {
+func handleHitCounter(db sws.CounterStore) http.HandlerFunc {
 	gifBytes, err := base64.StdEncoding.DecodeString(gif)
 	if err != nil {
 		panic(err)
@@ -45,7 +45,7 @@ func handleHitCounter(db sws.Queryer) http.HandlerFunc {
 			return
 		}
 
-		domain, err := sws.GetDomainByName(db, *hit.Host)
+		domain, err := db.GetDomainByName(*hit.Host)
 		if err != nil {
 			log("failed to get domain", err)
 			http.Error(w, "invalid domain", http.StatusNotFound)
@@ -54,7 +54,7 @@ func handleHitCounter(db sws.Queryer) http.HandlerFunc {
 		hit.DomainID = domain.ID
 		hit.Addr = &r.RemoteAddr
 
-		if err := hit.Save(db); err != nil {
+		if err := db.SaveHit(hit); err != nil {
 			log("failed to save hit", err)
 			//http.Error(w, err.Error(), http.StatusInternalServerError)
 			//return
