@@ -103,7 +103,7 @@ func main() {
 		r.Route("/{domainID}", func(r chi.Router) {
 			r.Use(domainCtx)
 			r.Get("/", handleDomain(st))
-			r.Get("/chart", handleChart(st))
+			r.Get("/chart", svgChartHandler(st))
 		})
 	})
 	r.Get("/", handleIndex())
@@ -132,6 +132,15 @@ func getDomainCtx(db sws.DomainStore) func(http.Handler) http.Handler {
 		})
 	}
 }
+
+// func getAuthCtx(db sws.UserStore) func(http.Handler) http.Handler {
+// 	return func(next http.Handler) http.Handler {
+// 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 			ctx := context.WithValue(r.Context(), "user", user)
+// 			next.ServeHTTP(w, r.WithContext(ctx))
+// 		})
+// 	}
+// }
 
 func migrateDatabase(driver, dsn string) (int64, error) {
 	db, err := sql.Open(driver, dsn)
