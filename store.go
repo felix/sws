@@ -1,24 +1,27 @@
 package sws
 
+import "time"
+
 type Store interface {
 	DomainStore
-	HitStore
-	CounterStore
+	GetDomainByName(string) (*Domain, error)
+	GetHits(Domain, time.Time, time.Time, map[string]interface{}) ([]*Hit, error)
+	SaveHit(*Hit) error
 }
 type SimpleDomainStore interface {
 	GetDomainByName(string) (*Domain, error)
 }
 type DomainStore interface {
 	//GetDomainFromID(int) (*Domain, error)
-	//GetDomainFromCode(string) (*Domain, error)
+	GetDomainByID(int) (*Domain, error)
 	//SaveDomain(*Domain) error
 }
 
 type HitStore interface {
-	//GetHitsByDomain(d Domain) ([]*Hit, error)
+	SimpleDomainStore
+	GetHits(Domain, time.Time, time.Time, map[string]interface{}) ([]*Hit, error)
 }
 type CounterStore interface {
 	SimpleDomainStore
-	GetHits(map[string]interface{}) ([]*Hit, error)
 	SaveHit(*Hit) error
 }

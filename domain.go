@@ -3,8 +3,6 @@ package sws
 import (
 	"fmt"
 	"time"
-
-	"github.com/speps/go-hashids"
 )
 
 const slugSalt = "saltyslugs"
@@ -24,13 +22,5 @@ func (d *Domain) Validate() []error {
 	if d.Name == nil {
 		out = append(out, fmt.Errorf("missing name"))
 	}
-	return out
-}
-
-func (d Domain) Slug() string {
-	hd := hashids.NewData()
-	hd.Salt = slugSalt
-	h, _ := hashids.NewWithData(hd)
-	out, _ := h.Encode([]int{*d.ID})
 	return out
 }

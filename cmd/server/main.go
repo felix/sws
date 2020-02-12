@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"flag"
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -88,13 +90,22 @@ func main() {
 
 	r := chi.NewRouter()
 
+	domainCtx := getDomainCtx(st)
+
 	// For counter
 	r.Get("/sws.js", handleCounter(*addr))
 	r.Get("/sws.gif", handleHitCounter(st))
 
 	// For UI
 	r.Get("/hits", handleHits(st))
-	r.Get("/domains", handleDomains(st))
+	r.Route("/domains", func(r chi.Router) {
+		r.Get("/", handleDomains(st))
+		r.Route("/{domainID}", func(r chi.Router) {
+			r.Use(domainCtx)
+			r.Get("/", handleDomain(st))
+			r.Get("/chart", handleChart(st))
+		})
+	})
 	r.Get("/", handleIndex())
 
 	// Example
@@ -102,6 +113,24 @@ func main() {
 
 	log("listening at", *addr)
 	http.ListenAndServe(*addr, r)
+}
+
+func getDomainCtx(db sws.DomainStore) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			id, err := strconv.Atoi(chi.URLParam(r, "domainID"))
+			if err != nil {
+				panic(err)
+			}
+			domain, err := db.GetDomainByID(id)
+			if err != nil {
+				http.Error(w, http.StatusText(404), 404)
+				return
+			}
+			ctx := context.WithValue(r.Context(), "domain", domain)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
 }
 
 func migrateDatabase(driver, dsn string) (int64, error) {
