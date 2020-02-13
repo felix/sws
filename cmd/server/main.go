@@ -103,7 +103,13 @@ func main() {
 		r.Route("/{domainID}", func(r chi.Router) {
 			r.Use(domainCtx)
 			r.Get("/", handleDomain(st))
-			r.Get("/chart", svgChartHandler(st))
+			r.Route("/sparklines", func(r chi.Router) {
+				r.Get("/{s:\\d+}-{e:\\d+}.svg", sparklineHandler(st))
+			})
+			r.Route("/charts", func(r chi.Router) {
+				r.Get("/{s:\\d+}-{e:\\d+}.svg", svgChartHandler(st))
+				r.Get("/{s:\\d+}-{e:\\d+}.png", svgChartHandler(st))
+			})
 		})
 	})
 	r.Get("/", handleIndex())

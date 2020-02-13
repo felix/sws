@@ -44,8 +44,8 @@ func (s *Sqlite3) SaveDomain(d *sws.Domain) error {
 	return nil
 }
 
-func (s *Sqlite3) GetHits(d sws.Domain, start, end time.Time, f map[string]interface{}) ([]sws.Hit, error) {
-	pvs := make([]sws.Hit, 0)
+func (s *Sqlite3) GetHits(d sws.Domain, start, end time.Time, f map[string]interface{}) ([]*sws.Hit, error) {
+	pvs := make([]*sws.Hit, 0)
 
 	filter := map[string]interface{}{
 		"start": start,
@@ -68,7 +68,7 @@ func (s *Sqlite3) GetHits(d sws.Domain, start, end time.Time, f map[string]inter
 		if err := rows.StructScan(pv); err != nil {
 			return pvs, err
 		}
-		pvs = append(pvs, *pv)
+		pvs = append(pvs, pv)
 	}
 	return pvs, nil
 }

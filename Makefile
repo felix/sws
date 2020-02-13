@@ -2,7 +2,10 @@
 BINARY=	$(patsubst %,dist/%,$(shell find cmd/* -maxdepth 0 -type d -exec basename {} \;))
 SRC=	$(shell find . -type f -name '*.go')
 SQL=	$(shell find sql -type f)
-EXTRAS=	cmd/server/migrations.go counter/sws.min.js cmd/server/counter.go
+EXTRAS=	cmd/server/migrations.go \
+	counter/sws.min.js \
+	cmd/server/counter.go \
+	cmd/server/templates.go
 
 .PHONY: build
 build: $(BINARY)
@@ -10,13 +13,16 @@ build: $(BINARY)
 dist/%: $(SRC) $(EXTRAS)
 	go build -ldflags "-X main.Version=$(VERSION)" -o $@ ./cmd/$*
 
-# cmd/server/counter.go: counter/sws.min.js
-# 	go generate ./counter >$@
+cmd/server/templates.go:
+	go generate ./templates >$@
 
 cmd/server/counter.go: counter/sws.min.js
 	@printf "package main\n\nconst counter = \`" >$@
 	@cat $< >>$@
 	@printf "\`\n" >>$@
+
+# cmd/server/counter.go: counter/sws.min.js
+# 	go generate ./counter >$@
 
 
 cmd/server/migrations.go: $(SQL)

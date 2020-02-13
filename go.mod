@@ -17,10 +17,10 @@ require (
 	github.com/speps/go-hashids v2.0.0+incompatible
 	github.com/wcharczuk/go-chart v2.0.1+incompatible
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect
+	google.golang.org/appengine v1.6.5 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	src.userspace.com.au/go-migrate v0.0.0-20200208102934-cf11cf76db3f
+	src.userspace.com.au/templates v0.0.0-20200213053211-f58212f65bbd
 )
 
 go 1.13
-
-//replace src.userspace.com.au/flags => ../flags
