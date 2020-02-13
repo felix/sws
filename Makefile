@@ -30,10 +30,10 @@ cmd/server/migrations.go: $(SQL)
 	go generate ./sql >$@
 
 %.min.js: %.js node_modules
-	yarn run uglifyjs -c -m -o $@ $<
+	yarn run -s uglifyjs -c -m -o $@ $<
 
 node_modules: package.json
-	yarn
+	yarn -s
 
 .PHONY: test
 test: lint
