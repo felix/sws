@@ -5,3 +5,4 @@ node_modules/
 counter/sws.min.js
 cmd/server/migrations.go
 cmd/server/counter.go
+cmd/server/templates.go

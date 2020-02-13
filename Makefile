@@ -6,6 +6,7 @@ EXTRAS=	cmd/server/migrations.go \
 	counter/sws.min.js \
 	cmd/server/counter.go \
 	cmd/server/templates.go
+TMPL=	$(shell find templates -type f -name '*.tmpl')
 
 .PHONY: build
 build: $(BINARY)
@@ -13,7 +14,7 @@ build: $(BINARY)
 dist/%: $(SRC) $(EXTRAS)
 	go build -ldflags "-X main.Version=$(VERSION)" -o $@ ./cmd/$*
 
-cmd/server/templates.go:
+cmd/server/templates.go: $(TMPL)
 	go generate ./templates >$@
 
 cmd/server/counter.go: counter/sws.min.js
