@@ -8,7 +8,7 @@ var me = document.currentScript
 console.log('me:', me)
 console.log('me.sws:', me.dataset.sws)
 
-_sws = _sws || {async:false}
+_sws = _sws || {xhr:true}
 console.log('_sws:', _sws)
 _sws.d = _sws.d || me.dataset.sws || 'http://sws.userspace.com.au/sws.gif'
 console.log('using', _sws.d)
@@ -20,7 +20,7 @@ function send (p, obj) {
       return esc(k) + '=' + esc(obj[k])
     })
     .join('&')
-  if (_sws.async) {
+  if (_sws.xhr) {
     var r = new w.XMLHttpRequest()
     r.open('GET', p + '?' + qs, true)
     r.send()

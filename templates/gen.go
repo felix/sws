@@ -9,11 +9,8 @@ import (
 )
 
 func main() {
-	tmpl, err := templates.New()
-	if err != nil {
-		panic(err)
-	}
-	if _, err = tmpl.WriteTo(os.Stdout); err != nil {
+	tmpl := templates.Must(templates.New())
+	if _, err := tmpl.WriteTo(os.Stdout); err != nil {
 		panic(err)
 	}
 }

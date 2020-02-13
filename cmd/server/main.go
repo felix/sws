@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -89,6 +90,12 @@ func main() {
 	}
 
 	r := chi.NewRouter()
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RealIP)
+	if *verbose {
+		r.Use(middleware.Logger)
+	}
+	r.Use(middleware.Recoverer)
 
 	domainCtx := getDomainCtx(st)
 

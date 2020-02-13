@@ -23,4 +23,6 @@ require (
 	src.userspace.com.au/templates v0.0.0-20200213053211-f58212f65bbd
 )
 
+replace src.userspace.com.au/templates => ../templates
+
 go 1.13
