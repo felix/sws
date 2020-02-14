@@ -52,8 +52,11 @@ func sparklineHandler(db sws.HitStore) http.HandlerFunc {
 		}
 		debug("retrieved", len(hits), "hits")
 		data := sws.HitsToTimeBuckets(hits, time.Minute)
+		// Ensure the buckets start at the right time
+		data.Buckets = append([]sws.Bucket{{Time: start, Count: 0}}, data.Buckets...)
 
 		w.Header().Set("Content-Type", "image/svg+xml")
+		w.Header().Set("Cache-Control", "public")
 		sws.SparklineSVG(w, data, time.Minute)
 	}
 }

@@ -90,11 +90,13 @@ func main() {
 
 	tmpls := template.Must(loadTemplateHTML([]string{
 		"home",
+		"sites",
 		"example",
 		"partials/navMain",
 		"partials/pageHead",
 		"partials/pageFoot",
-	}, nil))
+		"partials/siteForList",
+	}, funcMap))
 	debug(tmpls.DefinedTemplates())
 
 	r := chi.NewRouter()
@@ -114,7 +116,7 @@ func main() {
 	// For UI
 	r.Get("/hits", handleHits(st))
 	r.Route("/sites", func(r chi.Router) {
-		r.Get("/", handleSites(st))
+		r.Get("/", handleSites(st, tmpls))
 		r.Route("/{siteID}", func(r chi.Router) {
 			r.Use(siteCtx)
 			r.Get("/", handleSite(st))

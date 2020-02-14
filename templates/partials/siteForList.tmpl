@@ -1,0 +1,7 @@
+{{ define "siteForList" }}
+<li>
+	<a href="/sites/{{ .ID }}/">{{ .Name }}</a>
+	<span>{{ .Description }}</span>
+	<img src="{{ sparkline .ID }}" />
+</li>
+{{ end }}

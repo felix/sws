@@ -12,6 +12,7 @@ type SimpleSiteStore interface {
 	GetSiteByName(string) (*Site, error)
 }
 type SiteStore interface {
+	GetSites() ([]*Site, error)
 	GetSiteByID(int) (*Site, error)
 	//SaveSite(*Site) error
 }

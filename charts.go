@@ -14,8 +14,6 @@ type chart struct {
 	data          TimeBuckets
 }
 
-type ChartOption func(*chart) error
-
 func NewChart(data TimeBuckets, opts ...ChartOption) (*chart, error) {
 	out := &chart{data: data}
 	for _, o := range opts {
@@ -25,6 +23,8 @@ func NewChart(data TimeBuckets, opts ...ChartOption) (*chart, error) {
 	}
 	return out, nil
 }
+
+type ChartOption func(*chart) error
 
 func Dimentions(height, width int) ChartOption {
 	return func(c *chart) error {
@@ -42,7 +42,7 @@ func SparklineSVG(w io.Writer, data TimeBuckets, d time.Duration) error {
 		//Name: "Hits",
 		Style: gochart.Style{
 			Show:        true,
-			StrokeWidth: 1.0,
+			StrokeWidth: 2.0,
 			StrokeColor: drawing.Color{0, 0, 255, 100},
 		},
 	}
@@ -53,9 +53,9 @@ func SparklineSVG(w io.Writer, data TimeBuckets, d time.Duration) error {
 		Width:  300,
 		Height: 50,
 		Series: []gochart.Series{hits},
-		Background: gochart.Style{
-			Padding: gochart.Box{Top: 10, Right: 10, Bottom: 10, Left: 27},
-		},
+		// Background: gochart.Style{
+		// 	Padding: gochart.Box{Top: 10, Right: 10, Bottom: 10, Left: 27},
+		// },
 		// XAxis: gochart.XAxis{
 		// 	Style: gochart.Style{Show: true},
 		// 	ValueFormatter: func(v interface{}) string {

@@ -1,0 +1,15 @@
+{{ define "sites" }}
+	{{ template "pageHead" }}
+	{{ template "navMain" }}
+	<main>
+		<header>
+			<h1>Sites</h1>
+		</header>
+		<ul class="sites">
+			{{ range .Sites }}
+				{{ template "siteForList" . }}
+			{{ end }}
+		</ul>
+	</main>
+	{{ template "pageFoot" }}
+{{ end }}

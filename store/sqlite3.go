@@ -19,6 +19,23 @@ func NewSqlite3Store(db *sqlx.DB) *Sqlite3 {
 	return &Sqlite3{db}
 }
 
+func (s *Sqlite3) GetSites() ([]*sws.Site, error) {
+	rows, err := s.db.Queryx(stmts["sites"])
+	if err != nil {
+		return nil, err
+	}
+	var out []*sws.Site
+
+	for rows.Next() {
+		var s sws.Site
+		if err := rows.StructScan(&s); err != nil {
+			return nil, err
+		}
+		out = append(out, &s)
+	}
+	return out, nil
+}
+
 func (s *Sqlite3) GetSiteByID(id int) (*sws.Site, error) {
 	var d sws.Site
 	if err := s.db.QueryRowx(stmts["siteByID"], id).StructScan(&d); err != nil {
@@ -86,6 +103,9 @@ func (s *Sqlite3) SaveHit(h *sws.Hit) error {
 }
 
 var stmts = map[string]string{
+	"sites": `select id, name, description, aliases, enabled,
+created_at, updated_at from sites`,
+
 	"siteByName": `select id, name, description, aliases, enabled,
 created_at, updated_at from sites where name = $1 limit 1`,
 
