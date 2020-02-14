@@ -5,28 +5,16 @@ import (
 	"net/http"
 )
 
-func handleIndex() http.HandlerFunc {
-	tmplHome := loadTemplateMust("home")
-	tmplNav := loadTemplateMust("partials/navMain")
-	tmplLayout := loadTemplateMust("layout")
-	tmpl := template.Must(template.New("layout").Parse(string(tmplLayout)))
-	_ = template.Must(tmpl.Parse(string(tmplHome)))
-	_ = template.Must(tmpl.Parse(string(tmplNav)))
-	debug(tmpl)
-
+func handleIndex(tmpls *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-		tmpl.Execute(w, nil)
+		tmpls.ExecuteTemplate(w, "home", nil)
 	}
 }
 
-func handleExample() http.HandlerFunc {
+func handleExample(tmpls *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-		b, err := loadTemplate("example")
-		if err != nil {
-			panic(err)
-		}
-		w.Write(b)
+		tmpls.ExecuteTemplate(w, "example", nil)
 	}
 }

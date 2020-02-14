@@ -4,13 +4,22 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"net/http"
+	"regexp"
 	"time"
 )
+
+var botRegex = regexp.MustCompile("(?i)(bot|crawler|sp(i|y)der|search|worm|fetch|nutch)")
+var botFromSiteRegexp = regexp.MustCompile("http[s]?://.+\\.\\w+")
 
 type UserAgent struct {
 	Hash       string    `json:"hash"`
 	Name       string    `json:"name"`
 	LastSeenAt time.Time `json:"last_seen_at"`
+}
+
+func (ua UserAgent) Bot() bool {
+	// TODO a little naive ATM
+	return botRegex.MatchString(ua.Name) || botFromSiteRegexp.MatchString(ua.Name)
 }
 
 func UserAgentHash(s string) string {

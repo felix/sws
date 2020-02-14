@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	tmpl := templates.Must(templates.New())
+	tmpl := templates.Must(templates.New(templates.EnableHTMLTemplates()))
 	if _, err := tmpl.WriteTo(os.Stdout); err != nil {
 		panic(err)
 	}

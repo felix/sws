@@ -45,6 +45,8 @@ func handleHitCounter(db sws.CounterStore) http.HandlerFunc {
 			//http.Error(w, err.Error(), http.StatusInternalServerError)
 			//return
 		}
+		// TODO restrict to site domains
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Content-Type", "image/gif")
 		w.Write(gifBytes)
 		log("hit", hit)
@@ -54,6 +56,8 @@ func handleHitCounter(db sws.CounterStore) http.HandlerFunc {
 
 func handleCounter(addr string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// TODO restrict to site domains
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Content-Type", "application/javascript")
 		reader := strings.NewReader(counter)
 		if _, err := io.Copy(w, reader); err != nil {

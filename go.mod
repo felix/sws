@@ -20,9 +20,7 @@ require (
 	google.golang.org/appengine v1.6.5 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	src.userspace.com.au/go-migrate v0.0.0-20200208102934-cf11cf76db3f
-	src.userspace.com.au/templates v0.0.0-20200213053211-f58212f65bbd
+	src.userspace.com.au/templates v0.0.0-20200214092258-6bc0451a1d45
 )
-
-replace src.userspace.com.au/templates => ../templates
 
 go 1.13

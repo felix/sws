@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"flag"
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
 	"strconv"
@@ -16,7 +16,6 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
-	"src.userspace.com.au/go-migrate"
 	"src.userspace.com.au/sws"
 	"src.userspace.com.au/sws/store"
 )
@@ -74,12 +73,12 @@ func main() {
 
 	db, err := sqlx.Open(driver, *dsn)
 	if err != nil {
-		fmt.Println(err)
+		log(err)
 		os.Exit(1)
 	}
 	defer db.Close()
 	if err := db.Ping(); err != nil {
-		fmt.Println(err)
+		log(err)
 		os.Exit(1)
 	}
 	var st sws.Store
@@ -88,6 +87,15 @@ func main() {
 	} else {
 		st = store.NewSqlite3Store(db)
 	}
+
+	tmpls := template.Must(loadTemplateHTML([]string{
+		"home",
+		"example",
+		"partials/navMain",
+		"partials/pageHead",
+		"partials/pageFoot",
+	}, nil))
+	debug(tmpls.DefinedTemplates())
 
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -119,10 +127,10 @@ func main() {
 			})
 		})
 	})
-	r.Get("/", handleIndex())
+	r.Get("/", handleIndex(tmpls))
 
 	// Example
-	r.Get("/test.html", handleExample())
+	r.Get("/test.html", handleExample(tmpls))
 
 	log("listening at", *addr)
 	http.ListenAndServe(*addr, r)
@@ -154,31 +162,3 @@ func getDomainCtx(db sws.DomainStore) func(http.Handler) http.Handler {
 // 		})
 // 	}
 // }
-
-func migrateDatabase(driver, dsn string) (int64, error) {
-	db, err := sql.Open(driver, dsn)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	defer db.Close()
-
-	var version int64
-	// Load migrations from generated file
-	ms, err := decodeMigrations(driver)
-	if err != nil {
-		return 0, err
-	}
-	debug("found", len(ms), "migrations for driver", driver)
-	migrator, err := migrate.NewStringMigrator(db, ms)
-	if err != nil {
-		return version, fmt.Errorf("failed to initialise: %w", err)
-	}
-
-	err = migrator.Migrate()
-	if err != nil {
-		return version, fmt.Errorf("failed to migrate: %w", err)
-	}
-
-	return migrator.Version()
-}
