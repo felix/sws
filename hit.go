@@ -9,9 +9,9 @@ import (
 )
 
 type Hit struct {
-	ID       *int    `json:"id"`
-	DomainID *int    `json:"domain_id,omitempty"`
-	Addr     *string `json:"addr,omitempty"`
+	ID     *int    `json:"id"`
+	SiteID *int    `json:"site_id,omitempty"`
+	Addr   *string `json:"addr,omitempty"`
 	// URL components
 	Scheme   *string `json:"scheme,omitempty"`
 	Host     *string `json:"host,omitempty"`
@@ -27,7 +27,7 @@ type Hit struct {
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 
 	// TODO
-	Domain    *Domain    `json:"-"`
+	Site      *Site      `json:"-"`
 	UserAgent *UserAgent `json:"-"`
 }
 

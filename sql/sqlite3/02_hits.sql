@@ -8,7 +8,7 @@ create table user_agents (
 
 create table hits (
 	id integer primary key autoincrement,
-	domain_id integer check(domain_id >0),
+	site_id integer check(site_id >0),
 	addr varchar not null,
 	scheme varchar not null,
 	host varchar not null,
@@ -21,4 +21,4 @@ create table hits (
 	created_at timestamp not null,
 	foreign key(user_agent_hash) references user_agents(hash)
 );
-create index "hits#domain_id#created" on hits(domain_id, created_at);
+create index "hits#site_id#created" on hits(site_id, created_at);

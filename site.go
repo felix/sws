@@ -7,7 +7,7 @@ import (
 
 const slugSalt = "saltyslugs"
 
-type Domain struct {
+type Site struct {
 	ID          *int       `json:"id,omitempty"`
 	Name        *string    `json:"name,omitempty"`
 	Description string     `json:"description,omitempty"`
@@ -17,7 +17,7 @@ type Domain struct {
 	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
 }
 
-func (d *Domain) Validate() []error {
+func (d *Site) Validate() []error {
 	var out []error
 	if d.Name == nil {
 		out = append(out, fmt.Errorf("missing name"))

@@ -31,13 +31,13 @@ func handleHitCounter(db sws.CounterStore) http.HandlerFunc {
 			return
 		}
 
-		domain, err := db.GetDomainByName(*hit.Host)
+		site, err := db.GetSiteByName(*hit.Host)
 		if err != nil {
-			log("failed to get domain", err)
-			http.Error(w, "invalid domain", http.StatusNotFound)
+			log("failed to get site", err)
+			http.Error(w, "invalid site", http.StatusNotFound)
 			return
 		}
-		hit.DomainID = domain.ID
+		hit.SiteID = site.ID
 		hit.Addr = &r.RemoteAddr
 
 		if err := db.SaveHit(hit); err != nil {
@@ -45,7 +45,7 @@ func handleHitCounter(db sws.CounterStore) http.HandlerFunc {
 			//http.Error(w, err.Error(), http.StatusInternalServerError)
 			//return
 		}
-		// TODO restrict to site domains
+		// TODO restrict to site sites
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Content-Type", "image/gif")
 		w.Write(gifBytes)
@@ -56,7 +56,7 @@ func handleHitCounter(db sws.CounterStore) http.HandlerFunc {
 
 func handleCounter(addr string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO restrict to site domains
+		// TODO restrict to site sites
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Content-Type", "application/javascript")
 		reader := strings.NewReader(counter)

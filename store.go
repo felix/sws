@@ -3,24 +3,24 @@ package sws
 import "time"
 
 type Store interface {
-	DomainStore
-	GetDomainByName(string) (*Domain, error)
-	GetHits(Domain, time.Time, time.Time, map[string]interface{}) ([]*Hit, error)
+	SiteStore
+	GetSiteByName(string) (*Site, error)
+	GetHits(Site, time.Time, time.Time, map[string]interface{}) ([]*Hit, error)
 	SaveHit(*Hit) error
 }
-type SimpleDomainStore interface {
-	GetDomainByName(string) (*Domain, error)
+type SimpleSiteStore interface {
+	GetSiteByName(string) (*Site, error)
 }
-type DomainStore interface {
-	GetDomainByID(int) (*Domain, error)
-	//SaveDomain(*Domain) error
+type SiteStore interface {
+	GetSiteByID(int) (*Site, error)
+	//SaveSite(*Site) error
 }
 
 type HitStore interface {
-	SimpleDomainStore
-	GetHits(Domain, time.Time, time.Time, map[string]interface{}) ([]*Hit, error)
+	SimpleSiteStore
+	GetHits(Site, time.Time, time.Time, map[string]interface{}) ([]*Hit, error)
 }
 type CounterStore interface {
-	SimpleDomainStore
+	SimpleSiteStore
 	SaveHit(*Hit) error
 }

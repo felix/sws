@@ -105,7 +105,7 @@ func main() {
 	}
 	r.Use(middleware.Recoverer)
 
-	domainCtx := getDomainCtx(st)
+	siteCtx := getSiteCtx(st)
 
 	// For counter
 	r.Get("/sws.js", handleCounter(*addr))
@@ -113,11 +113,11 @@ func main() {
 
 	// For UI
 	r.Get("/hits", handleHits(st))
-	r.Route("/domains", func(r chi.Router) {
-		r.Get("/", handleDomains(st))
-		r.Route("/{domainID}", func(r chi.Router) {
-			r.Use(domainCtx)
-			r.Get("/", handleDomain(st))
+	r.Route("/sites", func(r chi.Router) {
+		r.Get("/", handleSites(st))
+		r.Route("/{siteID}", func(r chi.Router) {
+			r.Use(siteCtx)
+			r.Get("/", handleSite(st))
 			r.Route("/sparklines", func(r chi.Router) {
 				r.Get("/{s:\\d+}-{e:\\d+}.svg", sparklineHandler(st))
 			})
@@ -136,19 +136,19 @@ func main() {
 	http.ListenAndServe(*addr, r)
 }
 
-func getDomainCtx(db sws.DomainStore) func(http.Handler) http.Handler {
+func getSiteCtx(db sws.SiteStore) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			id, err := strconv.Atoi(chi.URLParam(r, "domainID"))
+			id, err := strconv.Atoi(chi.URLParam(r, "siteID"))
 			if err != nil {
 				panic(err)
 			}
-			domain, err := db.GetDomainByID(id)
+			site, err := db.GetSiteByID(id)
 			if err != nil {
 				http.Error(w, http.StatusText(404), 404)
 				return
 			}
-			ctx := context.WithValue(r.Context(), "domain", domain)
+			ctx := context.WithValue(r.Context(), "site", site)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

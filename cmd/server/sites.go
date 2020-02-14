@@ -6,13 +6,13 @@ import (
 	"src.userspace.com.au/sws"
 )
 
-func handleDomains(db sws.DomainStore) http.HandlerFunc {
+func handleSites(db sws.SiteStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
 
-func handleDomain(db sws.DomainStore) http.HandlerFunc {
+func handleSite(db sws.SiteStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		return
 	}

@@ -22,9 +22,9 @@ func renderHTMLChart(w http.ResponseWriter, hits []*sws.Hit) error {
 func sparklineHandler(db sws.HitStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		domain, ok := ctx.Value("domain").(*sws.Domain)
+		site, ok := ctx.Value("site").(*sws.Site)
 		if !ok {
-			log("no domain in context")
+			log("no site in context")
 			http.Error(w, http.StatusText(422), 422)
 			return
 		}
@@ -44,7 +44,7 @@ func sparklineHandler(db sws.HitStore) http.HandlerFunc {
 		start := time.Unix(startSecs, 0)
 		end := time.Unix(endSecs, 0)
 
-		hits, err := db.GetHits(*domain, start, end, nil)
+		hits, err := db.GetHits(*site, start, end, nil)
 		if err != nil {
 			log(err)
 			http.Error(w, http.StatusText(404), 404)
@@ -76,7 +76,7 @@ func svgChartHandler(db sws.HitStore) http.HandlerFunc {
 		end := time.Unix(endSecs, 0)
 
 		ctx := r.Context()
-		domain, ok := ctx.Value("domain").(*sws.Domain)
+		site, ok := ctx.Value("site").(*sws.Site)
 		if !ok {
 			http.Error(w, http.StatusText(422), 422)
 			return
@@ -91,7 +91,7 @@ func svgChartHandler(db sws.HitStore) http.HandlerFunc {
 		// 	height, _ = strconv.Atoi(h)
 		// }
 
-		hits, err := db.GetHits(*domain, start, end, nil)
+		hits, err := db.GetHits(*site, start, end, nil)
 		if err != nil {
 			panic(err)
 		}
