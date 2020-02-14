@@ -19,15 +19,16 @@ type Hit struct {
 	Query    *string `json:"query,omitempty"`
 	Fragment *string `json:"fragment,omitempty"`
 
-	Title     *string `json:"title,omitempty"`
-	Referrer  *string `json:"referrer,omitempty"`
-	UserAgent *string `json:"user_agent,omitempty"`
-	ViewPort  *string `json:"view_port,omitempty"`
+	Title         *string `json:"title,omitempty"`
+	Referrer      *string `json:"referrer,omitempty"`
+	UserAgentHash *string `json:"user_agent_hash,omitempty"`
+	ViewPort      *string `json:"view_port,omitempty"`
 	//Features  map[string]string `json:"features,omitempty"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 
 	// TODO
-	Domain *Domain `json:"-"`
+	Domain    *Domain    `json:"-"`
+	UserAgent *UserAgent `json:"-"`
 }
 
 func (h Hit) String() string {
@@ -92,11 +93,15 @@ func HitFromRequest(r *http.Request) (*Hit, error) {
 	}
 
 	agent := q.Get("u")
-	if agent != "" {
-		out.UserAgent = &agent
-	} else {
-		s := r.UserAgent()
-		out.UserAgent = &s
+	if agent == "" {
+		agent = r.UserAgent()
+	}
+	uaHash := UserAgentHash(agent)
+	out.UserAgentHash = &uaHash
+	out.UserAgent = &UserAgent{
+		Hash:       uaHash,
+		Name:       agent,
+		LastSeenAt: time.Now(),
 	}
 
 	if view := q.Get("v"); view != "" {

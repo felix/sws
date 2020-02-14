@@ -74,6 +74,11 @@ func (s *Sqlite3) GetHits(d sws.Domain, start, end time.Time, f map[string]inter
 }
 
 func (s *Sqlite3) SaveHit(h *sws.Hit) error {
+	if h.UserAgent != nil {
+		if _, err := s.db.NamedExec(stmts["saveUserAgent"], *h.UserAgent); err != nil {
+			return err
+		}
+	}
 	if _, err := s.db.NamedExec(stmts["saveHit"], h); err != nil {
 		return err
 	}
@@ -91,12 +96,19 @@ created_at, updated_at from domains where id = $1 limit 1`,
 name, description, aliases, enabled, created_at, updated_at) values (:name,
 :description, :aliases, :enabled, :created_at, :updated_at)`,
 
+	"userAgentByHash": `select id, hash, name, last_seen_at from domains
+where hash = $1 limit 1`,
+
+	"saveUserAgent": `insert into user_agents (hash, name, last_seen_at)
+values (:hash, :name, :last_seen_at) on conflict(hash) do update set
+last_seen_at = :last_seen_at`,
+
 	"saveHit": `insert into hits (
-domain_id, addr, scheme, host, path, query, title, referrer, user_agent,
+domain_id, addr, scheme, host, path, query, title, referrer, user_agent_hash,
 view_port, created_at) values (:domain_id, :addr, :scheme, :host, :path, :query,
-:title, :referrer, :user_agent, :view_port, :created_at)`,
+:title, :referrer, :user_agent_hash, :view_port, :created_at)`,
 
 	"filterHits": `select domain_id, addr, scheme, host, path, title,
-referrer, user_agent, view_port, created_at from hits where created_at > :start
+referrer, user_agent_hash, view_port, created_at from hits where created_at > :start
 and created_at < :end`,
 }

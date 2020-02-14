@@ -26,7 +26,7 @@ func handleHitCounter(db sws.CounterStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		hit, err := sws.HitFromRequest(r)
 		if err != nil {
-			log("failed to create hit", err)
+			log("failed to extract hit", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
