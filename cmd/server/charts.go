@@ -29,7 +29,7 @@ func sparklineHandler(db sws.HitStore) http.HandlerFunc {
 			return
 		}
 
-		startSecs, err := strconv.ParseInt(chi.URLParam(r, "s"), 10, 64)
+		beginSecs, err := strconv.ParseInt(chi.URLParam(r, "b"), 10, 64)
 		if err != nil {
 			log(err)
 			http.Error(w, http.StatusText(404), 404)
@@ -41,10 +41,10 @@ func sparklineHandler(db sws.HitStore) http.HandlerFunc {
 			http.Error(w, http.StatusText(404), 404)
 			return
 		}
-		start := time.Unix(startSecs, 0)
+		begin := time.Unix(beginSecs, 0)
 		end := time.Unix(endSecs, 0)
 
-		hits, err := db.GetHits(*site, start, end, nil)
+		hits, err := db.GetHits(*site, begin, end, nil)
 		if err != nil {
 			log(err)
 			http.Error(w, http.StatusText(404), 404)
@@ -53,7 +53,7 @@ func sparklineHandler(db sws.HitStore) http.HandlerFunc {
 		debug("retrieved", len(hits), "hits")
 		data := sws.HitsToTimeBuckets(hits, time.Minute)
 		// Ensure the buckets start at the right time
-		data.Buckets = append([]sws.Bucket{{Time: start, Count: 0}}, data.Buckets...)
+		data.Buckets = append([]sws.Bucket{{Time: begin, Count: 0}}, data.Buckets...)
 
 		w.Header().Set("Content-Type", "image/svg+xml")
 		w.Header().Set("Cache-Control", "public")
@@ -63,7 +63,7 @@ func sparklineHandler(db sws.HitStore) http.HandlerFunc {
 
 func svgChartHandler(db sws.HitStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		startSecs, err := strconv.ParseInt(chi.URLParam(r, "s"), 10, 64)
+		beginSecs, err := strconv.ParseInt(chi.URLParam(r, "b"), 10, 64)
 		if err != nil {
 			log(err)
 			http.Error(w, http.StatusText(404), 404)
@@ -75,7 +75,7 @@ func svgChartHandler(db sws.HitStore) http.HandlerFunc {
 			http.Error(w, http.StatusText(404), 404)
 			return
 		}
-		start := time.Unix(startSecs, 0)
+		begin := time.Unix(beginSecs, 0)
 		end := time.Unix(endSecs, 0)
 
 		ctx := r.Context()
@@ -94,7 +94,7 @@ func svgChartHandler(db sws.HitStore) http.HandlerFunc {
 		// 	height, _ = strconv.Atoi(h)
 		// }
 
-		hits, err := db.GetHits(*site, start, end, nil)
+		hits, err := db.GetHits(*site, begin, end, nil)
 		if err != nil {
 			panic(err)
 		}

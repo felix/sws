@@ -61,11 +61,11 @@ func (s *Sqlite3) SaveSite(d *sws.Site) error {
 	return nil
 }
 
-func (s *Sqlite3) GetHits(d sws.Site, start, end time.Time, f map[string]interface{}) ([]*sws.Hit, error) {
+func (s *Sqlite3) GetHits(d sws.Site, begin, end time.Time, f map[string]interface{}) ([]*sws.Hit, error) {
 	pvs := make([]*sws.Hit, 0)
 
 	filter := map[string]interface{}{
-		"start": start,
+		"begin": begin,
 		"end":   end,
 	}
 
@@ -102,6 +102,36 @@ func (s *Sqlite3) SaveHit(h *sws.Hit) error {
 	return nil
 }
 
+func (s *Sqlite3) GetPages(d sws.Site, begin, end time.Time) ([]*sws.Page, error) {
+	pages := make([]*sws.Page, 0)
+
+	filter := map[string]interface{}{
+		"begin":   begin,
+		"end":     end,
+		"site_id": *d.ID,
+	}
+
+	sql := stmts["pages"]
+	// for k, v := range f {
+	// 	filter[k] = v
+	// 	sql += fmt.Sprintf("%s = :%s", k, k)
+	// }
+
+	rows, err := s.db.NamedQuery(sql, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		p := &sws.Page{}
+		if err := rows.StructScan(p); err != nil {
+			return pages, err
+		}
+		pages = append(pages, p)
+	}
+	return pages, nil
+}
+
 var stmts = map[string]string{
 	"sites": `select id, name, description, aliases, enabled,
 created_at, updated_at from sites`,
@@ -125,10 +155,14 @@ last_seen_at = :last_seen_at`,
 
 	"saveHit": `insert into hits (
 site_id, addr, scheme, host, path, query, title, referrer, user_agent_hash,
-view_port, created_at) values (:site_id, :addr, :scheme, :host, :path, :query,
-:title, :referrer, :user_agent_hash, :view_port, :created_at)`,
+view_port, no_script, created_at) values (:site_id, :addr, :scheme, :host, :path, :query,
+:title, :referrer, :user_agent_hash, :view_port, :no_script, :created_at)`,
+
+	"pages": `select site_id, path, title, max(created_at) as last_visited_at
+from hits where site_id = :site_id and created_at > :begin and
+created_at < :end group by path, site_id`,
 
 	"filterHits": `select site_id, addr, scheme, host, path, title,
-referrer, user_agent_hash, view_port, created_at from hits where created_at > :start
+referrer, user_agent_hash, view_port, no_script, created_at from hits where created_at > :begin
 and created_at < :end`,
 }

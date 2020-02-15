@@ -23,6 +23,7 @@ type Hit struct {
 	Referrer      *string `json:"referrer,omitempty"`
 	UserAgentHash *string `json:"user_agent_hash,omitempty"`
 	ViewPort      *string `json:"view_port,omitempty"`
+	NoScript      bool    `json:"no_script"`
 	//Features  map[string]string `json:"features,omitempty"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 
@@ -42,6 +43,10 @@ func (h Hit) String() string {
 }
 
 func HitFromRequest(r *http.Request) (*Hit, error) {
+	out := &Hit{
+		CreatedAt: ptrTime(time.Now()),
+	}
+
 	q := r.URL.Query()
 	host := q.Get("h")
 	ref, err := url.ParseRequestURI(r.Referer())
@@ -52,16 +57,14 @@ func HitFromRequest(r *http.Request) (*Hit, error) {
 		if ref.Host == "" {
 			return nil, fmt.Errorf("missing host")
 		}
+		out.NoScript = true
 		host = ref.Host
 	}
-	out := Hit{
-		Host:      &host,
-		CreatedAt: ptrTime(time.Now()),
-	}
+	out.Host = &host
 
 	scheme := q.Get("s")
 	if scheme != "" {
-		out.Scheme = &scheme
+		out.Scheme = ptrString(strings.TrimSuffix(scheme, ":"))
 	} else {
 		out.Scheme = &ref.Scheme
 	}
@@ -70,14 +73,16 @@ func HitFromRequest(r *http.Request) (*Hit, error) {
 	if path != "" {
 		out.Path = &path
 	} else {
-		out.Path = &ref.Path
+		out.Path = &ref.RawPath
 	}
 
 	query := q.Get("q")
 	if query != "" {
-		out.Path = &query
+		out.Query = &query
 	} else {
-		out.Path = &ref.Path
+		if ref.RawQuery != "" {
+			out.Query = ptrString("?" + ref.RawQuery)
+		}
 	}
 
 	if title := q.Get("t"); title != "" {
@@ -107,5 +112,5 @@ func HitFromRequest(r *http.Request) (*Hit, error) {
 	if view := q.Get("v"); view != "" {
 		out.ViewPort = &view
 	}
-	return &out, nil
+	return out, nil
 }

@@ -14,6 +14,7 @@ type SimpleSiteStore interface {
 type SiteStore interface {
 	GetSites() ([]*Site, error)
 	GetSiteByID(int) (*Site, error)
+	GetPages(Site, time.Time, time.Time) ([]*Page, error)
 	//SaveSite(*Site) error
 }
 

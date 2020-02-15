@@ -18,6 +18,7 @@ create table hits (
 	referrer varchar null,
 	user_agent_hash varchar null,
 	view_port varchar null,
+	no_script integer not null default 0,
 	created_at timestamp not null,
 	foreign key(user_agent_hash) references user_agents(hash)
 );

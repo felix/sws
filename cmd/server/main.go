@@ -119,13 +119,13 @@ func main() {
 		r.Get("/", handleSites(st, tmpls))
 		r.Route("/{siteID}", func(r chi.Router) {
 			r.Use(siteCtx)
-			r.Get("/", handleSite(st))
+			r.Get("/", handleSite(st, tmpls))
 			r.Route("/sparklines", func(r chi.Router) {
-				r.Get("/{s:\\d+}-{e:\\d+}.svg", sparklineHandler(st))
+				r.Get("/{b:\\d+}-{e:\\d+}.svg", sparklineHandler(st))
 			})
 			r.Route("/charts", func(r chi.Router) {
-				r.Get("/{s:\\d+}-{e:\\d+}.svg", svgChartHandler(st))
-				r.Get("/{s:\\d+}-{e:\\d+}.png", svgChartHandler(st))
+				r.Get("/{b:\\d+}-{e:\\d+}.svg", svgChartHandler(st))
+				r.Get("/{b:\\d+}-{e:\\d+}.png", svgChartHandler(st))
 			})
 		})
 	})

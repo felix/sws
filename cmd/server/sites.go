@@ -23,8 +23,32 @@ func handleSites(db sws.SiteStore, tmpls *template.Template) http.HandlerFunc {
 	}
 }
 
-func handleSite(db sws.SiteStore) http.HandlerFunc {
+func handleSite(db sws.SiteStore, tmpls *template.Template) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		return
+		ctx := r.Context()
+		site, ok := ctx.Value("site").(*sws.Site)
+		if !ok {
+			log("no site in context")
+			http.Error(w, http.StatusText(422), 422)
+			return
+		}
+		begin, end := extractTimeRange(r)
+		if begin == nil || end == nil {
+			log("invalid time range")
+			http.Error(w, http.StatusText(406), 406)
+			return
+		}
+		pages, err := db.GetPages(*site, *begin, *end)
+		if err != nil {
+			log(err)
+		}
+		payload := struct {
+			Site  *sws.Site
+			Pages []*sws.Page
+		}{
+			Site:  site,
+			Pages: pages,
+		}
+		tmpls.ExecuteTemplate(w, "site", payload)
 	}
 }

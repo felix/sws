@@ -13,3 +13,20 @@
 	</main>
 	{{ template "pageFoot" }}
 {{ end }}
+
+{{ define "site" }}
+	{{ template "pageHead" }}
+	{{ template "navMain" }}
+	<main>
+		<header>
+			<h1>{{ .Name }}</h1>
+			<span>{{ .Description }}</span>
+		</header>
+		<ul class="pages">
+			{{ range .Pages }}
+				{{ template "pageForList" . }}
+			{{ end }}
+		</ul>
+	</main>
+	{{ template "pageFoot" }}
+{{ end }}
