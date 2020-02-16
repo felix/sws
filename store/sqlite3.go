@@ -106,8 +106,8 @@ func (s *Sqlite3) GetPages(d sws.Site, begin, end time.Time) ([]*sws.Page, error
 	pages := make([]*sws.Page, 0)
 
 	filter := map[string]interface{}{
-		"begin":   begin,
-		"end":     end,
+		// "begin":   begin,
+		// "end":     end,
 		"site_id": *d.ID,
 	}
 
@@ -158,9 +158,9 @@ site_id, addr, scheme, host, path, query, title, referrer, user_agent_hash,
 view_port, no_script, created_at) values (:site_id, :addr, :scheme, :host, :path, :query,
 :title, :referrer, :user_agent_hash, :view_port, :no_script, :created_at)`,
 
-	"pages": `select site_id, path, title, max(created_at) as last_visited_at
-from hits where site_id = :site_id and created_at > :begin and
-created_at < :end group by path, site_id`,
+	"pages": `with latest as (select id, site_id, path, max(created_at) from
+hits group by site_id, path) select h.id, h.site_id, h.path,
+h.created_at as last_visited_at from hits h, latest l where l.id = h.id`,
 
 	"filterHits": `select site_id, addr, scheme, host, path, title,
 referrer, user_agent_hash, view_port, no_script, created_at from hits where created_at > :begin

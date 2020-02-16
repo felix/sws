@@ -11,6 +11,7 @@ console.log('me.sws:', me.dataset.sws)
 var _sws = w._sws || {xhr:true}
 console.log('_sws:', _sws)
 _sws.d = _sws.d || me.dataset.sws || 'http://sws.userspace.com.au/sws.gif'
+_sws.site = _sws.site || me.dataset.site
 console.log('using', _sws.d)
 
 function send (p, obj) {
@@ -46,6 +47,7 @@ var viewPort = (w.innerWidth || de.clientWidth || d.body.clientWidth)
 
 ready(function () {
   send(_sws.d, {
+    i: _sws.site,
     s: l.protocol,
     h: l.host,
     p: l.pathname,

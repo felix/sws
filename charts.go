@@ -43,7 +43,7 @@ func SparklineSVG(w io.Writer, data TimeBuckets, d time.Duration) error {
 		Style: gochart.Style{
 			Show:        true,
 			StrokeWidth: 2.0,
-			StrokeColor: drawing.Color{0, 0, 255, 100},
+			StrokeColor: drawing.Color{R: 0, G: 0, B: 255, A: 100},
 		},
 	}
 
@@ -82,9 +82,9 @@ func HitChartSVG(w io.Writer, data TimeBuckets, d time.Duration) error {
 		Style: gochart.Style{
 			Show:        true,
 			StrokeWidth: 2.0,
-			StrokeColor: drawing.Color{0, 0, 255, 100},
+			StrokeColor: drawing.Color{R: 0, G: 0, B: 255, A: 100},
 			DotColorProvider: func(_, _ gochart.Range, _ int, _, _ float64) drawing.Color {
-				return drawing.Color{21, 198, 148, 100}
+				return drawing.Color{R: 21, G: 198, B: 148, A: 100}
 			},
 			DotWidthProvider: func(_, _ gochart.Range, _ int, _, _ float64) float64 {
 				return 5

@@ -19,8 +19,10 @@
 	{{ template "navMain" }}
 	<main>
 		<header>
-			<h1>{{ .Name }}</h1>
-			<span>{{ .Description }}</span>
+			{{ with .Site }}
+				<h1>{{ .Name }}</h1>
+				<span>{{ .Description }}</span>
+			{{ end }}
 		</header>
 		<ul class="pages">
 			{{ range .Pages }}

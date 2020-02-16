@@ -96,6 +96,7 @@ func main() {
 		"partials/pageHead",
 		"partials/pageFoot",
 		"partials/siteForList",
+		"partials/pageForList",
 	}, funcMap))
 	debug(tmpls.DefinedTemplates())
 
@@ -133,6 +134,7 @@ func main() {
 
 	// Example
 	r.Get("/test.html", handleExample(tmpls))
+	r.Get("/test-again.html", handleExample(tmpls))
 
 	log("listening at", *addr)
 	http.ListenAndServe(*addr, r)

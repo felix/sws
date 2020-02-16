@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -48,19 +49,32 @@ func HitFromRequest(r *http.Request) (*Hit, error) {
 	}
 
 	q := r.URL.Query()
-	host := q.Get("h")
+	siteIDs := q.Get("i")
+	if siteIDs == "" {
+		if siteIDs = q.Get("site"); siteIDs == "" {
+			return nil, fmt.Errorf("missing site")
+		}
+	}
+	siteID, err := strconv.Atoi(siteIDs)
+	if err != nil {
+		return nil, fmt.Errorf("invalid site")
+	}
+	out.SiteID = &siteID
+
+	// Host and referrer
 	ref, err := url.ParseRequestURI(r.Referer())
 	if err != nil || ref == nil {
 		ref = new(url.URL)
 	}
+	host := q.Get("h")
 	if host == "" {
-		if ref.Host == "" {
-			return nil, fmt.Errorf("missing host")
-		}
-		out.NoScript = true
 		host = ref.Host
 	}
 	out.Host = &host
+
+	if h := r.Header.Get("HTTP_X_REQUESTED_WITH"); h == "" {
+		out.NoScript = true
+	}
 
 	scheme := q.Get("s")
 	if scheme != "" {

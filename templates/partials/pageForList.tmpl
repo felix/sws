@@ -1,0 +1,7 @@
+{{ define "pageForList" }}
+<li>
+	<span class="path">{{ .Path }}</a>
+	<span class="title">{{ .Title }}</span>
+	<span class="last-visit">{{ .LastVisitedAt.Unix }}</span>
+</li>
+{{ end }}
