@@ -1,0 +1,10 @@
+{{ define "barChart" }}
+	<ul class="chart">
+		{{ $max := .CountMax }}
+		{{ range .Buckets }}
+			<li class="slot" data-date="{{ .Time|timeHour }}" data-count="{{ .Count }}">
+				<div class="bar" style="height:{{ percent .Count $max }}%" />
+			</li>
+		{{ end }}
+	</ul>
+{{ end }}

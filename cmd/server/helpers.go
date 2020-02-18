@@ -16,6 +16,21 @@ var funcMap = template.FuncMap{
 		then := now.Add(-24 * time.Hour)
 		return fmt.Sprintf("/sites/%d/sparklines/%d-%d.svg", id, then.Unix(), now.Unix())
 	},
+	"timeShort": func(t time.Time) string {
+		return t.Format("2006-01-02 15:04")
+	},
+	"timeLong": func(t time.Time) string {
+		return t.Format(time.RFC3339)
+	},
+	"timeHour": func(t time.Time) string {
+		return t.Format("15:04")
+	},
+	"percent": func(a, b int) float64 {
+		return (float64(a) / float64(b)) * 100
+	},
+	"percentInv": func(a, b int) float64 {
+		return 100.0 - ((float64(a) / float64(b)) * 100)
+	},
 }
 
 func extractTimeRange(r *http.Request) (*time.Time, *time.Time) {

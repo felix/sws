@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -25,6 +26,7 @@ var (
 	verbose   *bool
 	addr      *string
 	dsn       *string
+	static    *string
 	noMigrate *bool
 )
 
@@ -34,6 +36,7 @@ func init() {
 	verbose = boolFlag("verbose", "v", false, "VERBOSE", "enable verbose output")
 	addr = stringFlag("listen", "l", "localhost:5000", "LISTEN", "listen address")
 	dsn = stringFlag("dsn", "", "file:sws.db?cache=shared", "DSN", "database password")
+	static = stringFlag("static", "", "./public", "STATIC", "path for static assets")
 	noMigrate = boolFlag("no-migrate", "m", false, "NOMIGRATE", "disable migrations")
 
 	// Default to no log
@@ -97,6 +100,7 @@ func main() {
 		"partials/pageFoot",
 		"partials/siteForList",
 		"partials/pageForList",
+		"partials/barChart",
 	}, funcMap))
 	debug(tmpls.DefinedTemplates())
 
@@ -130,14 +134,44 @@ func main() {
 			})
 		})
 	})
-	r.Get("/", handleIndex(tmpls))
+	http.Handle("/", http.FileServer(http.Dir("/tmp")))
+
+	staticPath, err := filepath.Abs(*static)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "invalid static path: %s", err)
+		os.Exit(2)
+	}
 
 	// Example
 	r.Get("/test.html", handleExample(tmpls))
 	r.Get("/test-again.html", handleExample(tmpls))
 
+	r.Route("/", func(r chi.Router) {
+		r.Get("/", handleIndex(tmpls))
+
+		fileServer(r, filepath.Dir(staticPath), "/", http.Dir(staticPath))
+	})
+
 	log("listening at", *addr)
 	http.ListenAndServe(*addr, r)
+}
+
+func fileServer(r chi.Router, basePath string, path string, root http.FileSystem) {
+	if strings.ContainsAny(path, "{}*") {
+		panic("FileServer does not permit URL parameters.")
+	}
+
+	fs := http.StripPrefix("/", http.FileServer(root))
+
+	if path != "/" && path[len(path)-1] != '/' {
+		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		path += "/"
+	}
+	path += "*"
+
+	r.Get(path, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fs.ServeHTTP(w, r)
+	}))
 }
 
 func getSiteCtx(db sws.SiteStore) func(http.Handler) http.Handler {

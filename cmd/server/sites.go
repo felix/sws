@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"net/http"
+	"time"
 
 	"src.userspace.com.au/sws"
 )
@@ -38,16 +39,30 @@ func handleSite(db sws.SiteStore, tmpls *template.Template) http.HandlerFunc {
 			http.Error(w, http.StatusText(406), 406)
 			return
 		}
+
 		pages, err := db.GetPages(*site, map[string]interface{}{"begin": *begin, "end": *end})
 		if err != nil {
 			log(err)
 		}
+
+		hits, err := db.GetHits(*site, map[string]interface{}{
+			"begin": *begin,
+			"end":   *end,
+		})
+		if err != nil {
+			log(err)
+		}
+		buckets := sws.HitsToTimeBuckets(hits, time.Hour)
+		buckets.Fill(begin, end)
+
 		payload := struct {
 			Site  *sws.Site
 			Pages []*sws.Page
+			Hits  sws.TimeBuckets
 		}{
 			Site:  site,
 			Pages: pages,
+			Hits:  buckets,
 		}
 		tmpls.ExecuteTemplate(w, "site", payload)
 	}

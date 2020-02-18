@@ -3,21 +3,11 @@ package main
 import (
 	"net/http"
 	"strconv"
-	"text/template"
 	"time"
 
 	"github.com/go-chi/chi"
 	"src.userspace.com.au/sws"
 )
-
-func renderHTMLChart(w http.ResponseWriter, hits []*sws.Hit) error {
-	buckets := sws.HitsToTimeBuckets(hits, time.Minute)
-
-	t := template.New("chart")
-	t, _ = t.Parse(barChart)
-	t.Execute(w, buckets)
-	return nil
-}
 
 func sparklineHandler(db sws.HitStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -113,13 +103,3 @@ func svgChartHandler(db sws.HitStore) http.HandlerFunc {
 		sws.HitChartSVG(w, data, time.Minute)
 	}
 }
-
-const (
-	barChart = `
-<dl class="chart">
-{{ range .Buckets }}
-  <dt class="date">{{ .Time }}</dt>
-  <dd class="bar">{{ .Count }}</dd>
-{{ end }}
-</dl>`
-)

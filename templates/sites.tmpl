@@ -24,6 +24,9 @@
 				<span>{{ .Description }}</span>
 			{{ end }}
 		</header>
+		<fig>
+		{{ template "barChart" .Hits }}
+		</fig>
 		<ul class="pages">
 			{{ range .Pages }}
 				{{ template "pageForList" . }}

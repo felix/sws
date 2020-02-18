@@ -8,13 +8,14 @@ import (
 const slugSalt = "saltyslugs"
 
 type Site struct {
-	ID          *int       `json:"id,omitempty"`
-	Name        *string    `json:"name,omitempty"`
-	Description string     `json:"description,omitempty"`
-	Aliases     *string    `json:"aliases,omitempty"`
-	Enabled     bool       `json:"enabled"`
-	CreatedAt   *time.Time `json:"created_at,omitempty"`
-	UpdatedAt   *time.Time `json:"updated_at,omitempty"`
+	ID          *int    `json:"id,omitempty"`
+	Name        *string `json:"name,omitempty"`
+	Description string  `json:"description,omitempty"`
+	Aliases     *string `json:"aliases,omitempty"`
+	Enabled     bool    `json:"enabled"`
+	//ExcludePaths []string
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 }
 
 func (d *Site) Validate() []error {

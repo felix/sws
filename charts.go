@@ -135,11 +135,14 @@ func HitChartSVG(w io.Writer, data TimeBuckets, d time.Duration) error {
 	return nil
 }
 
-func HitChartHTML(w io.Writer, data TimeBuckets, d time.Duration) error {
+func HitChartHTML(w io.Writer, data TimeBuckets, d time.Duration) (int, error) {
 	var out strings.Builder
+	out.WriteString(`<div class="chart">`)
 	for _, b := range data.Buckets {
 		h := (b.Count / data.CountMax) * 100
-		out.WriteString(`<div class="bar" style="height:` + strconv.Itoa(h) + `" />`)
+		toolTip := fmt.Sprintf("%s: %d hits", b.Time, b.Count)
+		out.WriteString(`<div class="bar" title="` + toolTip + `" style="height:` + strconv.Itoa(h) + `" />`)
 	}
-	return nil
+	out.WriteString(`</div>`)
+	return fmt.Fprintf(w, out.String())
 }
