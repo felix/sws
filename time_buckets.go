@@ -7,10 +7,10 @@ import (
 )
 
 type TimeBuckets struct {
-	Duration         time.Duration
-	TimeMin, TimeMax time.Time
-	//CountMin, CountMax int
-	Buckets []Bucket
+	Duration           time.Duration
+	TimeMin, TimeMax   time.Time
+	CountMin, CountMax int
+	Buckets            []Bucket
 }
 
 type Bucket struct {
@@ -18,20 +18,23 @@ type Bucket struct {
 	Count int
 }
 
-func (tb TimeBuckets) FilledXYValues() ([]time.Time, []float64) {
+// XYValues splits the buckets into two data series, one with the times
+// and the other with the values.
+func (tb TimeBuckets) XYValues() ([]time.Time, []float64) {
 	x := make([]time.Time, len(tb.Buckets))
 	y := make([]float64, len(tb.Buckets))
 	for i, b := range tb.Buckets {
 		x[i] = b.Time
 		y[i] = float64(b.Count)
 	}
-	return durationsFilled(x, y, tb.Duration)
+	return x, y
 }
 
 func (b Bucket) String() string {
 	return fmt.Sprintf("%s => %d", b.Time, b.Count)
 }
 
+// HitsToTimeBuckets converts a slice of hits to time buckets, group by durtation.
 func HitsToTimeBuckets(hits []*Hit, d time.Duration) TimeBuckets {
 	out := TimeBuckets{
 		Duration: d,
@@ -56,22 +59,51 @@ func HitsToTimeBuckets(hits []*Hit, d time.Duration) TimeBuckets {
 			out.Buckets = append(out.Buckets, Bucket{Time: k, Count: 1})
 		}
 	}
-	sort.Slice(out.Buckets, func(i, j int) bool {
-		return out.Buckets[i].Time.Before(out.Buckets[j].Time)
-	})
+	out.Sort()
 	return out
 }
 
-// TODO pull from chart upstream
-func durations(start time.Time, total int, d time.Duration) []time.Time {
-	times := make([]time.Time, total)
+// Sort order the buckets in ascending order by time.
+func (tb *TimeBuckets) Sort() {
+	sort.Slice(tb.Buckets, func(i, j int) bool {
+		return tb.Buckets[i].Time.Before(tb.Buckets[j].Time)
+	})
+}
 
-	last := start
-	for i := 0; i < total; i++ {
-		times[i] = last
-		last = last.Add(d)
+// Fill adds extra buckets so each duration segment has a bucket.
+// If no begin or end times are provided it uses the existing min and max times.
+func (tb *TimeBuckets) Fill(b, e *time.Time) {
+	begin := tb.TimeMin
+	if b != nil {
+		begin = *b
 	}
-	return times
+	end := tb.TimeMax
+	if e != nil {
+		end = *e
+	}
+
+	total := diffDurations(begin, end, tb.Duration)
+	tb.Sort()
+
+	newBuckets := make([]Bucket, total)
+
+	var existing int
+	var idx int
+	for n := begin; idx < total && !n.After(end); n = n.Add(tb.Duration) {
+		switch {
+		case existing >= len(tb.Buckets):
+			newBuckets[idx] = Bucket{Time: n, Count: 0}
+
+		case n.Before(tb.Buckets[existing].Time):
+			newBuckets[idx] = Bucket{Time: n, Count: 0}
+
+		default:
+			newBuckets[idx] = tb.Buckets[existing]
+			existing++
+		}
+		idx++
+	}
+	tb.Buckets = newBuckets
 }
 
 func diffDurations(t1, t2 time.Time, d time.Duration) int {
@@ -84,38 +116,4 @@ func diffDurations(t1, t2 time.Time, d time.Duration) int {
 		diff = t2n - t1n
 	}
 	return int(float64(diff) / d.Seconds())
-}
-
-func timeMinMax(times ...time.Time) (min, max time.Time) {
-	if len(times) == 0 {
-		return
-	}
-	min = times[0]
-	max = times[0]
-
-	for index := 1; index < len(times); index++ {
-		if times[index].Before(min) {
-			min = times[index]
-		}
-		if times[index].After(max) {
-			max = times[index]
-		}
-	}
-	return
-}
-
-func durationsFilled(xdata []time.Time, ydata []float64, d time.Duration) ([]time.Time, []float64) {
-	start, end := timeMinMax(xdata...)
-	totalHours := diffDurations(start, end, d)
-
-	finalTimes := durations(start, totalHours+1, d)
-	finalValues := make([]float64, totalHours+1)
-
-	var hoursFromStart int
-	for i, xd := range xdata {
-		hoursFromStart = diffDurations(start, xd, d)
-		finalValues[hoursFromStart] = ydata[i]
-	}
-
-	return finalTimes, finalValues
 }

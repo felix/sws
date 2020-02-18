@@ -3,6 +3,8 @@ package sws
 import (
 	"fmt"
 	"io"
+	"strconv"
+	"strings"
 	"time"
 
 	gochart "github.com/wcharczuk/go-chart"
@@ -47,7 +49,7 @@ func SparklineSVG(w io.Writer, data TimeBuckets, d time.Duration) error {
 		},
 	}
 
-	hits.XValues, hits.YValues = data.FilledXYValues()
+	hits.XValues, hits.YValues = data.XYValues()
 
 	graph := gochart.Chart{
 		Width:  300,
@@ -93,7 +95,7 @@ func HitChartSVG(w io.Writer, data TimeBuckets, d time.Duration) error {
 		//YAxis:   gochart.YAxisSecondary,
 	}
 
-	hits.XValues, hits.YValues = data.FilledXYValues()
+	hits.XValues, hits.YValues = data.XYValues()
 
 	graph := gochart.Chart{
 		Width:  400,
@@ -130,5 +132,14 @@ func HitChartSVG(w io.Writer, data TimeBuckets, d time.Duration) error {
 	// }
 
 	graph.Render(gochart.SVG, w)
+	return nil
+}
+
+func HitChartHTML(w io.Writer, data TimeBuckets, d time.Duration) error {
+	var out strings.Builder
+	for _, b := range data.Buckets {
+		h := (b.Count / data.CountMax) * 100
+		out.WriteString(`<div class="bar" style="height:` + strconv.Itoa(h) + `" />`)
+	}
 	return nil
 }

@@ -43,8 +43,12 @@ func sparklineHandler(db sws.HitStore) http.HandlerFunc {
 		}
 		begin := time.Unix(beginSecs, 0)
 		end := time.Unix(endSecs, 0)
+		filter := map[string]interface{}{
+			"begin": begin,
+			"end":   end,
+		}
 
-		hits, err := db.GetHits(*site, begin, end, nil)
+		hits, err := db.GetHits(*site, filter)
 		if err != nil {
 			log(err)
 			http.Error(w, http.StatusText(404), 404)
@@ -52,8 +56,8 @@ func sparklineHandler(db sws.HitStore) http.HandlerFunc {
 		}
 		debug("retrieved", len(hits), "hits")
 		data := sws.HitsToTimeBuckets(hits, time.Minute)
-		// Ensure the buckets start at the right time
-		data.Buckets = append([]sws.Bucket{{Time: begin, Count: 0}}, data.Buckets...)
+		// Ensure the buckets start and end at the right time
+		data.Fill(&begin, &end)
 
 		w.Header().Set("Content-Type", "image/svg+xml")
 		w.Header().Set("Cache-Control", "public")
@@ -94,13 +98,16 @@ func svgChartHandler(db sws.HitStore) http.HandlerFunc {
 		// 	height, _ = strconv.Atoi(h)
 		// }
 
-		hits, err := db.GetHits(*site, begin, end, nil)
+		hits, err := db.GetHits(*site, map[string]interface{}{
+			"begin": begin, "end": end,
+		})
 		if err != nil {
 			panic(err)
 		}
 		debug("retrieved", len(hits), "hits")
 
 		data := sws.HitsToTimeBuckets(hits, time.Minute)
+		data.Fill(&begin, &end)
 
 		w.Header().Set("Content-Type", "image/svg+xml")
 		sws.HitChartSVG(w, data, time.Minute)
