@@ -60,6 +60,7 @@ func HitsToTimeBuckets(hits []*Hit, d time.Duration) TimeBuckets {
 		}
 	}
 	out.Sort()
+	out.updateMinMax()
 	return out
 }
 
@@ -103,7 +104,36 @@ func (tb *TimeBuckets) Fill(b, e *time.Time) {
 		}
 		idx++
 	}
+	tb.updateMinMax()
 	tb.Buckets = newBuckets
+}
+
+func (tb *TimeBuckets) updateMinMax() {
+	if len(tb.Buckets) < 1 {
+		return
+	}
+	minC := tb.Buckets[0].Count
+	maxC := tb.Buckets[0].Count
+	minT := tb.Buckets[0].Time
+	maxT := tb.Buckets[0].Time
+	for _, b := range tb.Buckets {
+		if b.Count < minC {
+			minC = b.Count
+		}
+		if b.Count > maxC {
+			maxC = b.Count
+		}
+		if b.Time.Before(minT) {
+			minT = b.Time
+		}
+		if b.Time.After(maxT) {
+			maxT = b.Time
+		}
+	}
+	tb.TimeMin = minT
+	tb.TimeMax = maxT
+	tb.CountMin = minC
+	tb.CountMax = maxC
 }
 
 func diffDurations(t1, t2 time.Time, d time.Duration) int {
