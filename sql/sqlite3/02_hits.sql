@@ -23,3 +23,4 @@ create table hits (
 	foreign key(user_agent_hash) references user_agents(hash)
 );
 create index "hits#site_id#created" on hits(site_id, created_at);
+create index "hits#site_id#path" on hits(site_id, path);

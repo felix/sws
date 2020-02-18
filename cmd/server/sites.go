@@ -38,7 +38,7 @@ func handleSite(db sws.SiteStore, tmpls *template.Template) http.HandlerFunc {
 			http.Error(w, http.StatusText(406), 406)
 			return
 		}
-		pages, err := db.GetPages(*site, *begin, *end)
+		pages, err := db.GetPages(*site, map[string]interface{}{"begin": *begin, "end": *end})
 		if err != nil {
 			log(err)
 		}
