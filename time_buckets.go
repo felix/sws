@@ -41,7 +41,7 @@ func HitsToTimeBuckets(hits []*Hit, d time.Duration) TimeBuckets {
 		Buckets:  make([]Bucket, 0),
 	}
 	for j, h := range hits {
-		k := h.CreatedAt.Round(d)
+		k := h.CreatedAt.Truncate(d)
 		if j == 0 || k.Before(out.TimeMin) {
 			out.TimeMin = k
 		}

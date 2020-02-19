@@ -23,7 +23,7 @@ var funcMap = template.FuncMap{
 		return t.Format(time.RFC3339)
 	},
 	"timeHour": func(t time.Time) string {
-		return t.Format("15:04")
+		return t.Format("15:04 Jan 2")
 	},
 	"percent": func(a, b int) float64 {
 		return (float64(a) / float64(b)) * 100
@@ -34,7 +34,7 @@ var funcMap = template.FuncMap{
 }
 
 func extractTimeRange(r *http.Request) (*time.Time, *time.Time) {
-	begin := timePtr(time.Now().Add(-24 * time.Hour))
+	begin := timePtr(time.Now().Round(time.Hour).Add(-168 * time.Hour))
 	end := timePtr(time.Now())
 	q := r.URL.Query()
 	if b := q.Get("begin"); b != "" {
