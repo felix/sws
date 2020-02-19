@@ -42,11 +42,6 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 			return
 		}
 
-		pages, err := db.GetPages(*site, map[string]interface{}{"begin": *begin, "end": *end})
-		if err != nil {
-			log(err)
-		}
-
 		hits, err := db.GetHits(*site, map[string]interface{}{
 			"begin": *begin,
 			"end":   *end,
@@ -54,17 +49,23 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 		if err != nil {
 			log(err)
 		}
+
+		pages := sws.PagesFromHits(hits)
+		browsers := sws.BrowsersFromHits(hits)
+
 		buckets := sws.HitsToTimeBuckets(hits, time.Hour)
 		buckets.Fill(begin, end)
 
 		payload := struct {
-			Site  *sws.Site
-			Pages []*sws.Page
-			Hits  sws.TimeBuckets
+			Site     *sws.Site
+			Pages    map[string]*sws.Page
+			Browsers map[string]*sws.Browser
+			Hits     sws.TimeBuckets
 		}{
-			Site:  site,
-			Pages: pages,
-			Hits:  buckets,
+			Site:     site,
+			Pages:    pages,
+			Browsers: browsers,
+			Hits:     buckets,
 		}
 		if err := rndr.Render(w, "site", payload); err != nil {
 			log(err)

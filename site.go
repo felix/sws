@@ -14,8 +14,8 @@ type Site struct {
 	Aliases     *string `json:"aliases,omitempty"`
 	Enabled     bool    `json:"enabled"`
 	//ExcludePaths []string
-	CreatedAt *time.Time `json:"created_at,omitempty"`
-	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty" db:"updated_at"`
 }
 
 func (d *Site) Validate() []error {

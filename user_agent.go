@@ -14,7 +14,7 @@ var botFromSiteRegexp = regexp.MustCompile("http[s]?://.+\\.\\w+")
 type UserAgent struct {
 	Hash       string    `json:"hash"`
 	Name       string    `json:"name"`
-	LastSeenAt time.Time `json:"last_seen_at"`
+	LastSeenAt time.Time `json:"last_seen_at" db:"last_seen_at"`
 }
 
 func (ua UserAgent) Bot() bool {

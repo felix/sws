@@ -10,32 +10,31 @@ import (
 )
 
 type Hit struct {
-	ID     *int    `json:"id"`
-	SiteID *int    `json:"site_id,omitempty"`
-	Addr   *string `json:"addr,omitempty"`
+	ID     *int   `json:"id"`
+	SiteID *int   `json:"site_id" db:"site_id"`
+	Addr   string `json:"addr"`
 	// URL components
-	Scheme   *string `json:"scheme,omitempty"`
-	Host     *string `json:"host,omitempty"`
-	Path     *string `json:"path,omitempty"`
-	Query    *string `json:"query,omitempty"`
-	Fragment *string `json:"fragment,omitempty"`
+	Scheme string  `json:"scheme"`
+	Host   string  `json:"host"`
+	Path   string  `json:"path"`
+	Query  *string `json:"query,omitempty"`
 
-	Title         *string `json:"title,omitempty"`
-	Referrer      *string `json:"referrer,omitempty"`
-	UserAgentHash *string `json:"user_agent_hash,omitempty"`
-	ViewPort      *string `json:"view_port,omitempty"`
-	NoScript      bool    `json:"no_script"`
+	Title         *string   `json:"title,omitempty"`
+	Referrer      *string   `json:"referrer,omitempty"`
+	UserAgentHash *string   `json:"user_agent_hash,omitempty" db:"user_agent_hash"`
+	ViewPort      *string   `json:"view_port,omitempty" db:"view_port"`
+	NoScript      bool      `json:"no_script" db:"no_script"`
+	CreatedAt     time.Time `json:"created_at" db:"created_at"`
 	//Features  map[string]string `json:"features,omitempty"`
-	CreatedAt *time.Time `json:"created_at,omitempty"`
 
 	// TODO
-	Site      *Site      `json:"-"`
-	UserAgent *UserAgent `json:"-"`
+	//Site *Site `db:"s"`
+	UserAgent *UserAgent `db:"ua"`
 }
 
 func (h Hit) String() string {
 	var out strings.Builder
-	for _, sp := range []*string{h.Scheme, h.Host, h.Path, h.Query, h.Fragment} {
+	for _, sp := range []*string{&h.Scheme, &h.Host, &h.Path, h.Query} {
 		if sp != nil {
 			out.WriteString(*sp)
 		}
@@ -45,7 +44,8 @@ func (h Hit) String() string {
 
 func HitFromRequest(r *http.Request) (*Hit, error) {
 	out := &Hit{
-		CreatedAt: ptrTime(time.Now()),
+		CreatedAt: time.Now(),
+		Addr:      r.RemoteAddr,
 	}
 
 	q := r.URL.Query()
@@ -70,7 +70,7 @@ func HitFromRequest(r *http.Request) (*Hit, error) {
 	if host == "" {
 		host = ref.Host
 	}
-	out.Host = &host
+	out.Host = host
 
 	if h := r.Header.Get("HTTP_X_REQUESTED_WITH"); h == "" {
 		out.NoScript = true
@@ -78,16 +78,16 @@ func HitFromRequest(r *http.Request) (*Hit, error) {
 
 	scheme := q.Get("s")
 	if scheme != "" {
-		out.Scheme = ptrString(strings.TrimSuffix(scheme, ":"))
+		out.Scheme = strings.TrimSuffix(scheme, ":")
 	} else {
-		out.Scheme = &ref.Scheme
+		out.Scheme = ref.Scheme
 	}
 
 	path := q.Get("p")
 	if path != "" {
-		out.Path = &path
+		out.Path = path
 	} else {
-		out.Path = &ref.RawPath
+		out.Path = ref.RawPath
 	}
 
 	query := q.Get("q")

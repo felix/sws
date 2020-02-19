@@ -31,14 +31,14 @@ func handleHitCounter(db sws.CounterStore) http.HandlerFunc {
 			return
 		}
 
-		site, err := db.GetSiteByName(*hit.Host)
+		site, err := db.GetSiteByName(hit.Host)
 		if err != nil {
 			log("failed to get site", err)
 			http.Error(w, "invalid site", http.StatusNotFound)
 			return
 		}
 		hit.SiteID = site.ID
-		hit.Addr = &r.RemoteAddr
+		hit.Addr = r.RemoteAddr
 
 		if err := db.SaveHit(hit); err != nil {
 			log("failed to save hit", err)

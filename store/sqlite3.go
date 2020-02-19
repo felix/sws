@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/jmoiron/sqlx/reflectx"
+	//"github.com/jmoiron/sqlx/reflectx"
 	"src.userspace.com.au/sws"
 )
 
@@ -14,7 +14,7 @@ type Sqlite3 struct {
 }
 
 func NewSqlite3Store(db *sqlx.DB) *Sqlite3 {
-	db.Mapper = reflectx.NewMapperFunc("json", strings.ToLower)
+	//db.Mapper = reflectx.NewMapperFunc("json", strings.ToLower)
 	return &Sqlite3{db}
 }
 
@@ -61,7 +61,7 @@ func (s *Sqlite3) SaveSite(d *sws.Site) error {
 }
 
 func (s *Sqlite3) GetHits(d sws.Site, filter map[string]interface{}) ([]*sws.Hit, error) {
-	pvs := make([]*sws.Hit, 0)
+	hits := make([]*sws.Hit, 0)
 
 	sql := stmts["hits"]
 	filter["site_id"] = *d.ID
@@ -72,15 +72,14 @@ func (s *Sqlite3) GetHits(d sws.Site, filter map[string]interface{}) ([]*sws.Hit
 		return nil, err
 	}
 	defer rows.Close()
-
 	for rows.Next() {
-		pv := &sws.Hit{}
-		if err := rows.StructScan(pv); err != nil {
-			return pvs, err
+		h := &sws.Hit{}
+		if err := rows.StructScan(h); err != nil {
+			return hits, err
 		}
-		pvs = append(pvs, pv)
+		hits = append(hits, h)
 	}
-	return pvs, nil
+	return hits, nil
 }
 
 func (s *Sqlite3) SaveHit(h *sws.Hit) error {
@@ -93,38 +92,6 @@ func (s *Sqlite3) SaveHit(h *sws.Hit) error {
 		return err
 	}
 	return nil
-}
-
-func (s *Sqlite3) GetPages(d sws.Site, filter map[string]interface{}) ([]*sws.Page, error) {
-	pages := make([]*sws.Page, 0)
-
-	sql := stmts["pages"]
-	filter["h.site_id"] = *d.ID
-	for k, _ := range filter {
-		sql += " and"
-		switch k {
-		case "begin":
-			sql += fmt.Sprintf(" l.created_at > :%s", k)
-		case "end":
-			sql += fmt.Sprintf(" l.created_at < :%s", k)
-		default:
-			sql += fmt.Sprintf(" %s = :%s", k, k)
-		}
-	}
-
-	rows, err := s.db.NamedQuery(sql, filter)
-	if err != nil {
-		return nil, err
-	}
-
-	for rows.Next() {
-		p := &sws.Page{}
-		if err := rows.StructScan(p); err != nil {
-			return pages, err
-		}
-		pages = append(pages, p)
-	}
-	return pages, nil
 }
 
 func processFilter(sql *string, filter map[string]interface{}) {
@@ -177,14 +144,9 @@ view_port, no_script, created_at)
 values (:site_id, :addr, :scheme, :host, :path, :query, :title, :referrer,
 :user_agent_hash, :view_port, :no_script, :created_at)`,
 
-	"pages": `with latest as (select site_id, path, max(created_at) as created_at
-from hits group by site_id, path)
-select h.site_id, h.path, h.created_at as last_visited_at
-from hits h, latest l
-where l.site_id = h.site_id and l.path = h.path and h.created_at = l.created_at`,
-
-	"hits": `select site_id, addr, scheme, host, path, title,
-referrer, user_agent_hash, view_port, no_script, created_at
-from hits
-where site_id = :site_id`,
+	"hits": `select h.*,
+ua.hash as "ua.hash", ua.name as "ua.name", ua.last_seen_at as "ua.last_seen_at"
+from hits h
+join user_agents ua on h.user_agent_hash = ua.hash
+where h.site_id = :site_id`,
 }

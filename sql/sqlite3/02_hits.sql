@@ -8,7 +8,7 @@ create table user_agents (
 
 create table hits (
 	id integer primary key autoincrement,
-	site_id integer check(site_id >0),
+	site_id integer not null,
 	addr varchar not null,
 	scheme varchar not null,
 	host varchar not null,

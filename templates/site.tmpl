@@ -15,6 +15,12 @@
 				{{ template "pageForList" . }}
 			{{ end }}
 		</ul>
+		<h2>Browsers</h2>
+		<ul class="browsers">
+			{{ range .Browsers }}
+				{{ template "browserForList" . }}
+			{{ end }}
+		</ul>
 	</main>
 {{ end }}
 
@@ -22,6 +28,16 @@
 <li>
 	<h4 class="path">{{ .Path }}</h4>
 	<span class="title">{{ .Title }}</span>
-	<span class="last-visit">{{ .LastVisitedAt.Unix }}</span>
+	<span class="last-visit">{{ .LastVisitedAt|timeLong }}</span>
+	<span class="count">{{ .Count }}</span>
+</li>
+{{ end }}
+
+{{ define "browserForList" }}
+<li>
+	<h4 class="browser">{{ .Name }}</h4>
+	<span class="user-agent">{{ .UserAgent }}</span>
+	<span class="last-seen">{{ .LastSeenAt|timeLong }}</span>
+	<span class="count">{{ .Count }}</span>
 </li>
 {{ end }}
