@@ -15,10 +15,10 @@
 				{{ template "pageForList" . }}
 			{{ end }}
 		</ul>
-		<h2>Browsers</h2>
-		<ul class="browsers">
-			{{ range .Browsers }}
-				{{ template "browserForList" . }}
+		<h2>User Agents</h2>
+		<ul class="agents">
+			{{ range .UserAgents }}
+				{{ template "uaForList" . }}
 			{{ end }}
 		</ul>
 	</main>
@@ -33,10 +33,10 @@
 </li>
 {{ end }}
 
-{{ define "browserForList" }}
+{{ define "uaForList" }}
 <li>
-	<h4 class="browser">{{ .Name }}</h4>
-	<span class="user-agent">{{ .UserAgent }}</span>
+	<h4 class="engine">{{ .Browser }}</h4>
+	<span class="user-agent">{{ .Name }}</span>
 	<span class="last-seen">{{ .LastSeenAt|timeLong }}</span>
 	<span class="count">{{ .Count }}</span>
 </li>

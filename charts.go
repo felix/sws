@@ -3,8 +3,6 @@ package sws
 import (
 	"fmt"
 	"io"
-	"strconv"
-	"strings"
 	"time"
 
 	gochart "github.com/wcharczuk/go-chart"
@@ -133,16 +131,4 @@ func HitChartSVG(w io.Writer, data TimeBuckets, d time.Duration) error {
 
 	graph.Render(gochart.SVG, w)
 	return nil
-}
-
-func HitChartHTML(w io.Writer, data TimeBuckets, d time.Duration) (int, error) {
-	var out strings.Builder
-	out.WriteString(`<div class="chart">`)
-	for _, b := range data.Buckets {
-		h := (b.Count / data.CountMax) * 100
-		toolTip := fmt.Sprintf("%s: %d hits", b.Time, b.Count)
-		out.WriteString(`<div class="bar" title="` + toolTip + `" style="height:` + strconv.Itoa(h) + `" />`)
-	}
-	out.WriteString(`</div>`)
-	return fmt.Fprintf(w, out.String())
 }

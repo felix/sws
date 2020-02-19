@@ -51,21 +51,21 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 		}
 
 		pages := sws.PagesFromHits(hits)
-		browsers := sws.BrowsersFromHits(hits)
+		userAgents := sws.UserAgentsFromHits(hits)
 
 		buckets := sws.HitsToTimeBuckets(hits, time.Hour)
 		buckets.Fill(begin, end)
 
 		payload := struct {
-			Site     *sws.Site
-			Pages    map[string]*sws.Page
-			Browsers map[string]*sws.Browser
-			Hits     sws.TimeBuckets
+			Site       *sws.Site
+			Pages      map[string]*sws.Page
+			UserAgents map[string]*sws.UserAgent
+			Hits       sws.TimeBuckets
 		}{
-			Site:     site,
-			Pages:    pages,
-			Browsers: browsers,
-			Hits:     buckets,
+			Site:       site,
+			Pages:      pages,
+			UserAgents: userAgents,
+			Hits:       buckets,
 		}
 		if err := rndr.Render(w, "site", payload); err != nil {
 			log(err)
