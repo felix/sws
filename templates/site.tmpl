@@ -1,0 +1,27 @@
+{{ define "content" }}
+	<main>
+		<header>
+			{{ with .Site }}
+				<h1>{{ .Name }}</h1>
+				<span>{{ .Description }}</span>
+			{{ end }}
+		</header>
+		<fig>
+		{{ template "barChart" .Hits }}
+		</fig>
+		<h2>Popular pages</h2>
+		<ul class="pages">
+			{{ range .Pages }}
+				{{ template "pageForList" . }}
+			{{ end }}
+		</ul>
+	</main>
+{{ end }}
+
+{{ define "pageForList" }}
+<li>
+	<h4 class="path">{{ .Path }}</h4>
+	<span class="title">{{ .Title }}</span>
+	<span class="last-visit">{{ .LastVisitedAt.Unix }}</span>
+</li>
+{{ end }}

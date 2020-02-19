@@ -1,20 +1,25 @@
 package main
 
 import (
-	"html/template"
 	"net/http"
 )
 
-func handleIndex(tmpls *template.Template) http.HandlerFunc {
+func handleIndex(rndr Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-		tmpls.ExecuteTemplate(w, "home", nil)
+		if err := rndr.Render(w, "home", nil); err != nil {
+			log(err)
+			http.Error(w, http.StatusText(500), 500)
+		}
 	}
 }
 
-func handleExample(tmpls *template.Template) http.HandlerFunc {
+func handleExample(rndr Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-		tmpls.ExecuteTemplate(w, "example", nil)
+		if err := rndr.Render(w, "example", nil); err != nil {
+			log(err)
+			http.Error(w, http.StatusText(500), 500)
+		}
 	}
 }

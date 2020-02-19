@@ -1,14 +1,13 @@
 package main
 
 import (
-	"html/template"
 	"net/http"
 	"time"
 
 	"src.userspace.com.au/sws"
 )
 
-func handleSites(db sws.SiteStore, tmpls *template.Template) http.HandlerFunc {
+func handleSites(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sites, err := db.GetSites()
 		if err != nil {
@@ -20,11 +19,14 @@ func handleSites(db sws.SiteStore, tmpls *template.Template) http.HandlerFunc {
 		}{
 			Sites: sites,
 		}
-		tmpls.ExecuteTemplate(w, "sites", payload)
+		if err := rndr.Render(w, "sites", payload); err != nil {
+			log(err)
+			http.Error(w, http.StatusText(500), 500)
+		}
 	}
 }
 
-func handleSite(db sws.SiteStore, tmpls *template.Template) http.HandlerFunc {
+func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		site, ok := ctx.Value("site").(*sws.Site)
@@ -64,6 +66,9 @@ func handleSite(db sws.SiteStore, tmpls *template.Template) http.HandlerFunc {
 			Pages: pages,
 			Hits:  buckets,
 		}
-		tmpls.ExecuteTemplate(w, "site", payload)
+		if err := rndr.Render(w, "site", payload); err != nil {
+			log(err)
+			http.Error(w, http.StatusText(500), 500)
+		}
 	}
 }

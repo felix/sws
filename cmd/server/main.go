@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"html/template"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -19,6 +18,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"src.userspace.com.au/sws"
 	"src.userspace.com.au/sws/store"
+	"src.userspace.com.au/templates"
 )
 
 // Flags
@@ -42,6 +42,10 @@ func init() {
 	// Default to no log
 	log = func(v ...interface{}) {}
 	debug = func(v ...interface{}) {}
+}
+
+type Renderer interface {
+	Render(http.ResponseWriter, string, interface{}) error
 }
 
 func main() {
@@ -91,18 +95,18 @@ func main() {
 		st = store.NewSqlite3Store(db)
 	}
 
-	tmpls := template.Must(loadTemplateHTML([]string{
-		"home",
-		"sites",
-		"example",
-		"partials/navMain",
-		"partials/pageHead",
-		"partials/pageFoot",
-		"partials/siteForList",
-		"partials/pageForList",
-		"partials/barChart",
-	}, funcMap))
-	debug(tmpls.DefinedTemplates())
+	tmpls, err := LoadHTMLTemplateMap(map[string][]string{
+		"sites":   []string{"layouts/base", "sites", "charts"},
+		"site":    []string{"layouts/base", "site", "charts"},
+		"home":    []string{"layouts/public", "home"},
+		"example": []string{"example"},
+	}, funcMap)
+	if err != nil {
+		log(err)
+		os.Exit(1)
+	}
+	//debug(tmpls.DefinedTemplates())
+	renderer := templates.NewRenderer(tmpls)
 
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -121,10 +125,10 @@ func main() {
 	// For UI
 	r.Get("/hits", handleHits(st))
 	r.Route("/sites", func(r chi.Router) {
-		r.Get("/", handleSites(st, tmpls))
+		r.Get("/", handleSites(st, renderer))
 		r.Route("/{siteID}", func(r chi.Router) {
 			r.Use(siteCtx)
-			r.Get("/", handleSite(st, tmpls))
+			r.Get("/", handleSite(st, renderer))
 			r.Route("/sparklines", func(r chi.Router) {
 				r.Get("/{b:\\d+}-{e:\\d+}.svg", sparklineHandler(st))
 			})
@@ -143,11 +147,11 @@ func main() {
 	}
 
 	// Example
-	r.Get("/test.html", handleExample(tmpls))
-	r.Get("/test-again.html", handleExample(tmpls))
+	r.Get("/test.html", handleExample(renderer))
+	r.Get("/test-again.html", handleExample(renderer))
 
 	r.Route("/", func(r chi.Router) {
-		r.Get("/", handleIndex(tmpls))
+		r.Get("/", handleIndex(renderer))
 
 		fileServer(r, filepath.Dir(staticPath), "/", http.Dir(staticPath))
 	})

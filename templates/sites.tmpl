@@ -1,6 +1,4 @@
-{{ define "sites" }}
-	{{ template "pageHead" }}
-	{{ template "navMain" }}
+{{ define "content" }}
 	<main>
 		<header>
 			<h1>Sites</h1>
@@ -11,27 +9,12 @@
 			{{ end }}
 		</ul>
 	</main>
-	{{ template "pageFoot" }}
 {{ end }}
 
-{{ define "site" }}
-	{{ template "pageHead" }}
-	{{ template "navMain" }}
-	<main>
-		<header>
-			{{ with .Site }}
-				<h1>{{ .Name }}</h1>
-				<span>{{ .Description }}</span>
-			{{ end }}
-		</header>
-		<fig>
-		{{ template "barChart" .Hits }}
-		</fig>
-		<ul class="pages">
-			{{ range .Pages }}
-				{{ template "pageForList" . }}
-			{{ end }}
-		</ul>
-	</main>
-	{{ template "pageFoot" }}
+{{ define "siteForList" }}
+<li>
+	<a href="/sites/{{ .ID }}/">{{ .Name }}</a>
+	<span>{{ .Description }}</span>
+	<img src="{{ sparkline .ID }}" />
+</li>
 {{ end }}
