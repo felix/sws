@@ -56,3 +56,5 @@ src.userspace.com.au/go-migrate v0.0.0-20200208102934-cf11cf76db3f h1:Vdn/5kMeLX
 src.userspace.com.au/go-migrate v0.0.0-20200208102934-cf11cf76db3f/go.mod h1:QaSWOcvGubR8TBPs8XgLN67muYgAKnmIgHAaQk5ZR1c=
 src.userspace.com.au/templates v0.0.0-20200220013354-f1c51c0fe1a2 h1:0nPxJSdpZh+ikLLtDWX7GldlwcbCX8p9jWYSgRiUcz4=
 src.userspace.com.au/templates v0.0.0-20200220013354-f1c51c0fe1a2/go.mod h1:lB6Vdw9R/8jR8CzvPxfQ8ryBwpNDni1fCdeRjj90gxA=
+src.userspace.com.au/templates v0.0.0-20200220030259-5089e411d858 h1:fDaFR7z+dgvUspJ8Xk2HLnKA6MKEFXWd7xAsoy1gPfA=
+src.userspace.com.au/templates v0.0.0-20200220030259-5089e411d858/go.mod h1:lB6Vdw9R/8jR8CzvPxfQ8ryBwpNDni1fCdeRjj90gxA=

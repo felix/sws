@@ -137,11 +137,9 @@ func main() {
 			})
 		})
 	})
-	http.Handle("/", http.FileServer(http.Dir("/tmp")))
 
 	// Example
 	r.Get("/test.html", handleExample(renderer))
-	r.Get("/test-again.html", handleExample(renderer))
 
 	r.Route("/", func(r chi.Router) {
 		r.Get("/", handleIndex(renderer))
