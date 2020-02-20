@@ -58,7 +58,7 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 		payload := struct {
 			Site       *sws.Site
 			Pages      map[string]*sws.Page
-			UserAgents map[string]*sws.UserAgent
+			UserAgents sws.UserAgentSummary
 			Hits       sws.TimeBuckets
 		}{
 			Site:       site,

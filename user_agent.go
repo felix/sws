@@ -54,26 +54,56 @@ func UserAgentFromRequest(r *http.Request) (*UserAgent, error) {
 }
 
 // UserAgentsFromHits collects the browsers from provided hits.
-func UserAgentsFromHits(hits []*Hit) map[string]*UserAgent {
+func UserAgentsFromHits(hits []*Hit) UserAgentSummary {
 	out := make(map[string]*UserAgent)
 	for _, h := range hits {
-		if h.UserAgentHash != nil {
-			b, ok := out[*h.UserAgentHash]
-			if !ok {
-				b = &UserAgent{
-					Name:       h.UserAgent.Name,
-					LastSeenAt: h.CreatedAt,
-					ua:         detector.New(h.UserAgent.Name),
-				}
+		if h.UserAgentHash == nil {
+			continue
+		}
+		b, ok := out[*h.UserAgentHash]
+		if !ok {
+			b = &UserAgent{
+				Name:       h.UserAgent.Name,
+				LastSeenAt: h.CreatedAt,
+				ua:         detector.New(h.UserAgent.Name),
 			}
-			if b.LastSeenAt.Before(h.CreatedAt) {
-				b.LastSeenAt = h.CreatedAt
-			}
-			b.Count++
-			out[*h.UserAgentHash] = b
+		}
+		if b.LastSeenAt.Before(h.CreatedAt) {
+			b.LastSeenAt = h.CreatedAt
+		}
+		b.Count++
+		out[*h.UserAgentHash] = b
+	}
+	return UserAgentSummary(out)
+}
+
+type UserAgentSummary map[string]*UserAgent
+
+func (s UserAgentSummary) YMax() int {
+	max := 0
+	for _, v := range s {
+		if v.Count > max {
+			max = v.Count
 		}
 	}
+	return max
+}
+func (s UserAgentSummary) XSeries() []*UserAgent {
+	out := make([]*UserAgent, len(s))
+	i := 0
+	for _, v := range s {
+		out[i] = v
+		i++
+	}
 	return out
+}
+
+func (ua UserAgent) Label() string {
+	return ua.Browser()
+}
+
+func (ua UserAgent) YValue() int {
+	return ua.Count
 }
 
 func (ua UserAgent) IsBot() bool {

@@ -9,6 +9,28 @@ import (
 	"github.com/wcharczuk/go-chart/drawing"
 )
 
+type Chartable interface {
+	YMax() int
+	XSeries() []Countable
+}
+
+type Countable interface {
+	Label() string
+	YValue() int
+}
+
+/*
+type TimeChartable interface {
+	XMax() int
+	Series() []TimeCountable
+}
+
+type TimeCountable interface {
+	XValue() time.Time
+	YValue() int
+}
+*/
+
 type chart struct {
 	width, height int
 	data          TimeBuckets

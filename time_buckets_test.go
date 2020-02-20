@@ -25,7 +25,7 @@ func TestHitsToTimeBuckets(t *testing.T) {
 				Duration: time.Second,
 				TimeMin:  now.Add(-5 * time.Second).Round(time.Second),
 				TimeMax:  now.Add(-2 * time.Second).Round(time.Second),
-				Buckets: []Bucket{
+				Data: []Bucket{
 					{Time: now.Add(-5 * time.Second).Round(time.Second), Count: 1},
 					{Time: now.Add(-4 * time.Second).Round(time.Second), Count: 3},
 					{Time: now.Add(-3 * time.Second).Round(time.Second), Count: 1},
@@ -57,7 +57,7 @@ func TestXYValues(t *testing.T) {
 		{
 			TimeBuckets{
 				Duration: time.Minute,
-				Buckets: []Bucket{
+				Data: []Bucket{
 					{Time: now.Add(-3 * time.Minute), Count: 1},
 					{Time: now.Add(-2 * time.Minute), Count: 2},
 					{Time: now.Add(-1 * time.Minute), Count: 1},
@@ -101,7 +101,7 @@ func TestTimeBucketsFill(t *testing.T) {
 				Duration: time.Second,
 				TimeMin:  now.Add(-5 * time.Second),
 				TimeMax:  now.Add(-5 * time.Second),
-				Buckets:  []Bucket{{Time: now.Add(-5 * time.Second), Count: 1}},
+				Data:     []Bucket{{Time: now.Add(-5 * time.Second), Count: 1}},
 			},
 			nil,
 			ptrTime(now),
@@ -120,7 +120,7 @@ func TestTimeBucketsFill(t *testing.T) {
 				Duration: time.Second,
 				TimeMin:  now.Add(-5 * time.Second),
 				TimeMax:  now.Add(-5 * time.Second),
-				Buckets:  []Bucket{{Time: now.Add(-5 * time.Second), Count: 1}},
+				Data:     []Bucket{{Time: now.Add(-5 * time.Second), Count: 1}},
 			},
 			ptrTime(now.Add(-6 * time.Second)),
 			nil,
@@ -135,7 +135,7 @@ func TestTimeBucketsFill(t *testing.T) {
 				Duration: time.Second,
 				TimeMin:  now.Add(-5 * time.Second),
 				TimeMax:  now.Add(-5 * time.Second),
-				Buckets:  []Bucket{{Time: now.Add(-5 * time.Second), Count: 1}},
+				Data:     []Bucket{{Time: now.Add(-5 * time.Second), Count: 1}},
 			},
 			nil,
 			nil,
@@ -147,7 +147,7 @@ func TestTimeBucketsFill(t *testing.T) {
 
 	for i, tt := range tests {
 		tt.in.Fill(tt.begin, tt.end)
-		for j, b := range tt.in.Buckets {
+		for j, b := range tt.in.Data {
 			if b.Time != tt.expected[j].Time {
 				t.Errorf("%d => [%d] expected %s, got %s", i, j, tt.expected[j].Time, b.Time)
 			}

@@ -10,7 +10,7 @@ type TimeBuckets struct {
 	Duration           time.Duration
 	TimeMin, TimeMax   time.Time
 	CountMin, CountMax int
-	Buckets            []Bucket
+	Data               []Bucket
 }
 
 type Bucket struct {
@@ -18,12 +18,30 @@ type Bucket struct {
 	Count int
 }
 
+/*
+func (tb TimeBuckets) YMax() int {
+	return tb.CountMax
+}
+
+func (tb TimeBuckets) Next() TimeCountable {
+	return tb.Data
+}
+
+func (b Bucket) XValue() time.Time {
+	return b.Time
+}
+
+func (b Bucket) YValue() int {
+	return b.Count
+}
+*/
+
 // XYValues splits the buckets into two data series, one with the times
 // and the other with the values.
 func (tb TimeBuckets) XYValues() ([]time.Time, []float64) {
-	x := make([]time.Time, len(tb.Buckets))
-	y := make([]float64, len(tb.Buckets))
-	for i, b := range tb.Buckets {
+	x := make([]time.Time, len(tb.Data))
+	y := make([]float64, len(tb.Data))
+	for i, b := range tb.Data {
 		x[i] = b.Time
 		y[i] = float64(b.Count)
 	}
@@ -38,7 +56,7 @@ func (b Bucket) String() string {
 func HitsToTimeBuckets(hits []*Hit, d time.Duration) TimeBuckets {
 	out := TimeBuckets{
 		Duration: d,
-		Buckets:  make([]Bucket, 0),
+		Data:     make([]Bucket, 0),
 	}
 	for j, h := range hits {
 		k := h.CreatedAt.Truncate(d)
@@ -49,14 +67,14 @@ func HitsToTimeBuckets(hits []*Hit, d time.Duration) TimeBuckets {
 			out.TimeMax = k
 		}
 		var found bool
-		for i, tb := range out.Buckets {
+		for i, tb := range out.Data {
 			if tb.Time.Equal(k) {
-				out.Buckets[i].Count++
+				out.Data[i].Count++
 				found = true
 			}
 		}
 		if !found {
-			out.Buckets = append(out.Buckets, Bucket{Time: k, Count: 1})
+			out.Data = append(out.Data, Bucket{Time: k, Count: 1})
 		}
 	}
 	out.Sort()
@@ -66,8 +84,8 @@ func HitsToTimeBuckets(hits []*Hit, d time.Duration) TimeBuckets {
 
 // Sort order the buckets in ascending order by time.
 func (tb *TimeBuckets) Sort() {
-	sort.Slice(tb.Buckets, func(i, j int) bool {
-		return tb.Buckets[i].Time.Before(tb.Buckets[j].Time)
+	sort.Slice(tb.Data, func(i, j int) bool {
+		return tb.Data[i].Time.Before(tb.Data[j].Time)
 	})
 }
 
@@ -92,31 +110,31 @@ func (tb *TimeBuckets) Fill(b, e *time.Time) {
 	var idx int
 	for n := begin; idx < total && !n.After(end); n = n.Add(tb.Duration) {
 		switch {
-		case existing >= len(tb.Buckets):
+		case existing >= len(tb.Data):
 			newBuckets[idx] = Bucket{Time: n, Count: 0}
 
-		case n.Before(tb.Buckets[existing].Time):
+		case n.Before(tb.Data[existing].Time):
 			newBuckets[idx] = Bucket{Time: n, Count: 0}
 
 		default:
-			newBuckets[idx] = tb.Buckets[existing]
+			newBuckets[idx] = tb.Data[existing]
 			existing++
 		}
 		idx++
 	}
 	tb.updateMinMax()
-	tb.Buckets = newBuckets
+	tb.Data = newBuckets
 }
 
 func (tb *TimeBuckets) updateMinMax() {
-	if len(tb.Buckets) < 1 {
+	if len(tb.Data) < 1 {
 		return
 	}
-	minC := tb.Buckets[0].Count
-	maxC := tb.Buckets[0].Count
-	minT := tb.Buckets[0].Time
-	maxT := tb.Buckets[0].Time
-	for _, b := range tb.Buckets {
+	minC := tb.Data[0].Count
+	maxC := tb.Data[0].Count
+	minT := tb.Data[0].Time
+	maxT := tb.Data[0].Time
+	for _, b := range tb.Data {
 		if b.Count < minC {
 			minC = b.Count
 		}

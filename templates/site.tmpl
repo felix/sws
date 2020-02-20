@@ -7,7 +7,7 @@
 			{{ end }}
 		</header>
 		<fig>
-		{{ template "barChart" .Hits }}
+		{{ template "timeBarChart" .Hits }}
 		</fig>
 		<h2>Popular pages</h2>
 		<ul class="pages">
@@ -16,11 +16,16 @@
 			{{ end }}
 		</ul>
 		<h2>User Agents</h2>
-		<ul class="agents">
-			{{ range .UserAgents }}
-				{{ template "uaForList" . }}
-			{{ end }}
-		</ul>
+		{{ if .UserAgents }}
+			{{ template "barChart" .UserAgents }}
+			<ul class="agents">
+				{{ range .UserAgents }}
+					{{ template "uaForList" . }}
+				{{ end }}
+			</ul>
+		{{ else }}
+			<p>No user agents</p>
+		{{ end }}
 	</main>
 {{ end }}
 

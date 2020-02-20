@@ -1,7 +1,7 @@
-{{ define "barChart" }}
+{{ define "timeBarChart" }}
 	<ul class="chart bar">
 		{{ $max := .CountMax }}
-		{{ range .Buckets }}
+		{{ range .Data }}
 			<li class="slot{{ if eq .Time.Hour 0 }} midnight{{ end }}" data-date="{{ .Time|timeHour }}" data-count="{{ .Count }}" data-percent="{{ percent .Count $max }}">
 				<div class="bar" style="height:{{ percent .Count $max }}%" />
 			</li>
@@ -9,10 +9,22 @@
 	</ul>
 {{ end }}
 
+{{ define "barChart" }}
+	<ul class="chart bar">
+		{{ $max := .YMax }}
+		{{ range .XSeries }}
+			<li class="slot" data-x="{{ .Label }}" data-y="{{ .YValue }}" data-percent="{{ percent .YValue $max }}">
+				<div class="bar" style="height:{{ percent .YValue $max }}%" />
+			</li>
+		{{ else }}
+		{{ end }}
+	</ul>
+{{ end }}
+
 {{ define "stackedBarChart" }}
 	<ul class="chart bar stacked">
 		{{ $max := .CountMax }}
-		{{ range .Buckets }}
+		{{ range .Data }}
 			<li class="slot{{ if eq .Time.Hour 0 }} midnight{{ end }}" data-date="{{ .Time|timeHour }}" data-count="{{ .Count }}" data-percent="{{ percent .Count $max }}">
 				<div class="bar" style="height:{{ percent .Count $max }}%" />
 			</li>
