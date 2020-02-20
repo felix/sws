@@ -11,8 +11,8 @@ func handleSites(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		sites, err := db.GetSites()
 		if err != nil {
-			log(err)
-			http.Error(w, http.StatusText(500), 500)
+			httpError(w, 500, err.Error())
+			return
 		}
 		payload := struct {
 			Sites []*sws.Site
@@ -20,8 +20,8 @@ func handleSites(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 			Sites: sites,
 		}
 		if err := rndr.Render(w, "sites", payload); err != nil {
-			log(err)
-			http.Error(w, http.StatusText(500), 500)
+			httpError(w, 500, err.Error())
+			return
 		}
 	}
 }
@@ -31,14 +31,12 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 		ctx := r.Context()
 		site, ok := ctx.Value("site").(*sws.Site)
 		if !ok {
-			log("no site in context")
-			http.Error(w, http.StatusText(422), 422)
+			httpError(w, 422, "no site in context")
 			return
 		}
 		begin, end := extractTimeRange(r)
 		if begin == nil || end == nil {
-			log("invalid time range")
-			http.Error(w, http.StatusText(406), 406)
+			httpError(w, 406, "invalid time range")
 			return
 		}
 
@@ -47,7 +45,8 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 			"end":   *end,
 		})
 		if err != nil {
-			log(err)
+			httpError(w, 500, err.Error())
+			return
 		}
 
 		pages := sws.PagesFromHits(hits)
@@ -68,8 +67,8 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 			Hits:       buckets,
 		}
 		if err := rndr.Render(w, "site", payload); err != nil {
-			log(err)
-			http.Error(w, http.StatusText(500), 500)
+			httpError(w, 500, err.Error())
+			return
 		}
 	}
 }

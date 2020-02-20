@@ -148,7 +148,6 @@ func main() {
 
 		r.Get("/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			p := strings.TrimPrefix(r.URL.Path, "/")
-			log("serving", p)
 			if b, err := StaticLoadTemplate(p); err == nil {
 				name := filepath.Base(p)
 				http.ServeContent(w, r, name, time.Now(), bytes.NewReader(b))

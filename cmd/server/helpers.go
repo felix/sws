@@ -33,6 +33,11 @@ var funcMap = template.FuncMap{
 	},
 }
 
+func httpError(w http.ResponseWriter, code int, msg string) {
+	log(msg)
+	http.Error(w, http.StatusText(500), 500)
+}
+
 func extractTimeRange(r *http.Request) (*time.Time, *time.Time) {
 	begin := timePtr(time.Now().Round(time.Hour).Add(-168 * time.Hour))
 	end := timePtr(time.Now())
