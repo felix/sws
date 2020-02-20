@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"flag"
 	"fmt"
@@ -26,7 +27,6 @@ var (
 	verbose   *bool
 	addr      *string
 	dsn       *string
-	static    *string
 	noMigrate *bool
 )
 
@@ -36,7 +36,6 @@ func init() {
 	verbose = boolFlag("verbose", "v", false, "VERBOSE", "enable verbose output")
 	addr = stringFlag("listen", "l", "localhost:5000", "LISTEN", "listen address")
 	dsn = stringFlag("dsn", "", "file:sws.db?cache=shared", "DSN", "database password")
-	static = stringFlag("static", "", "./public", "STATIC", "path for static assets")
 	noMigrate = boolFlag("no-migrate", "m", false, "NOMIGRATE", "disable migrations")
 
 	// Default to no log
@@ -96,10 +95,10 @@ func main() {
 	}
 
 	tmpls, err := LoadHTMLTemplateMap(map[string][]string{
-		"sites":   []string{"layouts/base", "sites", "charts"},
-		"site":    []string{"layouts/base", "site", "charts"},
-		"home":    []string{"layouts/public", "home"},
-		"example": []string{"example"},
+		"sites":   []string{"layouts/base.tmpl", "sites.tmpl", "charts.tmpl"},
+		"site":    []string{"layouts/base.tmpl", "site.tmpl", "charts.tmpl"},
+		"home":    []string{"layouts/public.tmpl", "home.tmpl"},
+		"example": []string{"example.tmpl"},
 	}, funcMap)
 	if err != nil {
 		log(err)
@@ -140,12 +139,6 @@ func main() {
 	})
 	http.Handle("/", http.FileServer(http.Dir("/tmp")))
 
-	staticPath, err := filepath.Abs(*static)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "invalid static path: %s", err)
-		os.Exit(2)
-	}
-
 	// Example
 	r.Get("/test.html", handleExample(renderer))
 	r.Get("/test-again.html", handleExample(renderer))
@@ -153,29 +146,18 @@ func main() {
 	r.Route("/", func(r chi.Router) {
 		r.Get("/", handleIndex(renderer))
 
-		fileServer(r, filepath.Dir(staticPath), "/", http.Dir(staticPath))
+		r.Get("/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			p := strings.TrimPrefix(r.URL.Path, "/")
+			log("serving", p)
+			if b, err := StaticLoadTemplate(p); err == nil {
+				name := filepath.Base(p)
+				http.ServeContent(w, r, name, time.Now(), bytes.NewReader(b))
+			}
+		}))
 	})
 
 	log("listening at", *addr)
 	http.ListenAndServe(*addr, r)
-}
-
-func fileServer(r chi.Router, basePath string, path string, root http.FileSystem) {
-	if strings.ContainsAny(path, "{}*") {
-		panic("FileServer does not permit URL parameters.")
-	}
-
-	fs := http.StripPrefix("/", http.FileServer(root))
-
-	if path != "/" && path[len(path)-1] != '/' {
-		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
-		path += "/"
-	}
-	path += "*"
-
-	r.Get(path, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fs.ServeHTTP(w, r)
-	}))
 }
 
 func getSiteCtx(db sws.SiteStore) func(http.Handler) http.Handler {

@@ -54,5 +54,5 @@ google.golang.org/appengine v1.6.5 h1:tycE03LOZYQNhDpS27tcQdAzLCVMaj7QT2SXxebnpC
 google.golang.org/appengine v1.6.5/go.mod h1:8WjMMxjGQR8xUklV/ARdw2HLXBOI7O7uCIDZVag1xfc=
 src.userspace.com.au/go-migrate v0.0.0-20200208102934-cf11cf76db3f h1:Vdn/5kMeLXWfkXF/wm9lioSBASBn02aA5DeVjLAYjLM=
 src.userspace.com.au/go-migrate v0.0.0-20200208102934-cf11cf76db3f/go.mod h1:QaSWOcvGubR8TBPs8XgLN67muYgAKnmIgHAaQk5ZR1c=
-src.userspace.com.au/templates v0.0.0-20200219010204-50adadd75f25 h1:WLf9YSDCZvByaR9uDp0ZTgbDbJaT+iXJk+gTaWhu/6s=
-src.userspace.com.au/templates v0.0.0-20200219010204-50adadd75f25/go.mod h1:lB6Vdw9R/8jR8CzvPxfQ8ryBwpNDni1fCdeRjj90gxA=
+src.userspace.com.au/templates v0.0.0-20200220013354-f1c51c0fe1a2 h1:0nPxJSdpZh+ikLLtDWX7GldlwcbCX8p9jWYSgRiUcz4=
+src.userspace.com.au/templates v0.0.0-20200220013354-f1c51c0fe1a2/go.mod h1:lB6Vdw9R/8jR8CzvPxfQ8ryBwpNDni1fCdeRjj90gxA=

@@ -19,7 +19,7 @@ require (
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	src.userspace.com.au/go-migrate v0.0.0-20200208102934-cf11cf76db3f
-	src.userspace.com.au/templates v0.0.0-20200219010204-50adadd75f25
+	src.userspace.com.au/templates v0.0.0-20200220013354-f1c51c0fe1a2
 )
 
 go 1.13

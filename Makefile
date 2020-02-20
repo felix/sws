@@ -5,6 +5,7 @@ SQL=	$(shell find sql -type f)
 EXTRAS=	cmd/server/migrations.go \
 	counter/sws.min.js \
 	cmd/server/counter.go \
+	cmd/server/static.go \
 	cmd/server/templates.go
 TMPL=	$(shell find templates -type f -name '*.tmpl')
 
@@ -13,6 +14,9 @@ build: $(BINARY)
 
 dist/%: $(SRC) $(EXTRAS)
 	go build -ldflags "-X main.Version=$(VERSION)" -o $@ ./cmd/$*
+
+cmd/server/static.go: $(TMPL)
+	go generate ./static >$@
 
 cmd/server/templates.go: $(TMPL)
 	go generate ./templates >$@

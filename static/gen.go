@@ -10,8 +10,8 @@ import (
 
 func main() {
 	tmpl := templates.Must(templates.New(
-		templates.EnableHTMLTemplates(),
-		templates.Extensions([]string{".tmpl"}),
+		templates.FunctionPrefix("Static"),
+		templates.Extensions([]string{".css", ".js"}),
 	))
 	if _, err := tmpl.WriteTo(os.Stdout); err != nil {
 		panic(err)
