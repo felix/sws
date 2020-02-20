@@ -76,7 +76,7 @@ main {
 .chart .slot:before,
 .chart .slot:after {
 	bottom: 100%;
-	content: attr(data-count);
+	content: attr(data-y);
 	display: none;
 	font-size: .75em;
 	left: 50%;
@@ -88,7 +88,7 @@ main {
 }
 /* time */
 .chart .slot:after {
-	content: attr(data-date);
+	content: attr(data-x);
 	margin-top: .5rem;
 	top: 100%;
 }
