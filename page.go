@@ -1,7 +1,6 @@
 package sws
 
 import (
-	"fmt"
 	"sort"
 	"time"
 )
@@ -22,7 +21,6 @@ func (p Page) YMax() int {
 func (p Page) XSeries() []*bucket {
 	p.hitSet.Fill(nil, nil)
 	sort.Sort(p.hitSet)
-	fmt.Printf("page begin: %s end: %s\n", p.hitSet.Begin(), p.hitSet.End())
 	return p.hitSet.XSeries()
 }
 

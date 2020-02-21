@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -51,9 +50,7 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 		}
 
 		hitSet := sws.NewHitSet(hits, *begin, *end, time.Hour)
-		fmt.Printf("site begin: %s end: %s\n", *begin, *end)
 		hitSet.Fill(begin, end)
-		fmt.Printf("hitset begin: %s end: %s\n", hitSet.Begin(), hitSet.End())
 		pageSet := sws.NewPageSet(hitSet)
 		uaSet := sws.NewUserAgentSet(hitSet)
 

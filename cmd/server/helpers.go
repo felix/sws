@@ -39,17 +39,17 @@ func httpError(w http.ResponseWriter, code int, msg string) {
 }
 
 func extractTimeRange(r *http.Request) (*time.Time, *time.Time) {
-	begin := timePtr(time.Now().Round(time.Hour).Add(-168 * time.Hour))
+	begin := timePtr(time.Now().Truncate(time.Hour).Add(-168 * time.Hour))
 	end := timePtr(time.Now())
 	q := r.URL.Query()
 	if b := q.Get("begin"); b != "" {
 		if bs, err := strconv.ParseInt(b, 10, 64); err == nil {
-			begin = timePtr(time.Unix(bs, 0))
+			begin = timePtr(time.Unix(bs, 0).Truncate(time.Hour))
 		}
 	}
 	if e := q.Get("end"); e != "" {
 		if es, err := strconv.ParseInt(e, 10, 64); err == nil {
-			end = timePtr(time.Unix(es, 0))
+			end = timePtr(time.Unix(es, 0).Truncate(time.Hour))
 		}
 	}
 	return begin, end

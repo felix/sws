@@ -1,7 +1,5 @@
 package sws
 
-import "fmt"
-
 type PageSet map[string]*Page
 
 func NewPageSet(hitter Hitter) PageSet {
@@ -27,7 +25,6 @@ func NewPageSet(hitter Hitter) PageSet {
 	}
 	b := hitter.Begin()
 	e := hitter.End()
-	fmt.Printf("new pageset begin: %s end: %s\n", b, e)
 	for _, p := range out {
 		p.hitSet.Fill(&b, &e)
 	}
