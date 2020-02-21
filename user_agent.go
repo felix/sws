@@ -57,7 +57,7 @@ func (ua UserAgent) Count() int {
 }
 
 func (ua UserAgent) Label() string {
-	return ua.Browser() + "/" + ua.BrowserVersion()
+	return ua.Browser() // + "/" + ua.BrowserVersion()
 }
 
 func (ua UserAgent) YValue() int {

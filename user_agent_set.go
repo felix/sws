@@ -14,20 +14,22 @@ func NewUserAgentSet(hitter Hitter) UserAgentSet {
 			// TODO
 			continue
 		}
-		b, ok := out[*h.UserAgentHash]
+		d := detector.New(h.UserAgent.Name)
+		browser, _ := d.Browser()
+		b, ok := out[browser]
 		if !ok {
 			b = &UserAgent{
 				Name:       h.UserAgent.Name,
 				LastSeenAt: h.CreatedAt,
 				hitSet:     &HitSet{},
-				ua:         detector.New(h.UserAgent.Name),
+				ua:         d,
 			}
 		}
 		if b.LastSeenAt.Before(h.CreatedAt) {
 			b.LastSeenAt = h.CreatedAt
 		}
 		b.hitSet.Add(h)
-		out[*h.UserAgentHash] = b
+		out[browser] = b
 	}
 	return UserAgentSet(out)
 }
