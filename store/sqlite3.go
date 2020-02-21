@@ -23,6 +23,8 @@ func (s *Sqlite3) GetSites() ([]*sws.Site, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+
 	var out []*sws.Site
 
 	for rows.Next() {
@@ -72,6 +74,7 @@ func (s *Sqlite3) GetHits(d sws.Site, filter map[string]interface{}) ([]*sws.Hit
 		return nil, err
 	}
 	defer rows.Close()
+
 	for rows.Next() {
 		h := &sws.Hit{}
 		if err := rows.StructScan(h); err != nil {
