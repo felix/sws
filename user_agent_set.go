@@ -43,10 +43,10 @@ func (uas UserAgentSet) YMax() int {
 	}
 	return max
 }
-func (s UserAgentSet) XSeries() []*UserAgent {
-	out := make([]*UserAgent, len(s))
+func (uas UserAgentSet) XSeries() []*UserAgent {
+	out := make([]*UserAgent, len(uas))
 	i := 0
-	for _, v := range s {
+	for _, v := range uas {
 		out[i] = v
 		i++
 	}

@@ -1,4 +1,5 @@
 
+VERSION?=	$(shell git describe --tags --always)
 BINARY=	$(patsubst %,dist/%,$(shell find cmd/* -maxdepth 0 -type d -exec basename {} \;))
 SRC=	$(shell find . -type f -name '*.go')
 SQL=	$(shell find sql -type f)

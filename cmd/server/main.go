@@ -22,6 +22,8 @@ import (
 	"src.userspace.com.au/templates"
 )
 
+var Version string
+
 // Flags
 var (
 	verbose   *bool
@@ -62,6 +64,7 @@ func main() {
 			fmt.Fprintln(os.Stdout, v...)
 		}
 	}
+	log("version", Version)
 
 	driver := strings.SplitN(*dsn, ":", 2)[0]
 	if driver == "file" {
@@ -69,12 +72,12 @@ func main() {
 	}
 
 	if noMigrate == nil || !*noMigrate {
-		version, err := migrateDatabase(driver, *dsn)
+		v, err := migrateDatabase(driver, *dsn)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed to migrate: %s", err)
 			os.Exit(2)
 		}
-		log("database at version", version)
+		log("database at version", v)
 	}
 
 	db, err := sqlx.Open(driver, *dsn)
