@@ -45,7 +45,7 @@ func sparklineHandler(db sws.HitStore) http.HandlerFunc {
 			return
 		}
 		debug("retrieved", len(hits), "hits")
-		data := sws.HitsToTimeBuckets(hits, time.Minute)
+		data := sws.NewHitSet(hits, begin, end, time.Minute)
 		// Ensure the buckets start and end at the right time
 		data.Fill(&begin, &end)
 
@@ -96,7 +96,7 @@ func svgChartHandler(db sws.HitStore) http.HandlerFunc {
 		}
 		debug("retrieved", len(hits), "hits")
 
-		data := sws.HitsToTimeBuckets(hits, time.Minute)
+		data := sws.NewHitSet(hits, begin, end, time.Minute)
 		data.Fill(&begin, &end)
 
 		w.Header().Set("Content-Type", "image/svg+xml")

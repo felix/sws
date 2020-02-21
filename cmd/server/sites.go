@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -49,22 +50,23 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 			return
 		}
 
-		pages := sws.PagesFromHits(hits)
-		userAgents := sws.UserAgentsFromHits(hits)
-
-		buckets := sws.HitsToTimeBuckets(hits, time.Hour)
-		buckets.Fill(begin, end)
+		hitSet := sws.NewHitSet(hits, *begin, *end, time.Hour)
+		fmt.Printf("site begin: %s end: %s\n", *begin, *end)
+		hitSet.Fill(begin, end)
+		fmt.Printf("hitset begin: %s end: %s\n", hitSet.Begin(), hitSet.End())
+		pageSet := sws.NewPageSet(hitSet)
+		uaSet := sws.NewUserAgentSet(hitSet)
 
 		payload := struct {
 			Site       *sws.Site
-			Pages      map[string]*sws.Page
-			UserAgents sws.UserAgentSummary
-			Hits       sws.TimeBuckets
+			Pages      sws.PageSet
+			UserAgents sws.UserAgentSet
+			Hits       *sws.HitSet
 		}{
 			Site:       site,
-			Pages:      pages,
-			UserAgents: userAgents,
-			Hits:       buckets,
+			Pages:      pageSet,
+			UserAgents: uaSet,
+			Hits:       hitSet,
 		}
 		if err := rndr.Render(w, "site", payload); err != nil {
 			httpError(w, 500, err.Error())

@@ -1,27 +1,28 @@
 var d = document
-var de = document.documentElement
+var de = d.documentElement
 var w = window
 var l = d.location
 var n = w.navigator
 var esc = encodeURIComponent
-var me = document.currentScript
-console.log('me:', me)
-console.log('me.sws:', me.dataset.sws)
+var me = d.currentScript
 
-var _sws = w._sws || {noxhr: false, noauto: false}
-console.log('_sws:', _sws)
-_sws.d = _sws.d || me.dataset.sws || 'http://sws.userspace.com.au/sws.gif'
+var _sws = w._sws || {noauto: false}
+_sws.d = _sws.d || me.src
 _sws.site = _sws.site || me.dataset.site
-console.log('using', _sws.d)
 
 function count (p, obj) {
-  console.log('sending', p, JSON.stringify(obj))
+  if (l.hostname.match(/(localhost$|^127\.|^10\.|^172\.16\.|^192\.168\.)/))
+    return
+  if ('visibilityState' in d && d.visibilityState === 'prerender')
+    return
+
   var qs = Object.keys(obj)
     .map(function (k) {
       return esc(k) + '=' + esc(obj[k])
     })
     .join('&')
-  if (!_sws.xhr) {
+
+  if (!_sws.noxhr) {
     var r = new w.XMLHttpRequest()
     r.open('GET', p + '?' + qs, true)
     r.send()
@@ -32,9 +33,7 @@ function count (p, obj) {
 }
 
 function ready (fn) {
-  if (d.attachEvent
-    ? d.readyState === 'complete'
-    : d.readyState !== 'loading') {
+  if (d.attachEvent ? d.readyState === 'complete' : d.readyState !== 'loading') {
     fn()
   } else {
     d.addEventListener('DOMContentLoaded', fn)
@@ -46,7 +45,8 @@ var viewPort = (w.innerWidth || de.clientWidth || d.body.clientWidth) + 'x' +
 
 ready(function () {
   if (!_sws.noauto) {
-    count(_sws.d, {
+    var ep = new URL(_sws.d)
+    count(ep.protocol+'//'+ep.host+'/sws.gif', {
       i: _sws.site,
       s: l.protocol,
       h: l.host,

@@ -16,9 +16,8 @@ type UserAgent struct {
 	Hash       string    `json:"hash"`
 	Name       string    `json:"name"`
 	LastSeenAt time.Time `json:"last_seen_at" db:"last_seen_at"`
-	Count      int
-
-	ua *detector.UserAgent
+	hitSet     *HitSet
+	ua         *detector.UserAgent
 }
 
 var (
@@ -53,57 +52,16 @@ func UserAgentFromRequest(r *http.Request) (*UserAgent, error) {
 	}, nil
 }
 
-// UserAgentsFromHits collects the browsers from provided hits.
-func UserAgentsFromHits(hits []*Hit) UserAgentSummary {
-	out := make(map[string]*UserAgent)
-	for _, h := range hits {
-		if h.UserAgentHash == nil {
-			continue
-		}
-		b, ok := out[*h.UserAgentHash]
-		if !ok {
-			b = &UserAgent{
-				Name:       h.UserAgent.Name,
-				LastSeenAt: h.CreatedAt,
-				ua:         detector.New(h.UserAgent.Name),
-			}
-		}
-		if b.LastSeenAt.Before(h.CreatedAt) {
-			b.LastSeenAt = h.CreatedAt
-		}
-		b.Count++
-		out[*h.UserAgentHash] = b
-	}
-	return UserAgentSummary(out)
-}
-
-type UserAgentSummary map[string]*UserAgent
-
-func (s UserAgentSummary) YMax() int {
-	max := 0
-	for _, v := range s {
-		if v.Count > max {
-			max = v.Count
-		}
-	}
-	return max
-}
-func (s UserAgentSummary) XSeries() []*UserAgent {
-	out := make([]*UserAgent, len(s))
-	i := 0
-	for _, v := range s {
-		out[i] = v
-		i++
-	}
-	return out
+func (ua UserAgent) Count() int {
+	return ua.hitSet.Count()
 }
 
 func (ua UserAgent) Label() string {
-	return ua.Browser()
+	return ua.Browser() + "/" + ua.BrowserVersion()
 }
 
 func (ua UserAgent) YValue() int {
-	return ua.Count
+	return ua.Count()
 }
 
 func (ua UserAgent) IsBot() bool {

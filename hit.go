@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -32,6 +33,13 @@ type Hit struct {
 	UserAgent *UserAgent `db:"ua"`
 }
 
+type Hitter interface {
+	Hits() []*Hit
+	Begin() time.Time
+	End() time.Time
+	Duration() time.Duration
+}
+
 func (h Hit) String() string {
 	var out strings.Builder
 	for _, sp := range []*string{&h.Scheme, &h.Host, &h.Path, h.Query} {
@@ -40,6 +48,13 @@ func (h Hit) String() string {
 		}
 	}
 	return out.String()
+}
+
+// SortHits in ascending order by time.
+func SortHits(hits []*Hit) {
+	sort.Slice(hits, func(i, j int) bool {
+		return hits[i].CreatedAt.Before(hits[j].CreatedAt)
+	})
 }
 
 func HitFromRequest(r *http.Request) (*Hit, error) {

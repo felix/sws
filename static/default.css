@@ -70,6 +70,10 @@ main {
 	position: absolute;
 	right: 0;
 }
+.chart .bar {
+	margin-left: 2px;
+	margin-right: 2px;
+}
 .chart .slot:hover .bar {
 	background: #88b6ff;
 }

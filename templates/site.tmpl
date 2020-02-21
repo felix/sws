@@ -11,8 +11,13 @@
 		</fig>
 		<h2>Popular pages</h2>
 		<ul class="pages">
+			{{ $pages := .Pages }}
 			{{ range .Pages }}
 				{{ template "pageForList" . }}
+				<fig>
+				{{ $pathHits := $pages.Page .Path }}
+				{{ template "timeBarChart" $pathHits }}
+				</fig>
 			{{ end }}
 		</ul>
 		<h2>User Agents</h2>

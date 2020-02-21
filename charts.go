@@ -33,10 +33,10 @@ type TimeCountable interface {
 
 type chart struct {
 	width, height int
-	data          TimeBuckets
+	data          HitSet
 }
 
-func NewChart(data TimeBuckets, opts ...ChartOption) (*chart, error) {
+func NewChart(data HitSet, opts ...ChartOption) (*chart, error) {
 	out := &chart{data: data}
 	for _, o := range opts {
 		if err := o(out); err != nil {
@@ -59,7 +59,7 @@ func Dimentions(height, width int) ChartOption {
 	}
 }
 
-func SparklineSVG(w io.Writer, data TimeBuckets, d time.Duration) error {
+func SparklineSVG(w io.Writer, data *HitSet, d time.Duration) error {
 	hits := gochart.TimeSeries{
 		//Name: "Hits",
 		Style: gochart.Style{
@@ -98,7 +98,7 @@ func SparklineSVG(w io.Writer, data TimeBuckets, d time.Duration) error {
 	return nil
 }
 
-func HitChartSVG(w io.Writer, data TimeBuckets, d time.Duration) error {
+func HitChartSVG(w io.Writer, data *HitSet, d time.Duration) error {
 	hits := gochart.TimeSeries{
 		Name: "Hits",
 		Style: gochart.Style{
