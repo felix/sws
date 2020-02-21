@@ -8,6 +8,7 @@ EXTRAS=	cmd/server/migrations.go \
 	cmd/server/static.go \
 	cmd/server/templates.go
 TMPL=	$(shell find templates -type f -name '*.tmpl')
+STATIC=	$(shell find static -type f)
 
 .PHONY: build
 build: $(BINARY)
@@ -15,7 +16,7 @@ build: $(BINARY)
 dist/%: $(SRC) $(EXTRAS)
 	go build -ldflags "-X main.Version=$(VERSION)" -o $@ ./cmd/$*
 
-cmd/server/static.go: $(TMPL)
+cmd/server/static.go: $(STATIC)
 	go generate ./static >$@
 
 cmd/server/templates.go: $(TMPL)

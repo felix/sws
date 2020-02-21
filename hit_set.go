@@ -56,11 +56,11 @@ func (hs *HitSet) Add(h *Hit) {
 	var bk *bucket
 	for _, b := range hs.buckets {
 		if b.t.Equal(k) {
+			b.hits = append(b.hits, h)
 			bk = b
 		}
 	}
 	if bk == nil {
-		// Create new bucket
 		bk = &bucket{t: k, hits: []*Hit{h}}
 		hs.buckets = append(hs.buckets, bk)
 	}

@@ -67,12 +67,14 @@ main {
 	border-top-right-radius: 3px;
 	bottom: 0;
 	left: 0;
+	margin-left: 2px;
+	margin-right: 2px;
 	position: absolute;
 	right: 0;
 }
-.chart .bar {
-	margin-left: 2px;
-	margin-right: 2px;
+.chart.time .bar {
+	margin-left: 0;
+	margin-right: 0;
 }
 .chart .slot:hover .bar {
 	background: #88b6ff;
