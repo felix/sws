@@ -6,12 +6,12 @@ var n = w.navigator
 var esc = encodeURIComponent
 var me = d.currentScript
 
-var _sws = w._sws || {noauto: false}
+var _sws = w._sws || {noauto: false, local: false}
 _sws.d = _sws.d || me.src
 _sws.site = _sws.site || me.dataset.site
 
 function count (p, obj) {
-  if (l.hostname.match(/(localhost$|^127\.|^10\.|^172\.16\.|^192\.168\.)/))
+  if (!_sws.local && l.hostname.match(/(localhost$|^127\.|^10\.|^172\.16\.|^192\.168\.)/))
     return
   if ('visibilityState' in d && d.visibilityState === 'prerender')
     return
@@ -46,7 +46,7 @@ var viewPort = (w.innerWidth || de.clientWidth || d.body.clientWidth) + 'x' +
 ready(function () {
   if (!_sws.noauto) {
     var ep = new URL(_sws.d)
-    count(ep.protocol+'//'+ep.host+'/sws.gif', {
+    count('{{ .endpoint }}', {
       i: _sws.site,
       s: l.protocol,
       h: l.host,

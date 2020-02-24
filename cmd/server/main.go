@@ -22,7 +22,12 @@ import (
 	"src.userspace.com.au/templates"
 )
 
-var Version string
+var (
+	Version    string
+	log, debug sws.Logger
+)
+
+const endpoint = "//stats.userspace.com.au/sws.gif"
 
 // Flags
 var (
@@ -31,8 +36,6 @@ var (
 	dsn       *string
 	noMigrate *bool
 )
-
-var log, debug sws.Logger
 
 func init() {
 	verbose = boolFlag("verbose", "v", false, "VERBOSE", "enable verbose output")
@@ -111,8 +114,11 @@ func main() {
 	renderer := templates.NewRenderer(tmpls)
 
 	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
+	r.Use(middleware.RequestID)
+	r.Use(middleware.RequestID)
+	compressor := middleware.NewCompressor(5, "text/html", "text/css")
+	r.Use(compressor.Handler())
 	if *verbose {
 		r.Use(middleware.Logger)
 	}

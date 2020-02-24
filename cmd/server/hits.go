@@ -1,10 +1,14 @@
 package main
 
 import (
+	"bytes"
+	"crypto/sha1"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
+	"text/template"
 
 	"src.userspace.com.au/sws"
 )
@@ -55,12 +59,30 @@ func handleHitCounter(db sws.CounterStore) http.HandlerFunc {
 }
 
 func handleCounter(addr string) http.HandlerFunc {
+	tmpl, err := template.New("counter").Parse(counter)
+	if err != nil || tmpl == nil {
+		panic(err)
+	}
+	data := map[string]string{"endpoint": endpoint}
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		panic(err)
+	}
+	etag := fmt.Sprintf(`"%x"`, sha1.Sum(buf.Bytes()))
+
 	return func(w http.ResponseWriter, r *http.Request) {
+		if match := r.Header.Get("If-None-Match"); match != "" {
+			if strings.Contains(match, etag) {
+				w.WriteHeader(http.StatusNotModified)
+				return
+			}
+		}
 		// TODO restrict to site sites
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Etag", etag)
 		w.Header().Set("Content-Type", "application/javascript")
-		reader := strings.NewReader(counter)
-		if _, err := io.Copy(w, reader); err != nil {
+
+		if _, err := io.Copy(w, &buf); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
