@@ -80,6 +80,7 @@ func handleCounter(addr string) http.HandlerFunc {
 		// TODO restrict to site sites
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Etag", etag)
+		w.Header().Set("Cache-Control", "public")
 		w.Header().Set("Content-Type", "application/javascript")
 
 		if _, err := io.Copy(w, &buf); err != nil {
