@@ -13,4 +13,4 @@ create table users (
 create index "users#email" on users(email);
 
 insert into users (email, first_name, last_name, enabled, pw_hash, pw_salt, created_at, updated_at)
-values ('admin@example.com', 'Admin', 'User', 1, 'f1b4e14683c2ad53b3c798baeea6b17b7cf77b291825353cff3f24a255d98fe9', 'UvQgb6w0RjCOaM9L', date('now'), date('now'));
+values ('admin@example.com', 'Admin', 'User', 1, 'OD+kBtFSc+HUMSzCsJL/HL7TjOViMTZ3jMDuhUil/ys', 'UvQgb6w0RjCOaM9L', date('now'), date('now'));
