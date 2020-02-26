@@ -2,6 +2,7 @@ package sws
 
 type Store interface {
 	SiteStore
+	UserStore
 	GetSiteByName(string) (*Site, error)
 	SaveHit(*Hit) error
 }
@@ -22,4 +23,8 @@ type HitStore interface {
 type CounterStore interface {
 	SimpleSiteStore
 	SaveHit(*Hit) error
+}
+type UserStore interface {
+	GetUserByID(int) (*User, error)
+	GetUserByEmail(string) (*User, error)
 }

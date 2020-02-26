@@ -1,0 +1,11 @@
+{{ define "navbar" }}
+	<header class="site">
+		<a class="logo" href="/"><img /></a>
+		{{ if .User }}
+			<a href="/sites">Sites</a>
+			<a class="logout" href="/logout">Logout</a>
+		{{ else }}
+			<a class="login" href="/login">Login</a>
+		{{ end }}
+	</header>
+{{ end }}

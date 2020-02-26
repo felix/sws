@@ -97,6 +97,22 @@ func (s *Sqlite3) SaveHit(h *sws.Hit) error {
 	return nil
 }
 
+func (s *Sqlite3) GetUserByEmail(email string) (*sws.User, error) {
+	var u sws.User
+	if err := s.db.QueryRowx(stmts["userByEmail"], email).StructScan(&u); err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
+func (s *Sqlite3) GetUserByID(id int) (*sws.User, error) {
+	var u sws.User
+	if err := s.db.QueryRowx(stmts["userByID"], id).StructScan(&u); err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
 func processFilter(sql *string, filter map[string]interface{}) {
 	if sql == nil {
 		panic("empty sql")
@@ -152,4 +168,14 @@ ua.hash as "ua.hash", ua.name as "ua.name", ua.last_seen_at as "ua.last_seen_at"
 from hits h
 join user_agents ua on h.user_agent_hash = ua.hash
 where h.site_id = :site_id`,
+
+	"userByEmail": `select id, email, first_name, last_name, pw_hash, pw_salt, enabled,
+created_at, updated_at, last_login_at
+from users
+where email = $1`,
+
+	"userByID": `select id, email, first_name, last_name, pw_hash, pw_salt, enabled,
+created_at, updated_at, last_login_at
+from users
+where id = $1`,
 }

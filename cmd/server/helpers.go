@@ -35,7 +35,7 @@ var funcMap = template.FuncMap{
 
 func httpError(w http.ResponseWriter, code int, msg string) {
 	log(msg)
-	http.Error(w, http.StatusText(500), 500)
+	http.Error(w, http.StatusText(code), code)
 }
 
 func extractTimeRange(r *http.Request) (*time.Time, *time.Time) {

@@ -1,0 +1,16 @@
+{{ define "content" }}
+	<main>
+		<h2>Login</h2>
+		<form method="post" action="/login">
+			<div class="field">
+				<input type="email" name="email" placeholder="your email" />
+			</div>
+			<div class="field">
+				<input type="password" name="password" placeholder="your password" />
+			</div>
+			<div class="field">
+				<input type="submit" />
+			</div>
+		</form>
+	</main>
+{{ end }}

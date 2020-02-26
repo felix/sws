@@ -6,17 +6,15 @@
 		<link rel="stylesheet" href="/default.css">
 	</head>
 	<body>
-		<header class="site">
-		</header>
+		{{ template "navbar" . }}
 		<div class="page">
 			<div class="sidebar">
 				<nav>
-					<a href="/">Home</a>
 					<a href="/sites">Sites</a>
 					<a href="/sites/new">New site</a>
-					<a href="/logout">Logout</a>
 				</nav>
 			</div>
+			{{ template "flash" . }}
 			{{ template "content" . }}
 		</div>
 		<footer></footer>

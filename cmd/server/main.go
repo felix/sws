@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/jwtauth"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -25,9 +26,14 @@ import (
 var (
 	Version    string
 	log, debug sws.Logger
+	tokenAuth  *jwtauth.JWTAuth
 )
 
-const endpoint = "//stats.userspace.com.au/sws.gif"
+const (
+	endpoint  = "//stats.userspace.com.au/sws.gif"
+	loginURL  = "/login"
+	logoutURL = "/logout"
+)
 
 // Flags
 var (
@@ -46,6 +52,8 @@ func init() {
 	// Default to no log
 	log = func(v ...interface{}) {}
 	debug = func(v ...interface{}) {}
+
+	tokenAuth = jwtauth.New("HS256", []byte("lkjasd0f9u203ijsldkfj"), nil)
 }
 
 type Renderer interface {
@@ -100,10 +108,15 @@ func main() {
 		st = store.NewSqlite3Store(db)
 	}
 
+	tmplsCommon := []string{"flash.tmpl", "navbar.tmpl"}
+	tmplsAuthed := append(tmplsCommon, []string{"layouts/base.tmpl", "charts.tmpl"}...)
+	tmplsPublic := append(tmplsCommon, "layouts/public.tmpl")
+
 	tmpls, err := LoadHTMLTemplateMap(map[string][]string{
-		"sites":   []string{"layouts/base.tmpl", "sites.tmpl", "charts.tmpl"},
-		"site":    []string{"layouts/base.tmpl", "site.tmpl", "charts.tmpl"},
-		"home":    []string{"layouts/public.tmpl", "home.tmpl"},
+		"sites":   append(tmplsAuthed, "sites.tmpl"),
+		"site":    append(tmplsAuthed, "site.tmpl"),
+		"home":    append(tmplsPublic, "home.tmpl"),
+		"login":   append(tmplsPublic, "login.tmpl"),
 		"example": []string{"example.tmpl"},
 	}, funcMap)
 	if err != nil {
@@ -125,6 +138,7 @@ func main() {
 	r.Use(middleware.Recoverer)
 
 	siteCtx := getSiteCtx(st)
+	userCtx := getUserCtx(st)
 
 	// For counter
 	r.Get("/sws.js", handleCounter(*addr))
@@ -132,17 +146,36 @@ func main() {
 
 	// For UI
 	r.Get("/hits", handleHits(st))
-	r.Route("/sites", func(r chi.Router) {
-		r.Get("/", handleSites(st, renderer))
-		r.Route("/{siteID}", func(r chi.Router) {
-			r.Use(siteCtx)
-			r.Get("/", handleSite(st, renderer))
-			r.Route("/sparklines", func(r chi.Router) {
-				r.Get("/{b:\\d+}-{e:\\d+}.svg", sparklineHandler(st))
+
+	// Authed routes
+	r.Group(func(r chi.Router) {
+		r.Use(jwtauth.Verifier(tokenAuth))
+		r.Use(jwtauth.Authenticator)
+		r.Use(userCtx)
+		r.Get(logoutURL, func(w http.ResponseWriter, r *http.Request) {
+			http.SetCookie(w, &http.Cookie{
+				Name:     "jwt",
+				Value:    "",
+				HttpOnly: true,
+				Path:     "/",
+				//Secure: true,
+				Expires: time.Time{},
 			})
-			r.Route("/charts", func(r chi.Router) {
-				r.Get("/{b:\\d+}-{e:\\d+}.svg", svgChartHandler(st))
-				r.Get("/{b:\\d+}-{e:\\d+}.png", svgChartHandler(st))
+			r = flashSet(r, flashSuccess, "de-authenticated successfully")
+			http.Redirect(w, r, flashURL(r, "/"), http.StatusSeeOther)
+		})
+		r.Route("/sites", func(r chi.Router) {
+			r.Get("/", handleSites(st, renderer))
+			r.Route("/{siteID}", func(r chi.Router) {
+				r.Use(siteCtx)
+				r.Get("/", handleSite(st, renderer))
+				r.Route("/sparklines", func(r chi.Router) {
+					r.Get("/{b:\\d+}-{e:\\d+}.svg", sparklineHandler(st))
+				})
+				r.Route("/charts", func(r chi.Router) {
+					r.Get("/{b:\\d+}-{e:\\d+}.svg", svgChartHandler(st))
+					r.Get("/{b:\\d+}-{e:\\d+}.png", svgChartHandler(st))
+				})
 			})
 		})
 	})
@@ -150,8 +183,22 @@ func main() {
 	// Example
 	r.Get("/test.html", handleExample(renderer))
 
+	authHandler := handleAuth(st, renderer)
+
+	// Public routes
 	r.Route("/", func(r chi.Router) {
 		r.Get("/", handleIndex(renderer))
+		r.Get(loginURL, func(w http.ResponseWriter, r *http.Request) {
+			flash := flashGet(r)
+			if err := renderer.Render(w, "login", map[string]interface{}{
+				"Flash": flash,
+			}); err != nil {
+				httpError(w, 500, err.Error())
+				return
+			}
+			return
+		})
+		r.Post(loginURL, authHandler)
 
 		r.Get("/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			p := strings.TrimPrefix(r.URL.Path, "/")
@@ -184,11 +231,32 @@ func getSiteCtx(db sws.SiteStore) func(http.Handler) http.Handler {
 	}
 }
 
-// func getAuthCtx(db sws.UserStore) func(http.Handler) http.Handler {
-// 	return func(next http.Handler) http.Handler {
-// 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 			ctx := context.WithValue(r.Context(), "user", user)
-// 			next.ServeHTTP(w, r.WithContext(ctx))
-// 		})
-// 	}
-// }
+func getUserCtx(db sws.UserStore) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			_, claims, err := jwtauth.FromContext(r.Context())
+			if err != nil {
+				log("missing claims")
+				http.Redirect(w, r, flashURL(r, "/login"), http.StatusUnauthorized)
+				return
+			}
+
+			id, ok := claims["user_id"]
+			if !ok {
+				log("missing user_id")
+				http.Redirect(w, r, flashURL(r, "/login"), http.StatusUnauthorized)
+				return
+			}
+
+			user, err := db.GetUserByID(int(id.(float64)))
+			if err != nil {
+				log("missing user")
+				http.Redirect(w, r, flashURL(r, "/login"), http.StatusUnauthorized)
+				return
+			}
+			log("found user, adding to context")
+			ctx := context.WithValue(r.Context(), "user", user)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}

@@ -22,7 +22,9 @@
 		</ul>
 		<h2>User Agents</h2>
 		{{ if .UserAgents }}
+			<fig>
 			{{ template "barChart" .UserAgents }}
+			</fig>
 			<ul class="agents">
 				{{ range .UserAgents }}
 					{{ template "uaForList" . }}

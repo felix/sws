@@ -14,11 +14,10 @@ func handleSites(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 			httpError(w, 500, err.Error())
 			return
 		}
-		payload := struct {
-			Sites []*sws.Site
-		}{
-			Sites: sites,
-		}
+
+		payload := newTemplateData(r)
+		payload.Sites = sites
+
 		if err := rndr.Render(w, "sites", payload); err != nil {
 			httpError(w, 500, err.Error())
 			return
@@ -54,17 +53,12 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 		pageSet := sws.NewPageSet(hitSet)
 		uaSet := sws.NewUserAgentSet(hitSet)
 
-		payload := struct {
-			Site       *sws.Site
-			Pages      sws.PageSet
-			UserAgents sws.UserAgentSet
-			Hits       *sws.HitSet
-		}{
-			Site:       site,
-			Pages:      pageSet,
-			UserAgents: uaSet,
-			Hits:       hitSet,
-		}
+		payload := newTemplateData(r)
+		payload.Site = site
+		payload.Pages = &pageSet
+		payload.UserAgents = &uaSet
+		payload.Hits = hitSet
+
 		if err := rndr.Render(w, "site", payload); err != nil {
 			httpError(w, 500, err.Error())
 			return

@@ -6,9 +6,9 @@
 		<link rel="stylesheet" href="/default.css">
 	</head>
 	<body>
-		<header class="site">
-		</header>
+		{{ template "navbar" . }}
 		<div class="page">
+			{{ template "flash" . }}
 			{{ template "content" . }}
 		</div>
 		<footer></footer>
