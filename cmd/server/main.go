@@ -254,7 +254,7 @@ func getUserCtx(db sws.UserStore) func(http.Handler) http.Handler {
 				http.Redirect(w, r, flashURL(r, "/login"), http.StatusUnauthorized)
 				return
 			}
-			log("found user, adding to context")
+			debug("found user, adding to context")
 			ctx := context.WithValue(r.Context(), "user", user)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

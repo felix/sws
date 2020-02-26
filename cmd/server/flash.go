@@ -27,14 +27,11 @@ type flashMsg struct {
 }
 
 func flashSet(r *http.Request, l flashLvl, m string) *http.Request {
-	debug("fetching existing flashes")
 	flashes := flashGet(r)
-	debug("fetched existing flashes", flashes)
 	if flashes == nil {
 		flashes = make([]flashMsg, 0)
 	}
 	flashes = append(flashes, flashMsg{l, m})
-	debug("adding flashes to context")
 	return r.WithContext(context.WithValue(r.Context(), flashCtxKey("flash"), flashes))
 }
 

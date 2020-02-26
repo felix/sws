@@ -21,7 +21,6 @@ type templateData struct {
 
 func newTemplateData(r *http.Request) *templateData {
 	out := &templateData{Flashes: flashGet(r)}
-	log(out)
 	if user := r.Context().Value("user"); user != nil {
 		out.User = user.(*sws.User)
 	}
