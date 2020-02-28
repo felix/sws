@@ -43,15 +43,6 @@ func httpError(w http.ResponseWriter, code int, msg string) {
 	http.Error(w, http.StatusText(code), code)
 }
 
-func authRedirect(w http.ResponseWriter, r *http.Request, msg string) {
-	flashSet(r, flashError, msg)
-	log(msg)
-	qs := r.URL.Query()
-	qs.Set("return_to", r.URL.Path)
-	r.URL.RawQuery = qs.Encode()
-	http.Redirect(w, r, flashURL(r, "/login"), http.StatusSeeOther)
-}
-
 func extractTimeRange(r *http.Request) (*time.Time, *time.Time) {
 	begin := timePtr(time.Now().Truncate(time.Hour).Add(-168 * time.Hour))
 	end := timePtr(time.Now())

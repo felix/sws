@@ -12,12 +12,12 @@
 
 		<h2>Popular pages</h2>
 		<fig>
-		{{ template "barChartHorizontal" .Pages }}
+		{{ template "barChartHorizontal" .PageSet }}
 		</fig>
 
 		<ul class="pages">
-			{{ $pages := .Pages }}
-			{{ range .Pages }}
+			{{ $pages := .PageSet }}
+			{{ range .PageSet }}
 				{{ template "pageForList" . }}
 				<fig>
 				{{ $pathHits := $pages.Page .Path }}

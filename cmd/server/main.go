@@ -29,12 +29,6 @@ var (
 	tokenAuth  *jwtauth.JWTAuth
 )
 
-const (
-	endpoint  = "//stats.userspace.com.au/sws.gif"
-	loginURL  = "/login"
-	logoutURL = "/logout"
-)
-
 // Flags
 var (
 	verbose   *bool
@@ -113,17 +107,18 @@ func main() {
 	tmplsPublic := append(tmplsCommon, "layouts/public.tmpl")
 
 	tmpls, err := LoadHTMLTemplateMap(map[string][]string{
-		"sites":   append(tmplsAuthed, "sites.tmpl"),
-		"site":    append(tmplsAuthed, "site.tmpl"),
-		"home":    append(tmplsPublic, "home.tmpl"),
-		"login":   append(tmplsPublic, "login.tmpl"),
+		"sites":   append([]string{"sites.tmpl"}, tmplsAuthed...),
+		"site":    append([]string{"site.tmpl"}, tmplsAuthed...),
+		"home":    append([]string{"home.tmpl"}, tmplsPublic...),
+		"login":   append([]string{"login.tmpl"}, tmplsPublic...),
 		"example": []string{"example.tmpl"},
 	}, funcMap)
 	if err != nil {
 		log(err)
 		os.Exit(1)
 	}
-	//debug(tmpls.DefinedTemplates())
+	debug(tmpls["login"].DefinedTemplates())
+	debug(tmpls["home"].DefinedTemplates())
 	renderer := templates.NewRenderer(tmpls)
 
 	r := chi.NewRouter()
@@ -147,22 +142,32 @@ func main() {
 	// For UI
 	r.Get("/hits", handleHits(st))
 
+	// Public routes
+	r.Get("/", handleIndex(renderer))
+	r.Get(loginURL, func(w http.ResponseWriter, r *http.Request) {
+		payload := newTemplateData(r)
+		if err := renderer.Render(w, "login", payload); err != nil {
+			httpError(w, 500, err.Error())
+			return
+		}
+		return
+	})
+
+	r.Post(loginURL, handleLogin(st, renderer))
+
+	r.Get("/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		p := strings.TrimPrefix(r.URL.Path, "/")
+		if b, err := StaticLoadTemplate(p); err == nil {
+			name := filepath.Base(p)
+			http.ServeContent(w, r, name, time.Now(), bytes.NewReader(b))
+		}
+	}))
+
 	// Authed routes
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(tokenAuth))
 		r.Use(userCtx)
-		r.Get(logoutURL, func(w http.ResponseWriter, r *http.Request) {
-			http.SetCookie(w, &http.Cookie{
-				Name:     "jwt",
-				Value:    "",
-				HttpOnly: true,
-				Path:     "/",
-				//Secure: true,
-				Expires: time.Time{},
-			})
-			r = flashSet(r, flashSuccess, "de-authenticated successfully")
-			http.Redirect(w, r, flashURL(r, "/"), http.StatusSeeOther)
-		})
+		r.Get(logoutURL, handleLogout(renderer))
 		r.Route("/sites", func(r chi.Router) {
 			r.Get("/", handleSites(st, renderer))
 			r.Route("/{siteID}", func(r chi.Router) {
@@ -181,32 +186,6 @@ func main() {
 
 	// Example
 	r.Get("/test.html", handleExample(renderer))
-
-	authHandler := handleAuth(st, renderer)
-
-	// Public routes
-	r.Route("/", func(r chi.Router) {
-		r.Get("/", handleIndex(renderer))
-		r.Get(loginURL, func(w http.ResponseWriter, r *http.Request) {
-			flash := flashGet(r)
-			if err := renderer.Render(w, "login", map[string]interface{}{
-				"Flash": flash,
-			}); err != nil {
-				httpError(w, 500, err.Error())
-				return
-			}
-			return
-		})
-		r.Post(loginURL, authHandler)
-
-		r.Get("/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			p := strings.TrimPrefix(r.URL.Path, "/")
-			if b, err := StaticLoadTemplate(p); err == nil {
-				name := filepath.Base(p)
-				http.ServeContent(w, r, name, time.Now(), bytes.NewReader(b))
-			}
-		}))
-	})
 
 	log("listening at", *addr)
 	http.ListenAndServe(*addr, r)

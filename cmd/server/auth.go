@@ -9,7 +9,12 @@ import (
 	"src.userspace.com.au/sws"
 )
 
-func handleAuth(db sws.UserStore, rndr Renderer) http.HandlerFunc {
+const (
+	loginURL  = "/login"
+	logoutURL = "/logout"
+)
+
+func handleLogin(db sws.UserStore, rndr Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		email := r.PostFormValue("email")
 		password := r.PostFormValue("password")
@@ -72,8 +77,33 @@ func handleAuth(db sws.UserStore, rndr Renderer) http.HandlerFunc {
 		if returnPath := qs.Get("return_to"); returnPath != "" {
 			qs.Del("return_to")
 			r.URL.RawQuery = qs.Encode()
+			debug("redirecting to", returnPath)
 			http.Redirect(w, r, flashURL(r, returnPath), http.StatusSeeOther)
 		}
 		http.Redirect(w, r, flashURL(r, "/sites"), http.StatusSeeOther)
 	}
+}
+
+func handleLogout(rndr Renderer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "jwt",
+			Value:    "",
+			HttpOnly: true,
+			Path:     "/",
+			//Secure: true,
+			Expires: time.Time{},
+		})
+		r = flashSet(r, flashSuccess, "de-authenticated successfully")
+		http.Redirect(w, r, flashURL(r, "/"), http.StatusSeeOther)
+	}
+}
+
+func authRedirect(w http.ResponseWriter, r *http.Request, msg string) {
+	flashSet(r, flashError, msg)
+	log(msg)
+	qs := r.URL.Query()
+	qs.Set("return_to", r.URL.Path)
+	r.URL.RawQuery = qs.Encode()
+	http.Redirect(w, r, flashURL(r, loginURL), http.StatusSeeOther)
 }

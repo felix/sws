@@ -66,7 +66,7 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 
 		payload := newTemplateData(r)
 		payload.Site = site
-		payload.Pages = &pageSet
+		payload.PageSet = &pageSet
 		payload.Browsers = &browserSet
 		payload.Hits = hitSet
 

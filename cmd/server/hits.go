@@ -13,7 +13,10 @@ import (
 	"src.userspace.com.au/sws"
 )
 
-const gif = "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+const (
+	endpoint = "//stats.userspace.com.au/sws.gif"
+	gif      = "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+)
 
 func handleHits(db sws.HitStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
