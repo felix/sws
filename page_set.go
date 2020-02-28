@@ -1,39 +1,69 @@
 package sws
 
-type PageSet map[string]*Page
+import (
+	"sort"
+)
 
-func NewPageSet(hitter Hitter) PageSet {
-	out := make(map[string]*Page)
-	for _, h := range hitter.Hits() {
-		p, ok := out[h.Path]
-		if !ok {
-			p = &Page{
-				Path:          h.Path,
-				SiteID:        *h.SiteID,
-				Title:         h.Title,
-				LastVisitedAt: h.CreatedAt,
-				hitSet: &HitSet{
-					duration: hitter.Duration(),
-				},
-			}
+type PageSet []*Page
+
+func NewPageSet(hs *HitSet) (PageSet, error) {
+	tmp := make(map[string]*Page)
+	for _, h := range hs.Hits() {
+		if _, ok := tmp[h.Path]; ok {
+			// Already captured this path
+			continue
 		}
-		if p.LastVisitedAt.Before(h.CreatedAt) {
-			p.LastVisitedAt = h.CreatedAt
+		p := &Page{
+			Path:          h.Path,
+			SiteID:        *h.SiteID,
+			Title:         h.Title,
+			LastVisitedAt: h.CreatedAt,
+			hitSet: hs.Filter(func(t *Hit) bool {
+				return t.Path == h.Path
+			}),
 		}
-		p.hitSet.Add(h)
-		out[h.Path] = p
+		// if p.LastVisitedAt.Before(h.CreatedAt) {
+		// 	p.LastVisitedAt = h.CreatedAt
+		// }
+		//p.hitSet.Add(h)
+		tmp[h.Path] = p
 	}
-	b := hitter.Begin()
-	e := hitter.End()
-	for _, p := range out {
-		p.hitSet.Fill(&b, &e)
+	out := make([]*Page, len(tmp))
+	i := 0
+	for _, p := range tmp {
+		out[i] = p
+		i++
 	}
-	return PageSet(out)
+	return PageSet(out), nil
 }
 
-func (ps PageSet) Page(p string) *Page {
-	pg, _ := ps[p]
-	return pg
+func (ps PageSet) Hits() []*Hit {
+	out := make([]*Hit, 0)
+	for _, p := range ps {
+		out = append(out, p.hitSet.Hits()...)
+	}
+	return out
+}
+
+func (ps *PageSet) SortByPath() {
+	sort.Slice(*ps, func(i, j int) bool {
+		return (*ps)[i].Path < (*ps)[j].Path
+	})
+}
+
+func (ps *PageSet) SortByHits() {
+	sort.Slice(*ps, func(i, j int) bool {
+		return (*ps)[i].hitSet.Count() > (*ps)[j].hitSet.Count()
+	})
+}
+
+func (ps PageSet) Page(s string) *Page {
+	for _, p := range ps {
+		if p.Path == s {
+			return p
+		}
+	}
+	return nil
 }
 
 func (ps PageSet) YMax() int {
@@ -46,11 +76,5 @@ func (ps PageSet) YMax() int {
 	return max
 }
 func (ps PageSet) XSeries() []*Page {
-	out := make([]*Page, len(ps))
-	i := 0
-	for _, v := range ps {
-		out[i] = v
-		i++
-	}
-	return out
+	return ps
 }

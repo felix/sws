@@ -68,6 +68,12 @@ func handleAuth(db sws.UserStore, rndr Renderer) http.HandlerFunc {
 		})
 		r = r.WithContext(context.WithValue(r.Context(), "user", user))
 		r = flashSet(r, flashSuccess, "authenticated successfully")
+		qs := r.URL.Query()
+		if returnPath := qs.Get("return_to"); returnPath != "" {
+			qs.Del("return_to")
+			r.URL.RawQuery = qs.Encode()
+			http.Redirect(w, r, flashURL(r, returnPath), http.StatusSeeOther)
+		}
 		http.Redirect(w, r, flashURL(r, "/sites"), http.StatusSeeOther)
 	}
 }

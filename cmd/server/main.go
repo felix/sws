@@ -150,7 +150,6 @@ func main() {
 	// Authed routes
 	r.Group(func(r chi.Router) {
 		r.Use(jwtauth.Verifier(tokenAuth))
-		r.Use(jwtauth.Authenticator)
 		r.Use(userCtx)
 		r.Get(logoutURL, func(w http.ResponseWriter, r *http.Request) {
 			http.SetCookie(w, &http.Cookie{
@@ -213,6 +212,41 @@ func main() {
 	http.ListenAndServe(*addr, r)
 }
 
+func getUserCtx(db sws.UserStore) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			token, claims, err := jwtauth.FromContext(r.Context())
+
+			if err != nil {
+				authRedirect(w, r, "token error")
+				return
+			}
+
+			if token == nil || !token.Valid {
+				authRedirect(w, r, "invalid token")
+				return
+			}
+
+			// Token is authenticated, get claims
+
+			id, ok := claims["user_id"]
+			if !ok {
+				authRedirect(w, r, "missing user ID")
+				return
+			}
+
+			user, err := db.GetUserByID(int(id.(float64)))
+			if err != nil {
+				authRedirect(w, r, "missing user")
+				return
+			}
+			debug("found user, adding to context")
+			ctx := context.WithValue(r.Context(), "user", user)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
 func getSiteCtx(db sws.SiteStore) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -226,36 +260,6 @@ func getSiteCtx(db sws.SiteStore) func(http.Handler) http.Handler {
 				return
 			}
 			ctx := context.WithValue(r.Context(), "site", site)
-			next.ServeHTTP(w, r.WithContext(ctx))
-		})
-	}
-}
-
-func getUserCtx(db sws.UserStore) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			_, claims, err := jwtauth.FromContext(r.Context())
-			if err != nil {
-				log("missing claims")
-				http.Redirect(w, r, flashURL(r, "/login"), http.StatusUnauthorized)
-				return
-			}
-
-			id, ok := claims["user_id"]
-			if !ok {
-				log("missing user_id")
-				http.Redirect(w, r, flashURL(r, "/login"), http.StatusUnauthorized)
-				return
-			}
-
-			user, err := db.GetUserByID(int(id.(float64)))
-			if err != nil {
-				log("missing user")
-				http.Redirect(w, r, flashURL(r, "/login"), http.StatusUnauthorized)
-				return
-			}
-			debug("found user, adding to context")
-			ctx := context.WithValue(r.Context(), "user", user)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

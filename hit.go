@@ -34,10 +34,12 @@ type Hit struct {
 }
 
 type Hitter interface {
+	//Filter(FilterFunc) *HitSet
 	Hits() []*Hit
 	Begin() time.Time
 	End() time.Time
 	Duration() time.Duration
+	Location() *time.Location
 }
 
 func (h Hit) String() string {

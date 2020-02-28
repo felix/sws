@@ -9,7 +9,12 @@
 		<fig>
 		{{ template "timeBarChart" .Hits }}
 		</fig>
+
 		<h2>Popular pages</h2>
+		<fig>
+		{{ template "barChartHorizontal" .Pages }}
+		</fig>
+
 		<ul class="pages">
 			{{ $pages := .Pages }}
 			{{ range .Pages }}
@@ -21,13 +26,13 @@
 			{{ end }}
 		</ul>
 		<h2>User Agents</h2>
-		{{ if .UserAgents }}
+		{{ if .Browsers }}
 			<fig>
-			{{ template "barChart" .UserAgents }}
+			{{ template "barChart" .Browsers }}
 			</fig>
-			<ul class="agents">
-				{{ range .UserAgents }}
-					{{ template "uaForList" . }}
+			<ul class="browsers">
+				{{ range .Browsers }}
+					{{ template "browserForList" . }}
 				{{ end }}
 			</ul>
 		{{ else }}
@@ -45,10 +50,9 @@
 </li>
 {{ end }}
 
-{{ define "uaForList" }}
+{{ define "browserForList" }}
 <li>
-	<h4 class="engine">{{ .Browser }}</h4>
-	<span class="user-agent">{{ .Name }}</span>
+	<h4 class="name">{{ .Name }}</h4>
 	<span class="last-seen">{{ .LastSeenAt|timeLong }}</span>
 	<span class="count">{{ .Count }}</span>
 </li>

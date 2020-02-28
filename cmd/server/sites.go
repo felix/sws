@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"time"
 
 	"src.userspace.com.au/sws"
 )
@@ -48,15 +47,27 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 			return
 		}
 
-		hitSet := sws.NewHitSet(hits, *begin, *end, time.Hour)
+		hitSet, err := sws.NewHitSet(sws.FromHits(hits))
+		if err != nil {
+			httpError(w, 406, err.Error())
+			return
+		}
 		hitSet.Fill(begin, end)
-		pageSet := sws.NewPageSet(hitSet)
-		uaSet := sws.NewUserAgentSet(hitSet)
+		hitSet.SortByDate()
+
+		pageSet, err := sws.NewPageSet(hitSet)
+		if err != nil {
+			httpError(w, 406, err.Error())
+			return
+		}
+		pageSet.SortByHits()
+
+		browserSet := sws.NewBrowserSet(hitSet)
 
 		payload := newTemplateData(r)
 		payload.Site = site
 		payload.Pages = &pageSet
-		payload.UserAgents = &uaSet
+		payload.Browsers = &browserSet
 		payload.Hits = hitSet
 
 		if err := rndr.Render(w, "site", payload); err != nil {

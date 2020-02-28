@@ -48,7 +48,7 @@ func NewChart(data HitSet, opts ...ChartOption) (*chart, error) {
 
 type ChartOption func(*chart) error
 
-func Dimentions(height, width int) ChartOption {
+func Dimensions(height, width int) ChartOption {
 	return func(c *chart) error {
 		if height < 0 || width < 0 {
 			return fmt.Errorf("invalid chart dimensions")
@@ -69,6 +69,7 @@ func SparklineSVG(w io.Writer, data *HitSet, d time.Duration) error {
 		},
 	}
 
+	data.SortByDate()
 	hits.XValues, hits.YValues = data.XYValues()
 
 	graph := gochart.Chart{

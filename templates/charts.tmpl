@@ -3,18 +3,30 @@
 		{{ $max := .YMax }}
 		{{ range .XSeries }}
 			<li class="slot{{ if eq .Time.Hour 0 }} midnight{{ end }}" data-x="{{ .Label }}" data-y="{{ .YValue }}" data-percent="{{ percent .YValue $max }}">
-				<div class="bar" style="height:{{ percent .YValue $max }}%" />
+				<time class="bar" style="height:{{ percent .YValue $max }}%" datetime="{{ .Time }}"/>
 			</li>
 		{{ end }}
 	</ul>
 {{ end }}
 
 {{ define "barChart" }}
-	<ul class="chart bar category">
+	<ul class="chart bar vertical">
 		{{ $max := .YMax }}
 		{{ range .XSeries }}
 			<li class="slot" data-x="{{ .Label }}" data-y="{{ .YValue }}" data-percent="{{ percent .YValue $max }}">
 				<div class="bar" style="height:{{ percent .YValue $max }}%" />
+			</li>
+		{{ else }}
+		{{ end }}
+	</ul>
+{{ end }}
+
+{{ define "barChartHorizontal" }}
+	<ul class="chart bar horizontal">
+		{{ $max := .YMax }}
+		{{ range .XSeries }}
+			<li class="slot" data-x="{{ .Label }}" data-y="{{ .YValue }}" data-percent="{{ percent .YValue $max }}">
+				<div class="bar" style="width:{{ percent .YValue $max }}%" />
 			</li>
 		{{ else }}
 		{{ end }}

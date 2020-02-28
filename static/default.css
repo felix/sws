@@ -1,8 +1,8 @@
 *, *:before, *:after {
-  box-sizing: inherit;
+	box-sizing: inherit;
 }
 html {
-  box-sizing: border-box;
+	box-sizing: border-box;
 }
 body {
 	background-color: #fffaf7;
@@ -68,16 +68,37 @@ header.site {
 .chart {
 	align-items: stretch;
 	display: flex;
-	height: 100px;
 	margin: 0;
+	width: 100%;
+}
+.chart.time {
+	flex-direction: row;
+	height: 200px;
 	padding-top: 2em;
 	padding-bottom: 2em;
-	width: 100%;
+}
+.chart.vertical {
+	align-items: stretch;
+	flex-direction: row;
+	height: 100px;
+	padding-top: 2em;
+	padding-bottom: 2em;
+}
+.chart.horizontal {
+	flex-direction: column;
+	height: 300px;
+	padding-left: 20px;
 }
 .chart .slot {
 	background: #fafafa;
+	display: block;
 	flex: 1 1;
+	margin: 0;
 	position: relative;
+}
+.chart.horizontal .slot {
+	margin-top: 1px;
+	margin-bottom: 1px;
 }
 .chart .slot.midnight {
 	border-left: 1px solid #ddd;
@@ -87,28 +108,51 @@ header.site {
 }
 .chart .bar {
 	background: #4c92ff;
-	border-top-left-radius: 3px;
-	border-top-right-radius: 3px;
 	bottom: 0;
 	left: 0;
-	margin-left: 2px;
-	margin-right: 2px;
+	margin: 0;
 	position: absolute;
+}
+.chart.time .bar,
+.chart.vertical .bar {
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
 	right: 0;
 }
-.chart.time .bar {
-	margin-left: 0;
-	margin-right: 0;
+.chart.vertical .bar {
+	margin-left: 2px;
+	margin-right: 2px;
+}
+.chart.horizontal .bar {
+	border-bottom-right-radius: 3px;
+	border-top-right-radius: 3px;
+	bottom: unset;
+	height: 100%;
+	right: unset;
+	top: 0;
 }
 .chart .slot:hover .bar {
 	background: #88b6ff;
 }
+.chart .slot:hover:before,
+.chart .slot:hover:after {
+	display: block;
+	position: relative;
+}
 .chart .slot:before,
 .chart .slot:after {
-	bottom: 100%;
 	content: attr(data-y);
 	display: none;
 	font-size: .75em;
+}
+.chart .slot:after {
+	content: attr(data-x);
+}
+.chart.time .slot:before,
+.chart.time .slot:after,
+.chart.vertical .slot:before,
+.chart.vertical .slot:after {
+	bottom: 100%;
 	left: 50%;
 	margin-bottom: .5rem;
 	margin-left: -2.5rem;
@@ -116,13 +160,27 @@ header.site {
 	text-align: center;
 	width: 5rem;
 }
-/* time */
-.chart .slot:after {
-	content: attr(data-x);
+.chart.time .slot:after,
+.chart.vertical .slot:after {
 	margin-top: .5rem;
 	top: 100%;
 }
-.chart .slot:hover:before,
-.chart .slot:hover:after {
-	display: block;
+.chart.horizontal .slot:before,
+.chart.horizontal .slot:after {
+	font-size: 1em;
+	height: 100%;
+	margin-left: 10px;
+	margin-bottom: 0;
+	position: absolute;
+}
+.chart.horizontal .slot:before {
+	left: -20px;
+	margin-left: 0;
+	text-align: center;
+	width: 20px;
+}
+.chart.horizontal .slot:after {
+	left: 0;
+	width: auto;
+	z-index: 10;
 }

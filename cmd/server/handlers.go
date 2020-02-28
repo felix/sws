@@ -8,15 +8,15 @@ import (
 )
 
 type templateData struct {
-	User       *sws.User
-	Flashes    []flashMsg
-	Begin      *time.Time
-	End        *time.Time
-	Site       *sws.Site
-	Sites      []*sws.Site
-	Pages      *sws.PageSet
-	UserAgents *sws.UserAgentSet
-	Hits       *sws.HitSet
+	User     *sws.User
+	Flashes  []flashMsg
+	Begin    *time.Time
+	End      *time.Time
+	Site     *sws.Site
+	Sites    []*sws.Site
+	Pages    *sws.PageSet
+	Browsers *sws.BrowserSet
+	Hits     *sws.HitSet
 }
 
 func newTemplateData(r *http.Request) *templateData {

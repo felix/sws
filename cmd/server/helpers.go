@@ -16,6 +16,11 @@ var funcMap = template.FuncMap{
 		then := now.Add(-24 * time.Hour)
 		return fmt.Sprintf("/sites/%d/sparklines/%d-%d.svg", id, then.Unix(), now.Unix())
 	},
+	"tz": func(s string, t time.Time) time.Time {
+		tz, _ := time.LoadLocation(s)
+		// TODO error
+		return t.In(tz)
+	},
 	"timeShort": func(t time.Time) string {
 		return t.Format("2006-01-02 15:04")
 	},
@@ -36,6 +41,15 @@ var funcMap = template.FuncMap{
 func httpError(w http.ResponseWriter, code int, msg string) {
 	log(msg)
 	http.Error(w, http.StatusText(code), code)
+}
+
+func authRedirect(w http.ResponseWriter, r *http.Request, msg string) {
+	flashSet(r, flashError, msg)
+	log(msg)
+	qs := r.URL.Query()
+	qs.Set("return_to", r.URL.Path)
+	r.URL.RawQuery = qs.Encode()
+	http.Redirect(w, r, flashURL(r, "/login"), http.StatusSeeOther)
 }
 
 func extractTimeRange(r *http.Request) (*time.Time, *time.Time) {
