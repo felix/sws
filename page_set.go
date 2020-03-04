@@ -28,6 +28,9 @@ func NewPageSet(hs *HitSet) (PageSet, error) {
 		//p.hitSet.Add(h)
 		tmp[h.Path] = p
 	}
+	if len(tmp) < 1 {
+		return nil, nil
+	}
 	out := make([]*Page, len(tmp))
 	i := 0
 	for _, p := range tmp {

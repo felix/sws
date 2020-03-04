@@ -113,6 +113,13 @@ func (s *Sqlite3) GetUserByID(id int) (*sws.User, error) {
 	return &u, nil
 }
 
+func (s *Sqlite3) SaveUser(u *sws.User) error {
+	if _, err := s.db.NamedExec(stmts["saveUser"], u); err != nil {
+		return err
+	}
+	return nil
+}
+
 func processFilter(sql *string, filter map[string]interface{}) {
 	if sql == nil {
 		panic("empty sql")
@@ -147,7 +154,12 @@ where id = $1 limit 1`,
 
 	"saveSite": `insert into sites (
 name, description, aliases, enabled, created_at, updated_at)
-values (:name, :description, :aliases, :enabled, :created_at, :updated_at)`,
+values (:name, :description, :aliases, :enabled, date('now'), date('now'))
+on conflict(id) do update set
+name = :name,
+description = :description,
+aliases = :aliases,
+updated_at = date('now')`,
 
 	"userAgentByHash": `select id, hash, name, last_seen_at from sites
 where hash = $1 limit 1`,
@@ -178,4 +190,15 @@ where email = $1`,
 created_at, updated_at, last_login_at
 from users
 where id = $1`,
+
+	"saveUser": `insert into users
+(id, first_name, last_name, email, pw_hash, pw_salt, created_at, updated_at)
+values (:id, :first_name, :last_name, :email, :pw_hash, :pw_salt, date('now'), date('now'))
+on conflict(id) do update set
+first_name = :first_name,
+last_name = :last_name,
+email = :email,
+pw_hash = :pw_hash,
+pw_salt = :pw_salt,
+updated_at = date('now')`,
 }

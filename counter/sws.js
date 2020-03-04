@@ -46,7 +46,7 @@ var viewPort = (w.innerWidth || de.clientWidth || d.body.clientWidth) + 'x' +
 ready(function () {
   if (!_sws.noauto) {
     var ep = new URL(_sws.d)
-    count('{{ .endpoint }}', {
+    count('{{ .Endpoint }}', {
       i: _sws.site,
       s: l.protocol,
       h: l.host,

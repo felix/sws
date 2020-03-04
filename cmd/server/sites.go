@@ -2,12 +2,29 @@ package main
 
 import (
 	"net/http"
+	"strings"
 
 	"src.userspace.com.au/sws"
 )
 
 func handleSites(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			site := &sws.Site{
+				Name:        r.FormValue("name"),
+				Description: r.FormValue("description"),
+				Aliases:     r.FormValue("aliases"),
+			}
+			if errs := site.Validate(); len(errs) > 0 {
+				log("invalid site:", errs)
+				r = flashSet(r, flashError, strings.Join(errs, "<br>"))
+			} else if err := db.SaveSite(site); err != nil {
+				httpError(w, 500, err.Error())
+				return
+			}
+			r = flashSet(r, flashSuccess, "site created")
+		}
+
 		sites, err := db.GetSites()
 		if err != nil {
 			httpError(w, 500, err.Error())
@@ -32,6 +49,10 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 			httpError(w, 422, "no site in context")
 			return
 		}
+
+		payload := newTemplateData(r)
+		payload.Site = site
+
 		begin, end := extractTimeRange(r)
 		if begin == nil || end == nil {
 			httpError(w, 406, "invalid time range")
@@ -52,23 +73,58 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 			httpError(w, 406, err.Error())
 			return
 		}
-		hitSet.Fill(begin, end)
-		hitSet.SortByDate()
+		if hitSet != nil {
+			hitSet.Fill(begin, end)
+			hitSet.SortByDate()
+			payload.Hits = hitSet
 
-		pageSet, err := sws.NewPageSet(hitSet)
-		if err != nil {
-			httpError(w, 406, err.Error())
+			pageSet, err := sws.NewPageSet(hitSet)
+			if err != nil {
+				httpError(w, 406, err.Error())
+				return
+			}
+
+			if pageSet != nil {
+				pageSet.SortByHits()
+				payload.PageSet = pageSet
+			}
+			browserSet := sws.NewBrowserSet(hitSet)
+			payload.Browsers = browserSet
+		}
+
+		if err := rndr.Render(w, "site", payload); err != nil {
+			httpError(w, 500, err.Error())
 			return
 		}
-		pageSet.SortByHits()
+	}
+}
 
-		browserSet := sws.NewBrowserSet(hitSet)
+func handleSiteEdit(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		site, ok := ctx.Value("site").(*sws.Site)
+		if !ok {
+			httpError(w, 422, "no site in context")
+			return
+		}
+
+		if r.Method == "POST" {
+			site.Name = r.FormValue("name")
+			site.Description = r.FormValue("description")
+			site.Aliases = r.FormValue("aliases")
+
+			if errs := site.Validate(); len(errs) > 0 {
+				log("invalid site:", errs)
+				r = flashSet(r, flashError, strings.Join(errs, "<br>"))
+			} else if err := db.SaveSite(site); err != nil {
+				httpError(w, 500, err.Error())
+				return
+			}
+			r = flashSet(r, flashSuccess, "site updated")
+		}
 
 		payload := newTemplateData(r)
 		payload.Site = site
-		payload.PageSet = &pageSet
-		payload.Browsers = &browserSet
-		payload.Hits = hitSet
 
 		if err := rndr.Render(w, "site", payload); err != nil {
 			httpError(w, 500, err.Error())

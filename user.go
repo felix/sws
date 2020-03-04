@@ -11,16 +11,19 @@ import (
 )
 
 type User struct {
-	ID          *int       `json:"id,omitempty"`
-	Email       *string    `json:"email,omitempty"`
-	FirstName   *string    `json:"first_name,omitempty" db:"first_name"`
-	LastName    *string    `json:"last_name,omitempty" db:"last_name"`
-	Enabled     bool       `json:"enabled"`
-	PwHash      *string    `json:"pw_hash" db:"pw_hash"`
-	PwSalt      *string    `json:"pw_salt" db:"pw_salt"`
-	LastLoginAt *time.Time `json:"last_login_at" db:"last_login_at"`
-	CreatedAt   *time.Time `json:"created_at,omitempty" db:"created_at"`
-	UpdatedAt   *time.Time `json:"updated_at,omitempty" db:"updated_at"`
+	ID              *int    `json:"id,omitempty"`
+	Email           *string `json:"email,omitempty"`
+	FirstName       *string `json:"first_name,omitempty" db:"first_name"`
+	LastName        *string `json:"last_name,omitempty" db:"last_name"`
+	Enabled         bool    `json:"enabled"`
+	PwHash          *string `json:"-" db:"pw_hash"`
+	PwSalt          *string `json:"-" db:"pw_salt"`
+	Password        string  `json:"-" db:"-"`
+	PasswordConfirm string  `json:"-" db:"-"`
+	Admin           bool
+	LastLoginAt     *time.Time `json:"last_login_at" db:"last_login_at"`
+	CreatedAt       *time.Time `json:"created_at,omitempty" db:"created_at"`
+	UpdatedAt       *time.Time `json:"updated_at,omitempty" db:"updated_at"`
 }
 
 const (
@@ -29,6 +32,35 @@ const (
 	pwThreads = 4
 	pwLength  = 32
 )
+
+func (u *User) Validate() []string {
+	var out []string
+
+	if u.FirstName == nil || *u.FirstName == "" {
+		out = append(out, fmt.Sprintf("invalid first name"))
+	}
+	if u.LastName == nil || *u.LastName == "" {
+		out = append(out, fmt.Sprintf("invalid last name"))
+	}
+	if u.Email == nil || *u.Email == "" {
+		out = append(out, fmt.Sprintf("invalid email"))
+	}
+	if u.PwHash == nil || *u.PwHash == "" {
+		out = append(out, fmt.Sprint("invalid password"))
+	}
+	if u.PasswordConfirm != "" {
+		if u.Password != u.PasswordConfirm {
+			out = append(out, fmt.Sprintf("password confirmation mismatch"))
+		} else {
+			if err := u.SetPassword(u.Password); err != nil {
+				out = append(out, fmt.Sprintf("failed to update password: %s", err))
+			}
+			u.Password = ""
+			u.PasswordConfirm = ""
+		}
+	}
+	return out
+}
 
 func (u *User) SetPassword(pw string) error {
 	// Generate a Salt

@@ -60,6 +60,10 @@ func extractTimeRange(r *http.Request) (*time.Time, *time.Time) {
 	return begin, end
 }
 
+func stringPtr(s string) *string {
+	return &s
+}
+
 func timePtr(t time.Time) *time.Time {
 	return &t
 }

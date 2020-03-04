@@ -1,30 +1,81 @@
 {{ define "content" }}
 	<main>
 		<header>
-			{{ with .Site }}
-				<h1>{{ .Name }}</h1>
-				<span>{{ .Description }}</span>
+			{{ if .Site.ID }}
+				{{ with .Site }}
+					<h1>{{ .Name }}</h1>
+					<span>{{ .Description }}</span>
+				{{ end }}
+			{{ else }}
+				<h1>New Site</h1>
 			{{ end }}
 		</header>
-		<fig>
-		{{ template "timeBarChart" .Hits }}
-		</fig>
+		{{ if .Hits }}
+			{{ template "siteView" . }}
+		{{ else }}
+			<form method="post" action="/sites{{ if .Site.ID }}/{{ .Site.ID }}{{ end }}">
+				{{ template "siteEdit" .Site }}
+				<div class="field">
+					<input type="submit" />
+				</div>
+			</form>
+			{{ template "siteConfig" . }}
+		{{ end }}
+	</main>
+{{ end }}
 
+{{ define "pageForList" }}
+	<li>
+		<h4 class="path">{{ .Path }}</h4>
+		<span class="title">{{ .Title }}</span>
+		<span class="last-visit">{{ .LastVisitedAt|timeLong }}</span>
+		<span class="count">{{ .Count }}</span>
+	</li>
+{{ end }}
+
+{{ define "browserForList" }}
+	<li>
+		<h4 class="name">{{ .Name }}</h4>
+		<span class="last-seen">{{ .LastSeenAt|timeLong }}</span>
+		<span class="count">{{ .Count }}</span>
+	</li>
+{{ end }}
+
+{{ define "siteView" }}
+	<div class="panel panel-wide">
+		<h2>Hits</h2>
+		{{ if .Hits }}
+			<fig>
+			{{ template "timeBarChart" .Hits }}
+			</fig>
+		{{ else }}
+			<p>No hits yet</p>
+		{{ end }}
+	</div>
+
+	<div class="panel">
 		<h2>Popular pages</h2>
-		<fig>
-		{{ template "barChartHorizontal" .PageSet }}
-		</fig>
+		{{ if .PageSet }}
+			<fig>
+			{{ template "barChartHorizontal" .PageSet }}
+			</fig>
 
-		<ul class="pages">
-			{{ $pages := .PageSet }}
-			{{ range .PageSet }}
-				{{ template "pageForList" . }}
-				<fig>
-				{{ $pathHits := $pages.Page .Path }}
-				{{ template "timeBarChart" $pathHits }}
-				</fig>
-			{{ end }}
-		</ul>
+			<ul class="pages">
+				{{ $pages := .PageSet }}
+				{{ range .PageSet }}
+					{{ template "pageForList" . }}
+					<fig>
+					{{ $pathHits := $pages.Page .Path }}
+					{{ template "timeBarChart" $pathHits }}
+					</fig>
+				{{ end }}
+			</ul>
+		{{ else }}
+			<p>No page views yet</p>
+		{{ end }}
+	</div>
+
+	<div class="panel">
 		<h2>User Agents</h2>
 		{{ if .Browsers }}
 			<fig>
@@ -36,24 +87,31 @@
 				{{ end }}
 			</ul>
 		{{ else }}
-			<p>No user agents</p>
+			<p>No browsers visits yet</p>
 		{{ end }}
-	</main>
+	</div>
 {{ end }}
 
-{{ define "pageForList" }}
-<li>
-	<h4 class="path">{{ .Path }}</h4>
-	<span class="title">{{ .Title }}</span>
-	<span class="last-visit">{{ .LastVisitedAt|timeLong }}</span>
-	<span class="count">{{ .Count }}</span>
-</li>
+{{ define "siteEdit" }}
+	<div class="field">
+		<label>Name</label>
+		<input type="text" name="name" value="{{ .Name }}" placeholder="example.com" required />
+	</div>
+	<div class="field">
+		<label>Description</label>
+		<input type="text" name="description" value="{{ .Description }}" placeholder="site description" />
+	</div>
+	<div class="field">
+		<label>Aliases</label>
+		<input type="text" name="aliases" value="{{ .Aliases }}" placeholder="www.example.com" />
+	</div>
 {{ end }}
 
-{{ define "browserForList" }}
-<li>
-	<h4 class="name">{{ .Name }}</h4>
-	<span class="last-seen">{{ .LastSeenAt|timeLong }}</span>
-	<span class="count">{{ .Count }}</span>
-</li>
+{{ define "siteConfig" }}
+	<p>Add the following HTML snippet to your website to collect data:</p>
+	<pre><code>&lt;!-- start SWS snippet --&gt;
+&lt;script async src="{{ .Payload }}" data-site="{{ .Site.ID }}"&gt;&lt;/script&gt;
+&lt;noscript&gt;&lt;img src="{{ .Endpoint }}" /&gt;&lt;/noscript&gt;
+&lt;!-- end SWS snippet --&gt;
+	</code></pre>
 {{ end }}

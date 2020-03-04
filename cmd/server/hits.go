@@ -14,15 +14,14 @@ import (
 )
 
 const (
-	endpoint = "//stats.userspace.com.au/sws.gif"
-	gif      = "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+	gif = "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
 )
 
-func handleHits(db sws.HitStore) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		return
-	}
-}
+// func handleHits(db sws.HitStore) http.HandlerFunc {
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		return
+// 	}
+// }
 
 func handleHitCounter(db sws.CounterStore) http.HandlerFunc {
 	gifBytes, err := base64.StdEncoding.DecodeString(gif)
@@ -65,9 +64,8 @@ func handleCounter(addr string) http.HandlerFunc {
 	if err != nil || tmpl == nil {
 		panic(err)
 	}
-	data := map[string]string{"endpoint": endpoint}
 	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, data); err != nil {
+	if err := tmpl.Execute(&buf, newTemplateData(nil)); err != nil {
 		panic(err)
 	}
 	etag := fmt.Sprintf(`"%x"`, sha1.Sum(buf.Bytes()))

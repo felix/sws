@@ -43,6 +43,9 @@ func NewBrowserSet(hs *HitSet) BrowserSet {
 		//b.hitSet.Add(h)
 		tmp[browser] = b
 	}
+	if len(tmp) < 1 {
+		return nil
+	}
 	out := make([]*Browser, len(tmp))
 	i := 0
 	for _, b := range tmp {

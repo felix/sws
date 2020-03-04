@@ -1,9 +1,7 @@
 {{ define "flash" }}
-	{{ if .Flashes }}
-		<div class="flashes">
-			{{ range .Flashes }}
-				<div class="flash {{ .Level }}">{{ .Message }}</div>
-			{{ end }}
+	{{ if .Flash }}
+		<div class="flash">
+			{{ .Flash }}
 		</div>
 	{{ end }}
 {{ end }}

@@ -13,7 +13,7 @@ type SiteStore interface {
 	GetSites() ([]*Site, error)
 	GetSiteByID(int) (*Site, error)
 	GetHits(Site, map[string]interface{}) ([]*Hit, error)
-	//SaveSite(*Site) error
+	SaveSite(*Site) error
 }
 
 type HitStore interface {
@@ -27,4 +27,5 @@ type CounterStore interface {
 type UserStore interface {
 	GetUserByID(int) (*User, error)
 	GetUserByEmail(string) (*User, error)
+	SaveUser(*User) error
 }
