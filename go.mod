@@ -17,8 +17,9 @@ require (
 	github.com/shopspring/decimal v0.0.0-20200105231215-408a2507e114 // indirect
 	github.com/speps/go-hashids v2.0.0+incompatible
 	github.com/wcharczuk/go-chart v2.0.1+incompatible
-	golang.org/x/crypto v0.0.0-20200214034016-1d94cc7ab1c6
+	golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect
+	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	src.userspace.com.au/go-migrate v0.0.0-20200208102934-cf11cf76db3f
 	src.userspace.com.au/templates v0.0.0-20200220030259-5089e411d858

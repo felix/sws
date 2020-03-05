@@ -246,7 +246,7 @@ func (b bucket) Label() string {
 	return b.t.Format("15:04 Jan 2")
 }
 
-func (b bucket) YValue() int {
+func (b bucket) Count() int {
 	return len(b.hits)
 }
 

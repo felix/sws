@@ -2,8 +2,8 @@
 	<ul class="chart bar time">
 		{{ $max := .YMax }}
 		{{ range .XSeries }}
-			<li class="slot{{ if eq .Time.Hour 0 }} midnight{{ end }}" data-x="{{ .Label }}" data-y="{{ .YValue }}" data-percent="{{ percent .YValue $max }}">
-				<time class="bar" style="height:{{ percent .YValue $max }}%" datetime="{{ .Time }}"/>
+			<li class="slot{{ if eq .Time.Hour 0 }} midnight{{ end }}" data-x="{{ .Label }}" data-y="{{ .Count }}" data-percent="{{ percent .Count $max }}">
+				<time class="bar" style="height:{{ percent .Count $max }}%" datetime="{{ .Time }}"/>
 			</li>
 		{{ end }}
 	</ul>
@@ -13,8 +13,8 @@
 	<ul class="chart bar vertical">
 		{{ $max := .YMax }}
 		{{ range .XSeries }}
-			<li class="slot" data-x="{{ .Label }}" data-y="{{ .YValue }}" data-percent="{{ percent .YValue $max }}">
-				<div class="bar" style="height:{{ percent .YValue $max }}%" />
+			<li class="slot" data-x="{{ .Label }}" data-y="{{ .Count }}" data-percent="{{ percent .Count $max }}">
+				<div class="bar" style="height:{{ percent .Count $max }}%" />
 			</li>
 		{{ else }}
 		{{ end }}
@@ -25,8 +25,8 @@
 	<ul class="chart bar horizontal">
 		{{ $max := .YMax }}
 		{{ range .XSeries }}
-			<li class="slot" data-x="{{ .Label }}" data-y="{{ .YValue }}" data-percent="{{ percent .YValue $max }}">
-				<div class="bar" style="width:{{ percent .YValue $max }}%" />
+			<li class="slot" data-x="{{ .Label }}" data-y="{{ .Count }}" data-percent="{{ percent .Count $max }}">
+				<div class="bar" style="width:{{ percent .Count $max }}%" />
 			</li>
 		{{ else }}
 		{{ end }}

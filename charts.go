@@ -16,7 +16,7 @@ type Chartable interface {
 
 type Countable interface {
 	Label() string
-	YValue() int
+	Count() int
 }
 
 /*
@@ -70,7 +70,33 @@ func SparklineSVG(w io.Writer, data *HitSet, d time.Duration) error {
 	}
 
 	data.SortByDate()
-	hits.XValues, hits.YValues = data.XYValues()
+	var xVals []time.Time
+	var yVals []float64
+	tmp := data.XSeries()
+	fmt.Println("xseries", len(tmp))
+	direction := 0
+	lastV := float64(0)
+	for i := range tmp {
+		v := tmp[i].Count()
+		switch {
+		case i == 0:
+			fallthrough
+		case v > tmp[i-1].Count():
+			direction = 1
+		case v < tmp[i-1].Count():
+			direction = -1
+		default:
+			direction = 0
+		}
+		if direction != 0 {
+			yVals = append(yVals, float64(v))
+			lastV = float64(v)
+		} else {
+			yVals = append(yVals, lastV)
+		}
+		xVals = append(xVals, tmp[i].Time())
+	}
+	hits.XValues, hits.YValues = xVals, yVals
 
 	graph := gochart.Chart{
 		Width:  300,

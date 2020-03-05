@@ -60,10 +60,6 @@ func (ua UserAgent) Label() string {
 	return ua.Browser() // + "/" + ua.BrowserVersion()
 }
 
-func (ua UserAgent) YValue() int {
-	return ua.Count()
-}
-
 func (ua UserAgent) IsBot() bool {
 	return ua.ua.Bot()
 }

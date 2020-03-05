@@ -30,7 +30,3 @@ func (p Page) Count() int {
 func (p Page) Label() string {
 	return p.Path
 }
-
-func (p Page) YValue() int {
-	return p.hitSet.Count()
-}
