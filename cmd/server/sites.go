@@ -58,6 +58,10 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 			httpError(w, 406, "invalid time range")
 			return
 		}
+		payload.Begin = *begin
+		payload.End = *end
+		debug("begin", *begin)
+		debug("end", *end)
 
 		hits, err := db.GetHits(*site, map[string]interface{}{
 			"begin": *begin,
@@ -90,6 +94,12 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 			}
 			browserSet := sws.NewBrowserSet(hitSet)
 			payload.Browsers = browserSet
+
+			refSet := sws.NewReferrerSet(hitSet)
+			if refSet != nil {
+				refSet.SortByHits()
+				payload.ReferrerSet = refSet
+			}
 		}
 
 		if err := rndr.Render(w, "site", payload); err != nil {

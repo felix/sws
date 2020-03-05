@@ -24,7 +24,7 @@ func init() {
 
 func createRouter(db sws.Store) (chi.Router, error) {
 	tmplsCommon := []string{"flash.tmpl", "navbar.tmpl"}
-	tmplsAuthed := append(tmplsCommon, []string{"layouts/base.tmpl", "charts.tmpl"}...)
+	tmplsAuthed := append(tmplsCommon, []string{"layouts/base.tmpl", "charts.tmpl", "timerange.tmpl"}...)
 	tmplsPublic := append(tmplsCommon, "layouts/public.tmpl")
 
 	tmpls, err := LoadHTMLTemplateMap(map[string][]string{

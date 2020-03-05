@@ -56,7 +56,7 @@ func sparklineHandler(db sws.HitStore) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "image/svg+xml")
 		w.Header().Set("Cache-Control", "public")
-		sws.SparklineSVG(w, data, time.Minute)
+		sws.SparklineSVG(w, data, time.Hour)
 	}
 }
 

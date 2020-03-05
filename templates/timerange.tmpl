@@ -1,0 +1,38 @@
+{{ define "timerange" }}
+	<!--
+	 <form>
+	 <input type="date" name="bdate" value="{{ .Begin|dateRFC }}" />
+	 <input type="time" name="btime" value="{{ .Begin|timeRFC }}" />
+	 <input type="date" name="edate" value="{{ .End|dateRFC }}" />
+	 <input type="time" name="etime" value="{{ .End|timeRFC }}" />
+	 <select name="timezone">
+	 <option value="-39600">-1100</option>
+	 <option value="-36000">-1000</option>
+	 <option value="-32400">-0900</option>
+	 <option value="-28800">-0800</option>
+	 <option value="-25200">-0700</option>
+	 <option value="-21600">-0600</option>
+	 <option value="-18000">-0500</option>
+	 <option value="-14400">-0400</option>
+	 <option value="-10800">-0300</option>
+	 <option value="-7200">-0200</option>
+	 <option value="-3600">-0100</option>
+	 <option value="0">UTC</option>
+	 <option value="3600">+0100</option>
+	 <option value="7200">+0200</option>
+	 <option value="10800">+0300</option>
+	 <option value="14400">+0400</option>
+	 <option value="18000">+0500</option>
+	 <option value="21600">+0600</option>
+	 <option value="25200">+0700</option>
+	 <option value="28800">+0800</option>
+	 <option value="32400">+0900</option>
+	 <option value="36000">+1000</option>
+	 <option value="39600">+1100</option>
+	 </select>
+	 </form>
+	-->
+	<a href="?begin={{ datetimeRelative "-24h"}}">last day</a>
+	<a href="?begin={{ datetimeRelative "-168h"}}">last 7 days</a>
+	<a href="?begin={{ datetimeRelative "-720h"}}">last 30 days</a>
+{{ end }}

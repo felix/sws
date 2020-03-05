@@ -68,8 +68,9 @@ func SparklineSVG(w io.Writer, data *HitSet, d time.Duration) error {
 			StrokeColor: drawing.Color{R: 0, G: 0, B: 255, A: 100},
 		},
 	}
+	//data, _ = NewHitSet(FromHits(data.Hits()), Duration(d))
+	//data.SortByDate()
 
-	data.SortByDate()
 	var xVals []time.Time
 	var yVals []float64
 	tmp := data.XSeries()

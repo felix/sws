@@ -30,10 +30,16 @@ func TimeZone(s string) HitSetOption {
 	}
 }
 
-func Duration(s string) HitSetOption {
+func Duration(d time.Duration) HitSetOption {
 	return func(hs *HitSet) error {
-		var err error
-		hs.duration, err = time.ParseDuration(s)
+		hs.duration = d
+		return nil
+	}
+}
+func DurationString(s string) HitSetOption {
+	return func(hs *HitSet) error {
+		d, err := time.ParseDuration(s)
+		Duration(d)
 		return err
 	}
 }

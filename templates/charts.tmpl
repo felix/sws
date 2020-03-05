@@ -37,7 +37,7 @@
 	<ul class="chart bar stacked">
 		{{ $max := .CountMax }}
 		{{ range .Data }}
-			<li class="slot{{ if eq .Time.Hour 0 }} midnight{{ end }}" data-date="{{ .Time|timeHour }}" data-count="{{ .Count }}" data-percent="{{ percent .Count $max }}">
+			<li class="slot{{ if eq .Time.Hour 0 }} midnight{{ end }}" data-date="{{ .Time|datetimeHour }}" data-count="{{ .Count }}" data-percent="{{ percent .Count $max }}">
 				<div class="bar" style="height:{{ percent .Count $max }}%" />
 			</li>
 		{{ end }}

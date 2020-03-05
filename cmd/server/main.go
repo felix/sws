@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -26,6 +27,7 @@ var (
 	addr      *string
 	dsn       *string
 	domain    *string
+	logFile   *string
 	noMigrate *bool
 )
 
@@ -34,6 +36,7 @@ func init() {
 	addr = stringFlag("listen", "l", "localhost:5000", "LISTEN", "listen address")
 	dsn = stringFlag("dsn", "", "file:sws.db?cache=shared", "DSN", "database password")
 	domain = stringFlag("domain", "", "stats.userspace.com.au", "DOMAIN", "stats domain")
+	logFile = stringFlag("log", "", "", "LOGFILE", "log to file")
 	noMigrate = boolFlag("no-migrate", "m", false, "NOMIGRATE", "disable migrations")
 
 	// Default to no log
@@ -47,18 +50,27 @@ type Renderer interface {
 }
 
 func main() {
+	var err error
 	flag.Parse()
+
+	var output io.Writer = os.Stdout
+	if logFile != nil && *logFile != "" {
+		if output, err = os.Create(*logFile); err != nil {
+			fmt.Fprintf(os.Stderr, "failed to open log file: %s", err)
+			os.Exit(1)
+		}
+	}
 
 	if *verbose {
 		log = func(v ...interface{}) {
-			fmt.Fprintf(os.Stdout, "[%s] ", time.Now().Format(time.RFC3339))
-			fmt.Fprintln(os.Stdout, v...)
+			fmt.Fprintf(output, "[%s] ", time.Now().Format(time.RFC3339))
+			fmt.Fprintln(output, v...)
 		}
 	}
 	if d := os.Getenv("DEBUG"); d != "" {
 		debug = func(v ...interface{}) {
-			fmt.Fprintf(os.Stdout, "[%s] ", time.Now().Format(time.RFC3339))
-			fmt.Fprintln(os.Stdout, v...)
+			fmt.Fprintf(output, "[%s] ", time.Now().Format(time.RFC3339))
+			fmt.Fprintln(output, v...)
 		}
 	}
 	log("version", Version)
@@ -71,7 +83,7 @@ func main() {
 	if noMigrate == nil || !*noMigrate {
 		v, err := migrateDatabase(driver, *dsn)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "failed to migrate: %s", err)
+			log("failed to migrate:", err)
 			os.Exit(2)
 		}
 		log("database at version", v)
@@ -79,12 +91,12 @@ func main() {
 
 	db, err := sqlx.Open(driver, *dsn)
 	if err != nil {
-		log(err)
+		log("failed to open database:", err)
 		os.Exit(1)
 	}
 	defer db.Close()
 	if err := db.Ping(); err != nil {
-		log(err)
+		log("failed to connect to database:", err)
 		os.Exit(1)
 	}
 	var st sws.Store
@@ -96,7 +108,7 @@ func main() {
 
 	r, err := createRouter(st)
 	if err != nil {
-		log(err)
+		log("failed to create router:", err)
 		os.Exit(1)
 	}
 

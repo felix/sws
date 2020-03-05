@@ -10,17 +10,18 @@ import (
 )
 
 type templateData struct {
-	Payload  string
-	Endpoint string
-	User     *sws.User
-	Flash    template.HTML
-	Begin    *time.Time
-	End      *time.Time
-	Site     *sws.Site
-	Sites    []*sws.Site
-	PageSet  sws.PageSet
-	Browsers sws.BrowserSet
-	Hits     *sws.HitSet
+	Payload     string
+	Endpoint    string
+	User        *sws.User
+	Flash       template.HTML
+	Begin       time.Time
+	End         time.Time
+	Site        *sws.Site
+	Sites       []*sws.Site
+	PageSet     sws.PageSet
+	Browsers    sws.BrowserSet
+	ReferrerSet sws.ReferrerSet
+	Hits        *sws.HitSet
 }
 
 func newTemplateData(r *http.Request) *templateData {

@@ -10,6 +10,9 @@
 				<h1>New Site</h1>
 			{{ end }}
 		</header>
+		{{ if .Site.ID }}
+			{{ template "timerange" . }}
+		{{ end }}
 		{{ if .Hits }}
 			{{ template "siteView" . }}
 		{{ else }}
@@ -28,7 +31,7 @@
 	<li>
 		<h4 class="path">{{ .Path }}</h4>
 		<span class="title">{{ .Title }}</span>
-		<span class="last-visit">{{ .LastVisitedAt|timeLong }}</span>
+		<span class="last-visit">{{ .LastVisitedAt|datetimeLong }}</span>
 		<span class="count">{{ .Count }}</span>
 	</li>
 {{ end }}
@@ -36,7 +39,15 @@
 {{ define "browserForList" }}
 	<li>
 		<h4 class="name">{{ .Name }}</h4>
-		<span class="last-seen">{{ .LastSeenAt|timeLong }}</span>
+		<span class="last-seen">{{ .LastSeenAt|datetimeLong }}</span>
+		<span class="count">{{ .Count }}</span>
+	</li>
+{{ end }}
+
+{{ define "referrerForList" }}
+	<li>
+		<h4 class="name">{{ .Name }}</h4>
+		<span class="last-seen">{{ .LastSeenAt|datetimeLong }}</span>
 		<span class="count">{{ .Count }}</span>
 	</li>
 {{ end }}
@@ -65,13 +76,29 @@
 				{{ range .PageSet }}
 					{{ template "pageForList" . }}
 					<fig>
-					{{ $pathHits := $pages.Page .Path }}
+					{{ $pathHits := $pages.GetPage .Path }}
 					{{ template "timeBarChart" $pathHits }}
 					</fig>
 				{{ end }}
 			</ul>
 		{{ else }}
 			<p>No page views yet</p>
+		{{ end }}
+	</div>
+
+	<div class="panel">
+		<h2>Referrers</h2>
+		{{ if .ReferrerSet }}
+			<fig>
+			{{ template "barChart" .ReferrerSet }}
+			</fig>
+			<ul class="referrers">
+				{{ range .ReferrerSet }}
+					{{ template "referrerForList" . }}
+				{{ end }}
+			</ul>
+		{{ else }}
+			<p>No referrers yet</p>
 		{{ end }}
 	</div>
 

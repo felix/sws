@@ -60,7 +60,7 @@ func (ps *PageSet) SortByHits() {
 	})
 }
 
-func (ps PageSet) Page(s string) *Page {
+func (ps PageSet) GetPage(s string) *Page {
 	for _, p := range ps {
 		if p.Path == s {
 			return p
