@@ -6,14 +6,17 @@ import (
 )
 
 func stringFlag(long, short, def, envvar, desc string) *string {
-	out := flag.String(long, def, desc)
-	if short != "" {
-		flag.StringVar(out, short, def, desc)
-	}
 	if envvar != "" {
 		if v := os.Getenv(envvar); v != "" {
 			def = v
 		}
+	}
+	out := flag.String(long, def, desc)
+	if short != "" {
+		flag.StringVar(out, short, def, desc)
+	}
+	if out != nil && *out == "" {
+		return nil
 	}
 	return out
 }

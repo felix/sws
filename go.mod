@@ -22,9 +22,9 @@ require (
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	src.userspace.com.au/go-migrate v0.0.0-20200208102934-cf11cf76db3f
-	src.userspace.com.au/templates v0.0.0-20200220030259-5089e411d858
+	src.userspace.com.au/templates v0.0.0-20200308073907-e96b7a1f2a49
 )
 
-replace src.userspace.com.au/templates => ../templates
+//replace src.userspace.com.au/templates => ../templates
 
 go 1.13

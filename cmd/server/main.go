@@ -28,6 +28,7 @@ var (
 	dsn       *string
 	domain    *string
 	logFile   *string
+	override  *string
 	noMigrate *bool
 )
 
@@ -37,6 +38,7 @@ func init() {
 	dsn = stringFlag("dsn", "", "file:sws.db?cache=shared", "DSN", "database password")
 	domain = stringFlag("domain", "", "stats.userspace.com.au", "DOMAIN", "stats domain")
 	logFile = stringFlag("log", "", "", "LOGFILE", "log to file")
+	override = stringFlag("override", "", "", "OVERRIDE", "override path")
 	noMigrate = boolFlag("no-migrate", "m", false, "NOMIGRATE", "disable migrations")
 
 	// Default to no log

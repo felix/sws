@@ -27,7 +27,13 @@ func createRouter(db sws.Store) (chi.Router, error) {
 	tmplsAuthed := append(tmplsCommon, []string{"layouts/base.tmpl", "charts.tmpl", "timerange.tmpl"}...)
 	tmplsPublic := append(tmplsCommon, "layouts/public.tmpl")
 
-	tmpls, err := LoadHTMLTemplateMap(map[string][]string{
+	if override != nil {
+		loadOverrider = func(s string) string {
+			return filepath.Join(*override, s)
+		}
+	}
+
+	tmpls, err := loadHTMLTemplateMap(map[string][]string{
 		"sites":   append([]string{"sites.tmpl"}, tmplsAuthed...),
 		"site":    append([]string{"site.tmpl"}, tmplsAuthed...),
 		"home":    append([]string{"home.tmpl"}, tmplsPublic...),
@@ -74,7 +80,8 @@ func createRouter(db sws.Store) (chi.Router, error) {
 
 		r.Get("/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			p := strings.TrimPrefix(r.URL.Path, "/")
-			if b, err := StaticLoadTemplate(p); err == nil {
+			debug("loading", p)
+			if b, err := loadTemplate(p); err == nil {
 				name := filepath.Base(p)
 				http.ServeContent(w, r, name, time.Now(), bytes.NewReader(b))
 			}

@@ -24,7 +24,7 @@ ul {
 	outline: 1px solid red;
 }
 .sidebar {
-	flex: 0 0 12em;
+	flex: 0 0 13em;
 	order: -1;
 	outline: 1px solid red;
 }
