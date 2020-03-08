@@ -74,7 +74,6 @@ func SparklineSVG(w io.Writer, data *HitSet, d time.Duration) error {
 	var xVals []time.Time
 	var yVals []float64
 	tmp := data.XSeries()
-	fmt.Println("xseries", len(tmp))
 	direction := 0
 	lastV := float64(0)
 	for i := range tmp {

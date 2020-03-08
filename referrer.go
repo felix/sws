@@ -26,8 +26,12 @@ func NewReferrerSet(hs *HitSet) ReferrerSet {
 		if err != nil || h.Host == u.Host {
 			continue
 		}
+		host := u.Host
+		if u.Host == "" {
+			host = "direct"
+		}
 		r := &Referrer{
-			Name:       u.Host,
+			Name:       host,
 			LastSeenAt: h.CreatedAt,
 			hitSet: hs.Filter(func(t *Hit) bool {
 				if t.Referrer == nil {
