@@ -29,8 +29,10 @@ ul {
 	outline: 1px solid red;
 }
 main {
+	background-color: #f7f7f7;
 	flex: 1;
 	outline: 1px solid red;
+	padding-left: 1em;
 }
 
 @media (min-width: 768px) {

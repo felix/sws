@@ -27,9 +27,10 @@ func createRouter(db sws.Store) (chi.Router, error) {
 	tmplsAuthed := append(tmplsCommon, []string{"layouts/base.tmpl", "charts.tmpl", "timerange.tmpl"}...)
 	tmplsPublic := append(tmplsCommon, "layouts/public.tmpl")
 
-	if override != nil {
+	if override != "" {
+		log("using overrider", override)
 		loadOverrider = func(s string) string {
-			return filepath.Join(*override, s)
+			return filepath.Join(override, s)
 		}
 	}
 
@@ -55,13 +56,13 @@ func createRouter(db sws.Store) (chi.Router, error) {
 	r.Use(middleware.RequestID)
 	compressor := middleware.NewCompressor(5, "text/html", "text/css")
 	r.Use(compressor.Handler())
-	if *verbose {
+	if verbose {
 		r.Use(middleware.Logger)
 	}
 	r.Use(middleware.Recoverer)
 
 	// For counter
-	r.Get("/sws.js", handleCounter(*addr))
+	r.Get("/sws.js", handleCounter(addr))
 	r.Get("/sws.gif", handleHitCounter(db))
 	//r.Get("/hits", handleHits(db))
 
@@ -167,7 +168,6 @@ func getUserCtx(db sws.UserStore) func(http.Handler) http.Handler {
 				log("missing user")
 				return
 			}
-			debug("found user, adding to context")
 			ctx := context.WithValue(r.Context(), "user", user)
 			r = r.WithContext(ctx)
 		})

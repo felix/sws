@@ -23,23 +23,23 @@ var (
 
 // Flags
 var (
-	verbose   *bool
-	addr      *string
-	dsn       *string
-	domain    *string
-	logFile   *string
-	override  *string
-	noMigrate *bool
+	verbose   bool
+	addr      string
+	dsn       string
+	domain    string
+	logFile   string
+	override  string
+	noMigrate bool
 )
 
 func init() {
-	verbose = boolFlag("verbose", "v", false, "VERBOSE", "enable verbose output")
-	addr = stringFlag("listen", "l", "localhost:5000", "LISTEN", "listen address")
-	dsn = stringFlag("dsn", "", "file:sws.db?cache=shared", "DSN", "database password")
-	domain = stringFlag("domain", "", "stats.userspace.com.au", "DOMAIN", "stats domain")
-	logFile = stringFlag("log", "", "", "LOGFILE", "log to file")
-	override = stringFlag("override", "", "", "OVERRIDE", "override path")
-	noMigrate = boolFlag("no-migrate", "m", false, "NOMIGRATE", "disable migrations")
+	flag.BoolVar(&verbose, "verbose", false, "enable verbose output")
+	flag.StringVar(&addr, "listen", "localhost:5000", "listen address")
+	flag.StringVar(&dsn, "dsn", "file:sws.db?cache=shared", "database password")
+	flag.StringVar(&domain, "domain", "stats.userspace.com.au", "stats domain")
+	flag.StringVar(&logFile, "l", "", "log to file")
+	flag.StringVar(&override, "override", "", "override path")
+	flag.BoolVar(&noMigrate, "no-migrate", false, "disable migrations")
 
 	// Default to no log
 	log = func(v ...interface{}) {}
@@ -56,14 +56,14 @@ func main() {
 	flag.Parse()
 
 	var output io.Writer = os.Stdout
-	if logFile != nil && *logFile != "" {
-		if output, err = os.Create(*logFile); err != nil {
+	if logFile != "" {
+		if output, err = os.Create(logFile); err != nil {
 			fmt.Fprintf(os.Stderr, "failed to open log file: %s", err)
 			os.Exit(1)
 		}
 	}
 
-	if *verbose {
+	if verbose {
 		log = func(v ...interface{}) {
 			fmt.Fprintf(output, "[%s] ", time.Now().Format(time.RFC3339))
 			fmt.Fprintln(output, v...)
@@ -77,13 +77,13 @@ func main() {
 	}
 	log("version", Version)
 
-	driver := strings.SplitN(*dsn, ":", 2)[0]
+	driver := strings.SplitN(dsn, ":", 2)[0]
 	if driver == "file" {
 		driver = "sqlite3"
 	}
 
-	if noMigrate == nil || !*noMigrate {
-		v, err := migrateDatabase(driver, *dsn)
+	if !noMigrate {
+		v, err := migrateDatabase(driver, dsn)
 		if err != nil {
 			log("failed to migrate:", err)
 			os.Exit(2)
@@ -91,7 +91,7 @@ func main() {
 		log("database at version", v)
 	}
 
-	db, err := sqlx.Open(driver, *dsn)
+	db, err := sqlx.Open(driver, dsn)
 	if err != nil {
 		log("failed to open database:", err)
 		os.Exit(1)
@@ -114,6 +114,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	log("listening at", *addr)
-	http.ListenAndServe(*addr, r)
+	log("listening at", addr)
+	http.ListenAndServe(addr, r)
 }

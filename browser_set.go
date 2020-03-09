@@ -63,6 +63,10 @@ func (b Browser) Count() int {
 	return b.hitSet.Count()
 }
 
+func (bs BrowserSet) Count() int {
+	return len(bs)
+}
+
 func (bs BrowserSet) YMax() int {
 	max := 0
 	for _, b := range bs {

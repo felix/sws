@@ -70,6 +70,10 @@ func (rs *ReferrerSet) SortByHits() {
 	})
 }
 
+func (rs ReferrerSet) Count() int {
+	return len(rs)
+}
+
 func (rs ReferrerSet) GetReferrer(s string) *Referrer {
 	for _, r := range rs {
 		if r.Name == s {

@@ -26,8 +26,8 @@ type templateData struct {
 
 func newTemplateData(r *http.Request) *templateData {
 	out := &templateData{
-		Payload:  "//" + *domain + "/sws.js",
-		Endpoint: "//" + *domain + "/sws.gif",
+		Payload:  "//" + domain + "/sws.js",
+		Endpoint: "//" + domain + "/sws.gif",
 	}
 	if r != nil {
 		flashes := flashGet(r)
