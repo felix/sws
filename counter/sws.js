@@ -8,7 +8,7 @@ var me = d.currentScript
 
 var _sws = w._sws || {noauto: false, local: false}
 _sws.d = _sws.d || me.src
-_sws.site = _sws.site || me.dataset.site
+_sws.id = _sws.id || me.dataset.id
 
 function count (p, obj) {
   if (!_sws.local && l.hostname.match(/(localhost$|^127\.|^10\.|^172\.16\.|^192\.168\.)/))
@@ -47,7 +47,7 @@ ready(function () {
   if (!_sws.noauto) {
     var ep = new URL(_sws.d)
     count('{{ .Endpoint }}', {
-      i: _sws.site,
+      id: _sws.id,
       s: l.protocol,
       h: l.host,
       p: l.pathname,

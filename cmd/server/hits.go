@@ -61,6 +61,7 @@ func handleHitCounter(db sws.CounterStore) http.HandlerFunc {
 }
 
 func handleCounter(addr string) http.HandlerFunc {
+	counter := getCounter()
 	tmpl, err := template.New("counter").Parse(counter)
 	if err != nil || tmpl == nil {
 		panic(err)

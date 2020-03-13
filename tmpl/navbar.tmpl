@@ -1,11 +1,11 @@
 {{ define "navbar" }}
-	<header class="navbar">
-		<a class="logo" href="/">Logo</a>
+	<nav class="nav navbar">
+		<a class="nav__link nav__link--logo" href="/">Logo</a>
 		{{ if .User }}
-			<a href="/sites">Sites</a>
-			<a class="logout" href="/logout">Logout</a>
+			<a class="nav__link" href="/sites">Sites</a>
+			<a class="nav__link nav__link--logout" href="/logout">Logout</a>
 		{{ else }}
-			<a class="login" href="/login">Login</a>
+			<a class="nav__link nav__link--login" href="/login">Login</a>
 		{{ end }}
-	</header>
+	</nav>
 {{ end }}

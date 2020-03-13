@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en-au">
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Simple Web Stats</title>
+		<link rel="stylesheet" href="/default.css">
+	</head>
+	<body>
+		{{ template "navbar" . }}
+		<header class="mainnav">
+			{{ if .Site }}
+				<nav class="nav nav--site">
+					<span class="nav__link nav__link--name">{{ .Site.Name }}</span>
+					{{ if .Site.ID }}
+						<a class="nav__link" href="/sites/{{ .Site.ID }}">Summary</a>
+						<a class="nav__link" href="/sites/{{ .Site.ID }}/pages">Pages</a>
+						<a class="nav__link" href="/sites/{{ .Site.ID }}/browsers">Browsers</a>
+						<a class="nav__link" href="/sites/{{ .Site.ID }}/locations">Locations</a>
+						<a class="nav__link" href="/sites/{{ .Site.ID }}/edit">Configure</a>
+					{{ end }}
+					<a class="nav__link nav__link--close" href="/sites/">&times;</a>
+				</nav>
+			{{ else }}
+				<nav class="nav nav--sites">
+					<a class="nav__link" href="/sites">Sites</a>
+					<a class="nav__link" href="/sites/new"><i class="plus">&#43;</i> New site</a>
+				</nav>
+			{{ end }}
+		</header>
+		{{ template "flash" . }}
+		{{ template "content" . }}
+		<footer></footer>
+	</body>
+</html>

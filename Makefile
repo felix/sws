@@ -23,9 +23,9 @@ cmd/server/migrations.go: $(SQL)
 	go generate ./sql >$@
 
 cmd/server/counter.go: counter/sws.min.js
-	printf "package main\n\nconst counter = \`" >$@
+	printf "package main\n\nfunc getCounter() string { return \`" >$@
 	cat $< >>$@
-	printf "\`\n" >>$@
+	printf "\`}\n" >>$@
 
 %.min.js: %.js node_modules
 	yarn run -s uglifyjs -c -m -o $@ $<

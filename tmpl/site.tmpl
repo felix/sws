@@ -25,7 +25,9 @@
 					<input type="submit" />
 				</div>
 			</form>
-			{{ template "siteConfig" . }}
+			{{ if .Site.ID }}
+				{{ template "siteConfig" . }}
+			{{ end }}
 		{{ end }}
 	</main>
 {{ end }}
@@ -78,6 +80,7 @@
 			{{ template "barChartHorizontal" .PageSet }}
 			</fig>
 
+			<!--
 			<ul class="pages">
 				{{ $pages := .PageSet }}
 				{{ range .PageSet }}
@@ -88,6 +91,7 @@
 					</fig>
 				{{ end }}
 			</ul>
+			-->
 		{{ else }}
 			<p>No page views yet</p>
 		{{ end }}

@@ -24,8 +24,8 @@ func init() {
 
 func createRouter(db sws.Store) (chi.Router, error) {
 	tmplsCommon := []string{"flash.tmpl", "navbar.tmpl"}
-	tmplsAuthed := append(tmplsCommon, []string{"layouts/base.tmpl", "charts.tmpl", "timerange.tmpl"}...)
-	tmplsPublic := append(tmplsCommon, "layouts/public.tmpl")
+	tmplsAuthed := append(tmplsCommon, []string{"layout.tmpl", "charts.tmpl", "timerange.tmpl"}...)
+	tmplsPublic := append(tmplsCommon, "layout.tmpl")
 
 	if override != "" {
 		log("using overrider", override)
@@ -40,6 +40,7 @@ func createRouter(db sws.Store) (chi.Router, error) {
 		"home":    append([]string{"home.tmpl"}, tmplsPublic...),
 		"login":   append([]string{"login.tmpl"}, tmplsPublic...),
 		"user":    append([]string{"user.tmpl"}, tmplsAuthed...),
+		"404":     append([]string{"404.tmpl"}, tmplsPublic...),
 		"example": []string{"example.tmpl"},
 	}, funcMap)
 	if err != nil {
@@ -136,6 +137,14 @@ func createRouter(db sws.Store) (chi.Router, error) {
 			})
 		})
 	})
+
+	r.NotFound(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		payload := newTemplateData(r)
+		if err := rndr.Render(w, "404", payload); err != nil {
+			httpError(w, 500, err.Error())
+			return
+		}
+	}))
 
 	// Example
 	r.Get("/test.html", handleExample(rndr))

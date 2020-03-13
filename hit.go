@@ -66,7 +66,7 @@ func HitFromRequest(r *http.Request) (*Hit, error) {
 	}
 
 	q := r.URL.Query()
-	siteIDs := q.Get("i")
+	siteIDs := q.Get("id")
 	if siteIDs == "" {
 		if siteIDs = q.Get("site"); siteIDs == "" {
 			return nil, fmt.Errorf("missing site")
