@@ -6,10 +6,13 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"strings"
 	"text/template"
 
+	"github.com/hashicorp/golang-lru"
+	maxminddb "github.com/oschwald/maxminddb-golang"
 	"src.userspace.com.au/sws"
 )
 
@@ -17,14 +20,13 @@ const (
 	gif = "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
 )
 
-// func handleHits(db sws.HitStore) http.HandlerFunc {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		return
-// 	}
-// }
-
-func handleHitCounter(db sws.CounterStore) http.HandlerFunc {
+func handleHitCounter(db sws.CounterStore, mmdbPath string) http.HandlerFunc {
 	gifBytes, err := base64.StdEncoding.DecodeString(gif)
+	if err != nil {
+		panic(err)
+	}
+
+	cache, err := lru.New(100)
 	if err != nil {
 		panic(err)
 	}
@@ -45,6 +47,21 @@ func handleHitCounter(db sws.CounterStore) http.HandlerFunc {
 		}
 		hit.SiteID = site.ID
 		hit.Addr = r.RemoteAddr
+
+		host, _, err := net.SplitHostPort(addr)
+		if err == nil {
+			var cc *string
+			if v, ok := cache.Get(host); ok {
+				cc = v.(*string)
+			} else if mmdbPath != "" {
+				cc, _ = fetchCountryCode(mmdbPath, host)
+				if cc != nil {
+					debug("geoip", host, "=>", *cc)
+				}
+				cache.Add(host, cc)
+			}
+			hit.CountryCode = cc
+		}
 
 		if err := db.SaveHit(hit); err != nil {
 			log("failed to save hit", err)
@@ -88,4 +105,23 @@ func handleCounter(addr string) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
+}
+
+func fetchCountryCode(path, host string) (*string, error) {
+	db, err := maxminddb.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	ip := net.ParseIP(host)
+	var r struct {
+		Country struct {
+			ISOCode string `maxminddb:"iso_code"`
+		} `maxminddb:"country"`
+	}
+	if err := db.Lookup(ip, &r); err != nil {
+		return nil, err
+	}
+	return &r.Country.ISOCode, nil
 }

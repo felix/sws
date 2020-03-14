@@ -63,9 +63,9 @@
 			<h3 class="panel__title">Hits</h3>
 		</header>
 		{{ if .Hits }}
-			<fig>
+			<figure class="graph">
 			{{ template "timeBarChart" .Hits }}
-			</fig>
+			</figure>
 		{{ else }}
 			<p>No hits yet</p>
 		{{ end }}
@@ -76,19 +76,19 @@
 			<h3 class="panel__title">Popular pages</h3>
 		</header>
 		{{ if .PageSet }}
-			<fig>
+			<figure class="graph">
 			{{ template "barChartHorizontal" .PageSet }}
-			</fig>
+			</figure>
 
 			<!--
 			<ul class="pages">
 				{{ $pages := .PageSet }}
 				{{ range .PageSet }}
 					{{ template "pageForList" . }}
-					<fig>
+					<figure>
 					{{ $pathHits := $pages.GetPage .Path }}
 					{{ template "timeBarChart" $pathHits }}
-					</fig>
+					</figure>
 				{{ end }}
 			</ul>
 			-->
@@ -99,12 +99,25 @@
 
 	<section class="panel">
 		<header class="panel__header">
+			<h3 class="panel__title">Countries</h3>
+		</header>
+		{{ if .CountrySet }}
+			<figure class="map">
+			{{ template "worldMap" .CountrySet }}
+			</figure>
+		{{ else }}
+			<p>No page views yet</p>
+		{{ end }}
+	</section>
+
+	<section class="panel">
+		<header class="panel__header">
 			<h3 class="panel__title">Referrers</h3>
 		</header>
 		{{ if .ReferrerSet }}
-			<fig>
+			<figure class="graph">
 			{{ template "barChart" .ReferrerSet }}
-			</fig>
+			</figure>
 			<ul class="referrers">
 				{{ range .ReferrerSet }}
 					{{ template "referrerForList" . }}
@@ -120,9 +133,9 @@
 			<h3 class="panel__title">User agents</h3>
 		</header>
 		{{ if .Browsers }}
-			<fig>
+			<figure class="graph">
 			{{ template "barChart" .Browsers }}
-			</fig>
+			</figure>
 			<ul class="browsers">
 				{{ range .Browsers }}
 					{{ template "browserForList" . }}

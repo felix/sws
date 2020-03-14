@@ -22,7 +22,7 @@ func init() {
 	tokenAuth = jwtauth.New("HS256", []byte("lkjasd0f9u203ijsldkfj"), nil)
 }
 
-func createRouter(db sws.Store) (chi.Router, error) {
+func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
 	tmplsCommon := []string{"flash.tmpl", "navbar.tmpl"}
 	tmplsAuthed := append(tmplsCommon, []string{"layout.tmpl", "charts.tmpl", "timerange.tmpl"}...)
 	tmplsPublic := append(tmplsCommon, "layout.tmpl")
@@ -36,7 +36,7 @@ func createRouter(db sws.Store) (chi.Router, error) {
 
 	tmpls, err := loadHTMLTemplateMap(map[string][]string{
 		"sites":   append([]string{"sites.tmpl"}, tmplsAuthed...),
-		"site":    append([]string{"site.tmpl"}, tmplsAuthed...),
+		"site":    append([]string{"site.tmpl", "worldMap.tmpl"}, tmplsAuthed...),
 		"home":    append([]string{"home.tmpl"}, tmplsPublic...),
 		"login":   append([]string{"login.tmpl"}, tmplsPublic...),
 		"user":    append([]string{"user.tmpl"}, tmplsAuthed...),
@@ -64,7 +64,7 @@ func createRouter(db sws.Store) (chi.Router, error) {
 
 	// For counter
 	r.Get("/sws.js", handleCounter(addr))
-	r.Get("/sws.gif", handleHitCounter(db))
+	r.Get("/sws.gif", handleHitCounter(db, mmdbPath))
 	//r.Get("/hits", handleHits(db))
 
 	r.Group(func(r chi.Router) {
@@ -103,8 +103,9 @@ func createRouter(db sws.Store) (chi.Router, error) {
 
 			r.Get(logoutURL, handleLogout(rndr))
 			r.Route("/sites", func(r chi.Router) {
-				r.Get("/", handleSites(db, rndr))
-				r.Post("/", handleSites(db, rndr))
+				sitesHandler := handleSites(db, rndr)
+				r.Get("/", sitesHandler)
+				r.Post("/", sitesHandler)
 				r.Get("/new", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					payload := newTemplateData(r)
 					payload.Site = &sws.Site{}
@@ -114,10 +115,11 @@ func createRouter(db sws.Store) (chi.Router, error) {
 					}
 				}))
 				r.Route("/{siteID}", func(r chi.Router) {
-					// Populate contect with site if present
+					siteHandler := handleSite(db, rndr)
+					// Populate context with site if present
 					r.Use(getSiteCtx(db))
-					r.Get("/", handleSite(db, rndr))
-					r.Post("/", handleSite(db, rndr))
+					r.Get("/", siteHandler)
+					r.Post("/", siteHandler)
 					r.Get("/edit", handleSiteEdit(db, rndr))
 					r.Route("/sparklines", func(r chi.Router) {
 						r.Get("/{b:\\d+}-{e:\\d+}.svg", sparklineHandler(db))

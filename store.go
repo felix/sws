@@ -4,6 +4,9 @@ type Store interface {
 	SiteStore
 	UserStore
 	GetSiteByName(string) (*Site, error)
+	HitSaver
+}
+type HitSaver interface {
 	SaveHit(*Hit) error
 }
 type SimpleSiteStore interface {
@@ -15,14 +18,13 @@ type SiteStore interface {
 	GetHits(Site, map[string]interface{}) ([]*Hit, error)
 	SaveSite(*Site) error
 }
-
 type HitStore interface {
 	SimpleSiteStore
 	GetHits(Site, map[string]interface{}) ([]*Hit, error)
 }
 type CounterStore interface {
 	SimpleSiteStore
-	SaveHit(*Hit) error
+	HitSaver
 }
 type UserStore interface {
 	GetUserByID(int) (*User, error)

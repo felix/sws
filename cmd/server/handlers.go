@@ -21,6 +21,7 @@ type templateData struct {
 	PageSet     sws.PageSet
 	Browsers    sws.BrowserSet
 	ReferrerSet sws.ReferrerSet
+	CountrySet  sws.CountrySet
 	Hits        *sws.HitSet
 }
 

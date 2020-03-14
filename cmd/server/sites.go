@@ -92,8 +92,8 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 				pageSet.SortByHits()
 				payload.PageSet = pageSet
 			}
-			browserSet := sws.NewBrowserSet(hitSet)
-			payload.Browsers = browserSet
+			payload.Browsers = sws.NewBrowserSet(hitSet)
+			payload.CountrySet = sws.NewCountrySet(hitSet)
 
 			refSet := sws.NewReferrerSet(hitSet)
 			if refSet != nil {

@@ -29,6 +29,7 @@ var (
 	domain    string
 	logFile   string
 	override  string
+	maxmind   string
 	noMigrate bool
 )
 
@@ -39,6 +40,7 @@ func init() {
 	flag.StringVar(&domain, "domain", "stats.userspace.com.au", "stats domain")
 	flag.StringVar(&logFile, "l", "", "log to file")
 	flag.StringVar(&override, "override", "", "override path")
+	flag.StringVar(&maxmind, "maxmind", "", "maxmind country DB path")
 	flag.BoolVar(&noMigrate, "no-migrate", false, "disable migrations")
 
 	// Default to no log
@@ -108,7 +110,7 @@ func main() {
 		st = store.NewSqlite3Store(db)
 	}
 
-	r, err := createRouter(st)
+	r, err := createRouter(st, maxmind)
 	if err != nil {
 		log("failed to create router:", err)
 		os.Exit(1)

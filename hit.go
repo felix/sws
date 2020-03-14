@@ -24,6 +24,7 @@ type Hit struct {
 	Referrer      *string   `json:"referrer,omitempty"`
 	UserAgentHash *string   `json:"user_agent_hash,omitempty" db:"user_agent_hash"`
 	ViewPort      *string   `json:"view_port,omitempty" db:"view_port"`
+	CountryCode   *string   `json:"country_code" db:"country_code"`
 	NoScript      bool      `json:"no_script" db:"no_script"`
 	CreatedAt     time.Time `json:"created_at" db:"created_at"`
 	//Features  map[string]string `json:"features,omitempty"`
@@ -39,7 +40,7 @@ type Hitter interface {
 	Begin() time.Time
 	End() time.Time
 	Duration() time.Duration
-	Location() *time.Location
+	//Location() *time.Location // TODO Time zone
 }
 
 func (h Hit) String() string {
@@ -143,5 +144,6 @@ func HitFromRequest(r *http.Request) (*Hit, error) {
 	if view := q.Get("v"); view != "" {
 		out.ViewPort = &view
 	}
+
 	return out, nil
 }

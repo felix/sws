@@ -15,7 +15,10 @@ type Sqlite3 struct {
 
 func NewSqlite3Store(db *sqlx.DB) *Sqlite3 {
 	//db.Mapper = reflectx.NewMapperFunc("json", strings.ToLower)
-	return &Sqlite3{db}
+	out := &Sqlite3{
+		db: db,
+	}
+	return out
 }
 
 func (s *Sqlite3) GetSites() ([]*sws.Site, error) {
