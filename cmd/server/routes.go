@@ -35,13 +35,12 @@ func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
 	}
 
 	tmpls, err := loadHTMLTemplateMap(map[string][]string{
-		"sites":   append([]string{"sites.tmpl"}, tmplsAuthed...),
-		"site":    append([]string{"site.tmpl", "worldMap.tmpl"}, tmplsAuthed...),
-		"home":    append([]string{"home.tmpl"}, tmplsPublic...),
-		"login":   append([]string{"login.tmpl"}, tmplsPublic...),
-		"user":    append([]string{"user.tmpl"}, tmplsAuthed...),
-		"404":     append([]string{"404.tmpl"}, tmplsPublic...),
-		"example": []string{"example.tmpl"},
+		"sites": append([]string{"sites.tmpl"}, tmplsAuthed...),
+		"site":  append([]string{"site.tmpl", "worldMap.tmpl"}, tmplsAuthed...),
+		"home":  append([]string{"home.tmpl"}, tmplsPublic...),
+		"login": append([]string{"login.tmpl"}, tmplsPublic...),
+		"user":  append([]string{"user.tmpl"}, tmplsAuthed...),
+		"404":   append([]string{"404.tmpl"}, tmplsPublic...),
 	}, funcMap)
 	if err != nil {
 		return nil, err
@@ -148,8 +147,6 @@ func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
 		}
 	}))
 
-	// Example
-	r.Get("/test.html", handleExample(rndr))
 	return r, nil
 }
 

@@ -5,7 +5,6 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
-	"io"
 	"net"
 	"net/http"
 	"strings"
@@ -70,7 +69,7 @@ func handleHitCounter(db sws.CounterStore, mmdbPath string) http.HandlerFunc {
 		}
 		// TODO restrict to site sites
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("Content-Type", "image/gif")
 		w.Write(gifBytes)
 		return
@@ -87,7 +86,8 @@ func handleCounter(addr string) http.HandlerFunc {
 	if err := tmpl.Execute(&buf, newTemplateData(nil)); err != nil {
 		panic(err)
 	}
-	etag := fmt.Sprintf(`"%x"`, sha1.Sum(buf.Bytes()))
+	b := buf.Bytes()
+	etag := fmt.Sprintf(`"%x"`, sha1.Sum(b))
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		if match := r.Header.Get("If-None-Match"); match != "" {
@@ -99,9 +99,10 @@ func handleCounter(addr string) http.HandlerFunc {
 		// TODO restrict to site sites
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Etag", etag)
+		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Content-Type", "application/javascript")
 
-		if _, err := io.Copy(w, &buf); err != nil {
+		if _, err := w.Write(b); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
