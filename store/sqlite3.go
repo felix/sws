@@ -174,9 +174,9 @@ on conflict(hash) do update set last_seen_at = :last_seen_at`,
 
 	"saveHit": `insert into hits (
 site_id, addr, scheme, host, path, query, title, referrer, user_agent_hash,
-view_port, no_script, created_at)
+view_port, country_code, no_script, created_at)
 values (:site_id, :addr, :scheme, :host, :path, :query, :title, :referrer,
-:user_agent_hash, :view_port, :no_script, :created_at)`,
+:user_agent_hash, :view_port, :country_code, :no_script, :created_at)`,
 
 	"hits": `select h.*,
 ua.hash as "ua.hash", ua.name as "ua.name", ua.last_seen_at as "ua.last_seen_at"

@@ -38,7 +38,7 @@ func init() {
 	flag.StringVar(&addr, "listen", "localhost:5000", "listen address")
 	flag.StringVar(&dsn, "dsn", "file:sws.db?cache=shared", "database password")
 	flag.StringVar(&domain, "domain", "stats.userspace.com.au", "stats domain")
-	flag.StringVar(&logFile, "l", "", "log to file")
+	flag.StringVar(&logFile, "log", "", "log to file")
 	flag.StringVar(&override, "override", "", "override path")
 	flag.StringVar(&maxmind, "maxmind", "", "maxmind country DB path")
 	flag.BoolVar(&noMigrate, "no-migrate", false, "disable migrations")

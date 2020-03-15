@@ -46,20 +46,21 @@ func handleHitCounter(db sws.CounterStore, mmdbPath string) http.HandlerFunc {
 		}
 		hit.SiteID = site.ID
 		hit.Addr = r.RemoteAddr
-
-		host, _, err := net.SplitHostPort(addr)
-		if err == nil {
+		if strings.Contains(r.RemoteAddr, ":") {
+			hit.Addr, _, err = net.SplitHostPort(r.RemoteAddr)
+		}
+		if err == nil && hit.Addr != "" {
 			var cc *string
-			if v, ok := cache.Get(host); ok {
+			if v, ok := cache.Get(hit.Addr); ok {
 				cc = v.(*string)
 			} else if mmdbPath != "" {
-				cc, _ = fetchCountryCode(mmdbPath, host)
-				if cc != nil {
-					debug("geoip", host, "=>", *cc)
+				if cc, err = fetchCountryCode(mmdbPath, hit.Addr); err != nil {
+					log("geoip lookup failed:", err)
 				}
-				cache.Add(host, cc)
+				cache.Add(hit.Addr, cc)
 			}
 			hit.CountryCode = cc
+			debug("geolocated:", hit.Addr, "to", *hit.CountryCode)
 		}
 
 		if err := db.SaveHit(hit); err != nil {
