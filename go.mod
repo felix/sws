@@ -25,8 +25,12 @@ require (
 	google.golang.org/appengine v1.6.5 // indirect
 	src.userspace.com.au/go-migrate v0.0.0-20200208102934-cf11cf76db3f
 	src.userspace.com.au/templates v0.0.0-20200308073907-e96b7a1f2a49
+	zgo.at/goatcounter v1.0.0 // indirect
+	zgo.at/tz v0.0.0-20200314040300-b1cfaf56ef7e // indirect
+	zgo.at/zdb v0.0.0-20200221072833-2c234b210cf1 // indirect
+	zgo.at/zhttp v0.0.0-20200301180126-a9b7c887528b // indirect
 )
 
 //replace src.userspace.com.au/templates => ../templates
 
-go 1.13
+go 1.14

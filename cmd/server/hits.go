@@ -11,7 +11,6 @@ import (
 	"text/template"
 
 	"github.com/hashicorp/golang-lru"
-	maxminddb "github.com/oschwald/maxminddb-golang"
 	"src.userspace.com.au/sws"
 )
 
@@ -31,6 +30,9 @@ func handleHitCounter(db sws.CounterStore, mmdbPath string) http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Cache-Control", "no-store")
+
 		hit, err := sws.HitFromRequest(r)
 		if err != nil {
 			log("failed to extract hit", err)
@@ -38,23 +40,37 @@ func handleHitCounter(db sws.CounterStore, mmdbPath string) http.HandlerFunc {
 			return
 		}
 
-		site, err := db.GetSiteByName(hit.Host)
+		site, err := verifyHit(db, hit)
 		if err != nil {
-			log("failed to get site", err)
-			http.Error(w, "invalid site", http.StatusNotFound)
+			log("failed to verify site", err)
+			http.Error(w, "invalid site", http.StatusBadRequest)
 			return
 		}
-		hit.SiteID = site.ID
+
 		hit.Addr = r.RemoteAddr
 		if strings.Contains(r.RemoteAddr, ":") {
 			hit.Addr, _, err = net.SplitHostPort(r.RemoteAddr)
 		}
+
+		if r.Header.Get("X-Moz") == "prefetch" || r.Header.Get("X-Purpose") == "preview" {
+			w.Header().Set("Content-Type", "image/gif")
+			w.Write(gifBytes)
+			return
+		}
+
+		// Ignore IPs
+		if site.IgnoreIPs != "" && strings.Contains(site.IgnoreIPs, hit.Addr) {
+			w.Header().Set("Content-Type", "image/gif")
+			w.Write(gifBytes)
+			return
+		}
+
 		if err == nil && hit.Addr != "" {
 			var cc *string
 			if v, ok := cache.Get(hit.Addr); ok {
 				cc = v.(*string)
 			} else if mmdbPath != "" {
-				if cc, err = fetchCountryCode(mmdbPath, hit.Addr); err != nil {
+				if cc, err = sws.FetchCountryCode(mmdbPath, hit.Addr); err != nil {
 					log("geoip lookup failed:", err)
 				}
 				cache.Add(hit.Addr, cc)
@@ -68,13 +84,30 @@ func handleHitCounter(db sws.CounterStore, mmdbPath string) http.HandlerFunc {
 			//http.Error(w, err.Error(), http.StatusInternalServerError)
 			//return
 		}
-		// TODO restrict to site sites
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("Content-Type", "image/gif")
 		w.Write(gifBytes)
 		return
 	}
+}
+
+func verifyHit(db sws.SiteGetter, h *sws.Hit) (*sws.Site, error) {
+	if h.SiteID == nil {
+		return nil, fmt.Errorf("invalid site ID")
+	}
+	site, err := db.GetSiteByID(*h.SiteID)
+	if err != nil {
+		return nil, err
+	}
+	if site.Name == h.Host {
+		return site, nil
+	}
+	if strings.Contains(site.Aliases, h.Host) {
+		return site, nil
+	}
+	if site.AcceptSubdomains && strings.HasSuffix(h.Host, site.Name) {
+		return site, nil
+	}
+	return nil, fmt.Errorf("invalid host")
 }
 
 func handleCounter(addr string) http.HandlerFunc {
@@ -107,23 +140,4 @@ func handleCounter(addr string) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
-}
-
-func fetchCountryCode(path, host string) (*string, error) {
-	db, err := maxminddb.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer db.Close()
-
-	ip := net.ParseIP(host)
-	var r struct {
-		Country struct {
-			ISOCode string `maxminddb:"iso_code"`
-		} `maxminddb:"country"`
-	}
-	if err := db.Lookup(ip, &r); err != nil {
-		return nil, err
-	}
-	return &r.Country.ISOCode, nil
 }

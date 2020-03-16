@@ -3,27 +3,28 @@ package sws
 type Store interface {
 	SiteStore
 	UserStore
-	GetSiteByName(string) (*Site, error)
 	HitSaver
+	HitCursor(func(*Hit) error) error
 }
 type HitSaver interface {
 	SaveHit(*Hit) error
 }
-type SimpleSiteStore interface {
-	GetSiteByName(string) (*Site, error)
-}
 type SiteStore interface {
-	GetSites() ([]*Site, error)
-	GetSiteByID(int) (*Site, error)
+	SiteGetter
 	GetHits(Site, map[string]interface{}) ([]*Hit, error)
+	GetSites() ([]*Site, error)
 	SaveSite(*Site) error
 }
+type SiteGetter interface {
+	GetSiteByID(int) (*Site, error)
+}
 type HitStore interface {
-	SimpleSiteStore
+	HitSaver
 	GetHits(Site, map[string]interface{}) ([]*Hit, error)
+	HitCursor(func(*Hit) error) error
 }
 type CounterStore interface {
-	SimpleSiteStore
+	SiteGetter
 	HitSaver
 }
 type UserStore interface {

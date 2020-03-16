@@ -88,6 +88,30 @@ func (s *Sqlite3) GetHits(d sws.Site, filter map[string]interface{}) ([]*sws.Hit
 	return hits, nil
 }
 
+func (s *Sqlite3) HitCursor(f func(h *sws.Hit) error) error {
+	sql := `select h.*,
+ua.hash as "ua.hash", ua.name as "ua.name", ua.last_seen_at as "ua.last_seen_at"
+from hits h
+join user_agents ua on h.user_agent_hash = ua.hash`
+
+	rows, err := s.db.Queryx(sql)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		h := &sws.Hit{}
+		if err := rows.StructScan(h); err != nil {
+			return err
+		}
+		if err := f(h); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (s *Sqlite3) SaveHit(h *sws.Hit) error {
 	if h.UserAgent != nil {
 		if _, err := s.db.NamedExec(stmts["saveUserAgent"], *h.UserAgent); err != nil {
@@ -141,27 +165,20 @@ func processFilter(sql *string, filter map[string]interface{}) {
 }
 
 var stmts = map[string]string{
-	"sites": `select id, name, description, aliases, enabled,
-created_at, updated_at
-from sites`,
+	"sites": `select * from sites`,
 
-	"siteByName": `select id, name, description, aliases, enabled,
-created_at, updated_at
-from sites
-where name = $1 limit 1`,
+	"siteByName": `select * from sites where name = $1 limit 1`,
 
-	"siteByID": `select id, name, description, aliases, enabled,
-created_at, updated_at
-from sites
-where id = $1 limit 1`,
+	"siteByID": `select * from sites where id = $1 limit 1`,
 
 	"saveSite": `insert into sites (
-name, description, aliases, enabled, created_at, updated_at)
-values (:name, :description, :aliases, :enabled, date('now'), date('now'))
+name, description, aliases, enabled, subdomains, ignore_ips, created_at, updated_at)
+values (:name, :description, :aliases, :enabled, :subdomains, :ignore_ips, date('now'), date('now'))
 on conflict(id) do update set
 name = :name,
 description = :description,
 aliases = :aliases,
+subdomains = :subdomains,
 updated_at = date('now')`,
 
 	"userAgentByHash": `select id, hash, name, last_seen_at from sites
