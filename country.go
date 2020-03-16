@@ -1,5 +1,11 @@
 package sws
 
+import (
+	"net"
+
+	maxminddb "github.com/oschwald/maxminddb-golang"
+)
+
 type Country struct {
 	Name   string `json:"name"`
 	hitSet *HitSet
@@ -63,4 +69,23 @@ func (cs CountrySet) YMax() int {
 }
 func (cs CountrySet) XSeries() []*Country {
 	return cs
+}
+
+func FetchCountryCode(path, host string) (*string, error) {
+	db, err := maxminddb.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	ip := net.ParseIP(host)
+	var r struct {
+		Country struct {
+			ISOCode string `maxminddb:"iso_code"`
+		} `maxminddb:"country"`
+	}
+	if err := db.Lookup(ip, &r); err != nil {
+		return nil, err
+	}
+	return &r.Country.ISOCode, nil
 }
