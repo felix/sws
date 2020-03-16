@@ -67,6 +67,13 @@ func (cs CountrySet) YMax() int {
 	}
 	return max
 }
+func (cs CountrySet) YSum() int {
+	sum := 0
+	for _, c := range cs {
+		sum += c.hitSet.Count()
+	}
+	return sum
+}
 func (cs CountrySet) XSeries() []*Country {
 	return cs
 }

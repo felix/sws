@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -62,6 +63,10 @@ var funcMap = template.FuncMap{
 	},
 	"percentInv": func(a, b int) float64 {
 		return 100.0 - ((float64(a) / float64(b)) * 100)
+	},
+	"round": func(n int, a float64) float64 {
+		n = n * 10
+		return math.Round(a*float64(n)) / float64(n)
 	},
 }
 

@@ -76,6 +76,13 @@ func (bs BrowserSet) YMax() int {
 	}
 	return max
 }
+func (bs BrowserSet) YSum() int {
+	sum := 0
+	for _, b := range bs {
+		sum += b.hitSet.Count()
+	}
+	return sum
+}
 func (bs BrowserSet) XSeries() []*Browser {
 	return bs
 }

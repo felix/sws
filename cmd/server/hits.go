@@ -99,12 +99,15 @@ func verifyHit(db sws.SiteGetter, h *sws.Hit) (*sws.Site, error) {
 		return nil, err
 	}
 	if site.Name == h.Host {
+		debug(h.Host, "equals site name:", site.Name)
 		return site, nil
 	}
 	if strings.Contains(site.Aliases, h.Host) {
+		debug(h.Host, "equals site alias:", site.Name)
 		return site, nil
 	}
 	if site.AcceptSubdomains && strings.HasSuffix(h.Host, site.Name) {
+		debug(h.Host, "is subdomain:", site.Name)
 		return site, nil
 	}
 	return nil, fmt.Errorf("invalid host")

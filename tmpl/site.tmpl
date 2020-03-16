@@ -41,29 +41,13 @@
 	</li>
 {{ end }}
 
-{{ define "browserForList" }}
-	<li>
-		<h4 class="name">{{ .Name }}</h4>
-		<span class="last-seen">{{ .LastSeenAt|datetimeLong }}</span>
-		<span class="count">{{ .Count }}</span>
-	</li>
-{{ end }}
-
-{{ define "referrerForList" }}
-	<li>
-		<h4 class="name">{{ .Name }}</h4>
-		<span class="last-seen">{{ .LastSeenAt|datetimeLong }}</span>
-		<span class="count">{{ .Count }}</span>
-	</li>
-{{ end }}
-
 {{ define "siteView" }}
 	<section class="panel panel--wide">
 		<header class="panel__header">
 			<h3 class="panel__title">Hits</h3>
 		</header>
 		{{ if .Hits }}
-			<figure class="graph">
+			<figure class="figure figure--graph">
 			{{ template "timeBarChart" .Hits }}
 			</figure>
 		{{ else }}
@@ -73,10 +57,10 @@
 
 	<section class="panel">
 		<header class="panel__header">
-			<h3 class="panel__title">Popular pages</h3>
+			<h3 class="panel__title">Top 10 pages</h3>
 		</header>
 		{{ if .PageSet }}
-			<figure class="graph">
+			<figure class="figure figure--graph">
 			{{ template "barChartHorizontal" .PageSet }}
 			</figure>
 
@@ -85,7 +69,7 @@
 				{{ $pages := .PageSet }}
 				{{ range .PageSet }}
 					{{ template "pageForList" . }}
-					<figure>
+					<figure class="figure figure--graph">
 					{{ $pathHits := $pages.GetPage .Path }}
 					{{ template "timeBarChart" $pathHits }}
 					</figure>
@@ -102,9 +86,18 @@
 			<h3 class="panel__title">Countries</h3>
 		</header>
 		{{ if .CountrySet }}
-			<figure class="map">
+			<figure class="figure figure--map">
 			{{ template "worldMap" .CountrySet }}
 			</figure>
+			{{ $sum := .CountrySet.YSum }}
+			<table class="details details--countries">
+				{{ range .CountrySet }}
+					<tr>
+					<td class="details__name">{{ .Name }}</td>
+					<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
+					</tr>
+				{{ end }}
+			</table>
 		{{ else }}
 			<p>No page views yet</p>
 		{{ end }}
@@ -115,14 +108,18 @@
 			<h3 class="panel__title">Referrers</h3>
 		</header>
 		{{ if .ReferrerSet }}
-			<figure class="graph">
+			<figure class="figure figure--graph">
 			{{ template "barChart" .ReferrerSet }}
 			</figure>
-			<ul class="referrers">
+			{{ $sum := .ReferrerSet.YSum }}
+			<table class="details details--referrers">
 				{{ range .ReferrerSet }}
-					{{ template "referrerForList" . }}
+					<tr>
+					<td class="details__name">{{ .Name }}</td>
+					<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
+					</tr>
 				{{ end }}
-			</ul>
+			</table>
 		{{ else }}
 			<p>No referrers yet</p>
 		{{ end }}
@@ -133,14 +130,18 @@
 			<h3 class="panel__title">User agents</h3>
 		</header>
 		{{ if .Browsers }}
-			<figure class="graph">
+			<figure class="figure figure--graph">
 			{{ template "barChart" .Browsers }}
 			</figure>
-			<ul class="browsers">
+			{{ $sum := .Browsers.YSum }}
+			<table class="details details--browsers">
 				{{ range .Browsers }}
-					{{ template "browserForList" . }}
+					<tr>
+					<td class="details__name">{{ .Name }}</td>
+					<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
+					</tr>
 				{{ end }}
-			</ul>
+			</table>
 		{{ else }}
 			<p>No browsers visits yet</p>
 		{{ end }}

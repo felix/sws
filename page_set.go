@@ -42,8 +42,8 @@ func NewPageSet(hs *HitSet) (PageSet, error) {
 
 func (ps PageSet) Hits() []*Hit {
 	out := make([]*Hit, 0)
-	for _, p := range ps {
-		out = append(out, p.hitSet.Hits()...)
+	for i := 0; i < len(ps); i++ {
+		out = append(out, ps[i].hitSet.Hits()...)
 	}
 	return out
 }
@@ -61,9 +61,9 @@ func (ps *PageSet) SortByHits() {
 }
 
 func (ps PageSet) GetPage(s string) *Page {
-	for _, p := range ps {
-		if p.Path == s {
-			return p
+	for i := 0; i < len(ps); i++ {
+		if ps[i].Path == s {
+			return ps[i]
 		}
 	}
 	return nil
@@ -71,13 +71,17 @@ func (ps PageSet) GetPage(s string) *Page {
 
 func (ps PageSet) YMax() int {
 	max := 0
-	for _, p := range ps {
-		if p.Count() > max {
-			max = p.Count()
+	for i := 0; i < len(ps); i++ {
+		if ps[i].Count() > max {
+			max = ps[i].Count()
 		}
 	}
 	return max
 }
 func (ps PageSet) XSeries() []*Page {
-	return ps
+	max := 10
+	if len(ps) < 10 {
+		max = len(ps)
+	}
+	return ps[0:max]
 }

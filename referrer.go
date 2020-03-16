@@ -104,6 +104,13 @@ func (rs ReferrerSet) YMax() int {
 	}
 	return max
 }
+func (rs ReferrerSet) YSum() int {
+	sum := 0
+	for _, r := range rs {
+		sum += r.hitSet.Count()
+	}
+	return sum
+}
 func (rs ReferrerSet) XSeries() []*Referrer {
 	return rs
 }

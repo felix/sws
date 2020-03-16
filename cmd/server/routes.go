@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/sha1"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -79,11 +81,23 @@ func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
 
 		r.Post(loginURL, handleLogin(db, rndr))
 
+		// Static files
 		r.Get("/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			p := strings.TrimPrefix(r.URL.Path, "/")
 			debug("loading", p)
 			if b, err := loadTemplate(p); err == nil {
 				name := filepath.Base(p)
+				etag := fmt.Sprintf(`"%x"`, sha1.Sum(b))
+
+				if match := r.Header.Get("If-None-Match"); match != "" {
+					if strings.Contains(match, etag) {
+						w.WriteHeader(http.StatusNotModified)
+						return
+					}
+				}
+
+				w.Header().Set("Etag", etag)
+				w.Header().Set("Cache-Control", "no-cache")
 				http.ServeContent(w, r, name, time.Now(), bytes.NewReader(b))
 			}
 		}))
