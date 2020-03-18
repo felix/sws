@@ -84,6 +84,9 @@ func handleHitCounter(db sws.CounterStore, mmdbPath string) http.HandlerFunc {
 			//http.Error(w, err.Error(), http.StatusInternalServerError)
 			//return
 		}
+
+		// TODO restrict to site sites
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Content-Type", "image/gif")
 		w.Write(gifBytes)
 		return

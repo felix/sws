@@ -131,6 +131,7 @@
 		</header>
 		{{ if .Browsers }}
 			<figure class="figure figure--graph">
+				<img src="{{ piechart .Site.ID  "b" .Begin .End }}" />
 			{{ template "barChart" .Browsers }}
 			</figure>
 			{{ $sum := .Browsers.YSum }}

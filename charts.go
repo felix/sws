@@ -9,27 +9,23 @@ import (
 	"github.com/wcharczuk/go-chart/drawing"
 )
 
-type Chartable interface {
-	YMax() int
-	XSeries() []Countable
+type counted interface {
+	Counts() []int
 }
-
-type Countable interface {
-	Label() string
-	Count() int
+type labelled interface {
+	Labels() []string
 }
-
-/*
-type TimeChartable interface {
-	XMax() int
-	Series() []TimeCountable
+type timed interface {
+	Times() []time.Time
 }
-
-type TimeCountable interface {
-	XValue() time.Time
-	YValue() int
+type timeCounted interface {
+	counted
+	timed
 }
-*/
+type labelCounted interface {
+	counted
+	labelled
+}
 
 type chart struct {
 	width, height int
@@ -179,5 +175,24 @@ func HitChartSVG(w io.Writer, data *HitSet, d time.Duration) error {
 	// }
 
 	graph.Render(gochart.SVG, w)
+	return nil
+}
+
+func PieChartSVG(w io.Writer, data labelCounted) error {
+	labels := data.Labels()
+	counts := data.Counts()
+	values := make([]gochart.Value, len(labels))
+	for i := 0; i < len(labels); i++ {
+		values[i] = gochart.Value{
+			Value: float64(counts[i]),
+			Label: labels[i],
+		}
+	}
+	pie := gochart.PieChart{
+		Width:  400,
+		Height: 400,
+		Values: values,
+	}
+	pie.Render(gochart.SVG, w)
 	return nil
 }

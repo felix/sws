@@ -68,6 +68,10 @@ func (s *Sqlite3) SaveSite(d *sws.Site) error {
 func (s *Sqlite3) GetHits(d sws.Site, filter map[string]interface{}) ([]*sws.Hit, error) {
 	hits := make([]*sws.Hit, 0)
 
+	if filter == nil {
+		filter = make(map[string]interface{})
+	}
+
 	sql := stmts["hits"]
 	filter["site_id"] = *d.ID
 	processFilter(&sql, filter)

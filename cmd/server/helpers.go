@@ -10,14 +10,13 @@ import (
 )
 
 var funcMap = template.FuncMap{
+	"piechart": func(siteID int, dataType string, begin, end time.Time) string {
+		return fmt.Sprintf("/sites/%d/charts/p-%s-%d-%d.svg", siteID, dataType, begin.Unix(), end.Unix())
+	},
 	"sparkline": func(id int) string {
-		// This will enable "caching" for an hour
-		now := time.Now() //.Truncate(time.Hour)
-		//then := now.Add(-720 * time.Hour)
+		now := time.Now().Truncate(time.Hour)
 		then := now.Add(-168 * time.Hour) // 7 days
-		//then := now.Add(-24 * time.Hour)
-		//then := now.Add(-1 * time.Hour)
-		return fmt.Sprintf("/sites/%d/sparklines/%d-%d.svg", id, then.Unix(), now.Unix())
+		return fmt.Sprintf("/sites/%d/charts/s-h-%d-%d.svg", id, then.Unix(), now.Unix())
 	},
 	"tz": func(s string, t time.Time) time.Time {
 		tz, _ := time.LoadLocation(s)
@@ -76,8 +75,9 @@ func httpError(w http.ResponseWriter, code int, msg string) {
 }
 
 func extractTimeRange(r *http.Request) (*time.Time, *time.Time) {
+	// Default to 1 week ago
 	begin := timePtr(time.Now().Truncate(time.Hour).Add(-168 * time.Hour))
-	end := timePtr(time.Now().Truncate(time.Hour))
+	end := timePtr(time.Now().Truncate(30 * time.Minute))
 	q := r.URL.Query()
 	if b := q.Get("begin"); b != "" {
 		if bs, err := strconv.ParseInt(b, 10, 64); err == nil {

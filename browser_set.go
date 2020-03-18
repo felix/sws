@@ -1,6 +1,7 @@
 package sws
 
 import (
+	"sort"
 	"time"
 
 	detector "github.com/mssola/user_agent"
@@ -54,6 +55,17 @@ func NewBrowserSet(hs *HitSet) BrowserSet {
 	}
 	return BrowserSet(out)
 }
+func (bs *BrowserSet) SortByName() {
+	sort.Slice(*bs, func(i, j int) bool {
+		return (*bs)[i].Label() < (*bs)[j].Label()
+	})
+}
+
+func (bs *BrowserSet) SortByHits() {
+	sort.Slice(*bs, func(i, j int) bool {
+		return (*bs)[i].hitSet.Count() > (*bs)[j].hitSet.Count()
+	})
+}
 
 func (b Browser) Label() string {
 	return b.Name
@@ -66,7 +78,37 @@ func (b Browser) Count() int {
 func (bs BrowserSet) Count() int {
 	return len(bs)
 }
+func (bs BrowserSet) Labels() []string {
+	out := make([]string, len(bs))
+	for i := 0; i < len(bs); i++ {
+		out[i] = bs[i].Label()
+	}
+	return out
+}
+func (bs BrowserSet) Counts() []int {
+	out := make([]int, len(bs))
+	for i := 0; i < len(bs); i++ {
+		out[i] = bs[i].Count()
+	}
+	return out
+}
 
+/*
+func (bs BrowserSet) Ratios() []float64 {
+	out := make([]float64, len(bs))
+	max := 0.0
+	for i := 0; i < len(bs); i++ {
+		out[i] = float64(bs[i].Count())
+		if out[i] > max {
+			max = out[i]
+		}
+	}
+	for i := 0; i < len(out); i++ {
+		out[i] = out[i] / max
+	}
+	return out
+}
+*/
 func (bs BrowserSet) YMax() int {
 	max := 0
 	for _, b := range bs {

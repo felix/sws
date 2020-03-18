@@ -65,7 +65,10 @@ func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
 
 	// For counter
 	r.Get("/sws.js", handleCounter(addr))
-	r.Get("/sws.gif", handleHitCounter(db, mmdbPath))
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.NoCache)
+		r.Get("/sws.gif", handleHitCounter(db, mmdbPath))
+	})
 	//r.Get("/hits", handleHits(db))
 
 	r.Group(func(r chi.Router) {
@@ -134,11 +137,9 @@ func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
 					r.Get("/", siteHandler)
 					r.Post("/", siteHandler)
 					r.Get("/edit", handleSiteEdit(db, rndr))
-					r.Route("/sparklines", func(r chi.Router) {
-						r.Get("/{b:\\d+}-{e:\\d+}.svg", sparklineHandler(db))
-					})
+
 					r.Route("/charts", func(r chi.Router) {
-						r.Get("/{b:\\d+}-{e:\\d+}.svg", svgChartHandler(db))
+						r.Get("/{type:(p|s|b)}-{data:(h|b|c)}-{begin:\\d+}-{end:\\d+}.svg", chartHandler(db))
 						//r.Get("/{b:\\d+}-{e:\\d+}.png", svgChartHandler(db))
 					})
 				})

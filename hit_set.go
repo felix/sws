@@ -239,6 +239,27 @@ func (hs HitSet) XYValues() ([]time.Time, []float64) {
 	}
 	return x, y
 }
+func (hs HitSet) Labels() []string {
+	out := make([]string, len(hs.buckets))
+	for i := 0; i < len(hs.buckets); i++ {
+		out[i] = hs.buckets[i].Label()
+	}
+	return out
+}
+func (hs HitSet) Counts() []int {
+	out := make([]int, len(hs.buckets))
+	for i := 0; i < len(hs.buckets); i++ {
+		out[i] = hs.buckets[i].Count()
+	}
+	return out
+}
+func (hs HitSet) Times() []time.Time {
+	out := make([]time.Time, len(hs.buckets))
+	for i := 0; i < len(hs.buckets); i++ {
+		out[i] = hs.buckets[i].Time()
+	}
+	return out
+}
 
 func (hs HitSet) YMax() int {
 	hs.updateMinMax()
