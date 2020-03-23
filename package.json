@@ -1,6 +1,8 @@
 {
     "license": "MIT",
     "dependencies": {
+        "bulma": "^0.8.0",
+        "node-sass": "^4.13.1",
         "uglify-js": "3.8.0"
     }
 }

@@ -15,7 +15,7 @@ type Referrer struct {
 
 type ReferrerSet []*Referrer
 
-func NewReferrerSet(hs *HitSet) ReferrerSet {
+func NewReferrerSet(hs *HitSet) *ReferrerSet {
 	tmp := make(map[string]*Referrer)
 	for _, h := range hs.Hits() {
 		if h.Referrer == nil {
@@ -55,7 +55,8 @@ func NewReferrerSet(hs *HitSet) ReferrerSet {
 		out[i] = b
 		i++
 	}
-	return ReferrerSet(out)
+	rs := ReferrerSet(out)
+	return &rs
 }
 
 func (rs *ReferrerSet) SortByName() {

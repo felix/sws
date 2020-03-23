@@ -1,0 +1,11 @@
+{{ define "content" }}
+	<main class="content content--site">
+		<header class="site__header--page">
+			{{ with .Page }}
+				<h1 class="title--page">{{ .Path }}</h1>
+				<span class="title__description--page">{{ .Title }}</span>
+			{{ end }}
+		</header>
+		{{ template "hitView" . }}
+	</main>
+{{ end }}

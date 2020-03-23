@@ -2,6 +2,7 @@ package sws
 
 import (
 	"net"
+	"sort"
 
 	maxminddb "github.com/oschwald/maxminddb-golang"
 )
@@ -13,7 +14,7 @@ type Country struct {
 
 type CountrySet []*Country
 
-func NewCountrySet(hs *HitSet) CountrySet {
+func NewCountrySet(hs *HitSet) *CountrySet {
 	tmp := make(map[string]*Country)
 	for _, h := range hs.Hits() {
 		if h.CountryCode == nil {
@@ -43,7 +44,14 @@ func NewCountrySet(hs *HitSet) CountrySet {
 		out[i] = b
 		i++
 	}
-	return CountrySet(out)
+	cs := CountrySet(out)
+	return &cs
+}
+
+func (cs *CountrySet) SortByHits() {
+	sort.Slice(*cs, func(i, j int) bool {
+		return (*cs)[i].hitSet.Count() > (*cs)[j].hitSet.Count()
+	})
 }
 
 func (c Country) Label() string {

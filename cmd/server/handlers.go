@@ -10,23 +10,27 @@ import (
 )
 
 type templateData struct {
-	Payload     string
-	Endpoint    string
-	User        *sws.User
-	Flash       template.HTML
-	Begin       time.Time
-	End         time.Time
+	Domain   string
+	Payload  string
+	Endpoint string
+	User     *sws.User
+	Flash    template.HTML
+	Begin    time.Time
+	End      time.Time
+
 	Site        *sws.Site
 	Sites       []*sws.Site
-	PageSet     sws.PageSet
-	Browsers    sws.BrowserSet
-	ReferrerSet sws.ReferrerSet
-	CountrySet  sws.CountrySet
+	PageSet     *sws.PageSet
+	Page        *sws.Page
+	Browsers    *sws.BrowserSet
+	ReferrerSet *sws.ReferrerSet
+	CountrySet  *sws.CountrySet
 	Hits        *sws.HitSet
 }
 
 func newTemplateData(r *http.Request) *templateData {
 	out := &templateData{
+		Domain:   domain,
 		Payload:  "//" + domain + "/sws.js",
 		Endpoint: "//" + domain + "/sws.gif",
 	}
@@ -34,7 +38,7 @@ func newTemplateData(r *http.Request) *templateData {
 		flashes := flashGet(r)
 		var flash strings.Builder
 		for _, f := range flashes {
-			flash.WriteString(`<span class="`)
+			flash.WriteString(`<span class="notification is-`)
 			flash.WriteString(string(f.Level))
 			flash.WriteString(`">`)
 			flash.WriteString(f.Message)

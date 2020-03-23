@@ -6,7 +6,7 @@ import (
 
 type PageSet []*Page
 
-func NewPageSet(hs *HitSet) (PageSet, error) {
+func NewPageSet(hs *HitSet) (*PageSet, error) {
 	tmp := make(map[string]*Page)
 	for _, h := range hs.Hits() {
 		if _, ok := tmp[h.Path]; ok {
@@ -37,7 +37,12 @@ func NewPageSet(hs *HitSet) (PageSet, error) {
 		out[i] = p
 		i++
 	}
-	return PageSet(out), nil
+	ps := PageSet(out)
+	return &ps, nil
+}
+
+func (ps *PageSet) Count() int {
+	return len(*ps)
 }
 
 func (ps PageSet) Hits() []*Hit {
@@ -77,6 +82,13 @@ func (ps PageSet) YMax() int {
 		}
 	}
 	return max
+}
+func (ps PageSet) YSum() int {
+	sum := 0
+	for _, p := range ps {
+		sum += p.hitSet.Count()
+	}
+	return sum
 }
 func (ps PageSet) XSeries() []*Page {
 	max := 10

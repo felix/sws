@@ -3,7 +3,7 @@ package main
 //go:generate go run gen.go
 
 import (
-	"fmt"
+	//"fmt"
 	"os"
 
 	"src.userspace.com.au/templates"
@@ -17,7 +17,7 @@ func main() {
 			{Base: "../", Source: "tmpl"},
 			{Base: "../", Source: "static", Extensions: []string{".css", ".js"}},
 		}),
-		templates.Logger(func(a ...interface{}) { fmt.Fprintln(os.Stderr, a...) }),
+		//templates.Debug(func(a ...interface{}) { fmt.Fprintln(os.Stderr, a...) }),
 	))
 	if _, err := tmpl.WriteTo(os.Stdout); err != nil {
 		panic(err)

@@ -1,0 +1,136 @@
+{{ define "hitView" }}
+	{{ $siteID := .Site.ID }}
+	<section class="panel panel--wide">
+		<header class="panel__header">
+			<h3 class="panel__title">Hits</h3>
+		</header>
+		{{ if .Hits }}
+			<figure class="figure figure--graph">
+				{{ template "timeBarChart" .Hits }}
+			</figure>
+		{{ else }}
+			<p>No hits yet</p>
+		{{ end }}
+	</section>
+
+	{{ if .PageSet }}
+		<section class="panel">
+			<header class="panel__header">
+				<h3 class="panel__title">Top 10 pages</h3>
+			</header>
+			{{ if .PageSet.Count }}
+				<figure class="figure figure--graph">
+					{{ template "barChartHorizontal" .PageSet }}
+				</figure>
+
+				{{ $sum := .PageSet.YSum }}
+				<table class="table is-striped details details--pages">
+					{{range $i, $ps := .PageSet }}
+						{{ if lt $i 10 }}
+						<tr>
+							<td class="details__name">
+								<a href="/sites/{{ $siteID }}/pages?path={{ .Path }}">{{ .Path }}</a>
+							</td>
+							<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
+						</tr>
+						{{ end }}
+					{{ end }}
+				</table>
+			{{ else }}
+				<p>No page views yet</p>
+			{{ end }}
+		</section>
+	{{ end }}
+
+	<section class="panel">
+		<header class="panel__header">
+			<h3 class="panel__title">Countries</h3>
+		</header>
+		{{ if .CountrySet }}
+			<figure class="figure figure--map">
+				{{ template "worldMap" .CountrySet }}
+			</figure>
+			{{ $sum := .CountrySet.YSum }}
+			<table class="table is-striped details details--countries">
+				{{ range .CountrySet }}
+					<tr>
+						<td class="details__name">{{ .Name | countryName }}</td>
+						<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
+					</tr>
+				{{ end }}
+			</table>
+		{{ else }}
+			<p>No page views yet</p>
+		{{ end }}
+	</section>
+
+	<section class="panel">
+		<header class="panel__header">
+			<h3 class="panel__title">Referrers</h3>
+		</header>
+		{{ if .ReferrerSet }}
+			<figure class="figure figure--graph">
+				{{ template "barChart" .ReferrerSet }}
+			</figure>
+			{{ $sum := .ReferrerSet.YSum }}
+			<table class="table is-striped details details--referrers">
+				{{ range .ReferrerSet }}
+					<tr>
+						<td class="details__name">{{ .Name }}</td>
+						<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
+					</tr>
+				{{ end }}
+			</table>
+		{{ else }}
+			<p>No referrers yet</p>
+		{{ end }}
+	</section>
+
+	<section class="panel">
+		<header class="panel__header">
+			<h3 class="panel__title">User agents</h3>
+		</header>
+		{{ if .Browsers }}
+			<figure class="figure figure--graph">
+				<img src="{{ piechart .Site.ID  "b" .Begin .End }}" />
+				{{ template "barChart" .Browsers }}
+			</figure>
+			{{ $sum := .Browsers.YSum }}
+			<table class="table is-striped details details--browsers">
+				{{ range .Browsers }}
+					<tr>
+						<td class="details__name">{{ .Name }}</td>
+						<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
+					</tr>
+				{{ end }}
+			</table>
+		{{ else }} <p>No browsers visits yet</p>
+		{{ end }}
+	</section>
+{{ end }}
+
+{{ define "siteSummary" }}
+	<section class="site__summary">
+		{{ with .Hits }}
+			<div class="summary">
+				<span class="summary__title">Total Hits</span>
+				<span class="summary__count">{{ .Count }}</span>
+				<span class="summary__comparison">for this period</span>
+			</div>
+		{{ end }}
+		{{ with .ReferrerSet }}
+			<div class="summary">
+				<span class="summary__title">Total Referrers</span>
+				<span class="summary__count">{{ .Count }}</span>
+				<!-- <span class="summary__comparison"></span> -->
+			</div>
+		{{ end }}
+		{{ with .Browsers }}
+			<div class="summary">
+				<span class="summary__title">Total Browsers</span>
+				<span class="summary__count">{{ .Count }}</span>
+				<!-- <span class="summary__comparison"></span> -->
+			</div>
+		{{ end }}
+	</section>
+{{ end }}

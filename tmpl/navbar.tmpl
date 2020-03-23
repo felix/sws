@@ -1,11 +1,35 @@
 {{ define "navbar" }}
-	<nav class="nav navbar">
-		<a class="nav__link nav__link--logo" href="/">Logo</a>
-		{{ if .User }}
-			<a class="nav__link" href="/sites">Sites</a>
-			<a class="nav__link nav__link--logout" href="/logout">Logout</a>
-		{{ else }}
-			<a class="nav__link nav__link--login" href="/login">Login</a>
-		{{ end }}
+	<nav class="navbar is-black" role="navigation" aria-label="main navigation">
+		<div class="navbar-brand">
+			<a class="navbar-item" href="//{{ .Domain }}">
+				<img src="//{{ .Domain }}/logo.png" width="112" height="28">
+			</a>
+
+			<a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarMain">
+				<span aria-hidden="true"></span>
+				<span aria-hidden="true"></span>
+				<span aria-hidden="true"></span>
+			</a>
+		</div>
+
+		<div id="navbarMain" class="navbar-menu">
+			<div class="navbar-start">
+				<a class="navbar-item" href="/"> Home </a>
+				<a class="navbar-item" href="/sites"> Sites </a>
+			</div>
+
+			<div class="navbar-end">
+				<div class="navbar-item">
+					<div class="buttons">
+						{{ if .User }}
+							<a class="button is-small is-light" href="/logout"> Log out </a>
+						{{ else }}
+							<a class="button is-small is-primary" href="/signup"> <strong>Sign up</strong> </a>
+							<a class="button is-small is-light" href="/login"> Log in </a>
+						{{ end }}
+					</div>
+				</div>
+			</div>
+		</div>
 	</nav>
 {{ end }}

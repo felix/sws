@@ -15,7 +15,7 @@ type Browser struct {
 
 type BrowserSet []*Browser
 
-func NewBrowserSet(hs *HitSet) BrowserSet {
+func NewBrowserSet(hs *HitSet) *BrowserSet {
 	tmp := make(map[string]*Browser)
 	for _, h := range hs.Hits() {
 		browser := ""
@@ -53,7 +53,8 @@ func NewBrowserSet(hs *HitSet) BrowserSet {
 		out[i] = b
 		i++
 	}
-	return BrowserSet(out)
+	bs := BrowserSet(out)
+	return &bs
 }
 func (bs *BrowserSet) SortByName() {
 	sort.Slice(*bs, func(i, j int) bool {

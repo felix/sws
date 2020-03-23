@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"src.userspace.com.au/sws"
 )
 
 var funcMap = template.FuncMap{
@@ -22,6 +24,12 @@ var funcMap = template.FuncMap{
 		tz, _ := time.LoadLocation(s)
 		// TODO error
 		return t.In(tz)
+	},
+	"countryName": func(code string) string {
+		if n, ok := sws.CountryCodes[code]; ok {
+			return n
+		}
+		return "Unknown"
 	},
 	/*
 		"seq": func(start, stop, step int) []int {
@@ -90,6 +98,29 @@ func extractTimeRange(r *http.Request) (*time.Time, *time.Time) {
 		}
 	}
 	return begin, end
+}
+
+func expandPayload(hs *sws.HitSet, pl *templateData) error {
+	pl.Hits = hs
+
+	pageSet, err := sws.NewPageSet(hs)
+	if err != nil {
+		return err
+	}
+
+	if pageSet != nil {
+		pageSet.SortByHits()
+		pl.PageSet = pageSet
+	}
+	pl.Browsers = sws.NewBrowserSet(hs)
+	pl.CountrySet = sws.NewCountrySet(hs)
+
+	refSet := sws.NewReferrerSet(hs)
+	if refSet != nil {
+		refSet.SortByHits()
+		pl.ReferrerSet = refSet
+	}
+	return nil
 }
 
 func stringPtr(s string) *string {

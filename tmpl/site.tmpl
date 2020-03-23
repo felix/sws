@@ -1,13 +1,13 @@
 {{ define "content" }}
-	<main class="site">
-		<header class="site__header">
+	<main class="content content--site">
+		<header class="header--site">
 			{{ if .Site.ID }}
 				{{ with .Site }}
-					<h1 class="site__title">{{ .Name }}</h1>
-					<span class="site__description">{{ .Description }}</span>
+					<h1 class="title--site">Site summary for {{ .Name }}</h1>
+					<span class="title__description--site">{{ .Description }}</span>
 				{{ end }}
 			{{ else }}
-				<h1 class="site__title site__title--new">New Site</h1>
+				<h1 class="title--site">New Site</h1>
 			{{ end }}
 		</header>
 
@@ -17,12 +17,12 @@
 			{{ template "timerange" . }}
 		{{ end }}
 		{{ if .Hits }}
-			{{ template "siteView" . }}
+			{{ template "hitView" . }}
 		{{ else }}
 			<form method="post" action="/sites{{ if .Site.ID }}/{{ .Site.ID }}{{ end }}">
 				{{ template "siteEdit" .Site }}
 				<div class="field">
-					<input type="submit" />
+					<input class="button" type="submit" name="Save" />
 				</div>
 			</form>
 			{{ if .Site.ID }}
@@ -41,152 +41,19 @@
 	</li>
 {{ end }}
 
-{{ define "siteView" }}
-	<section class="panel panel--wide">
-		<header class="panel__header">
-			<h3 class="panel__title">Hits</h3>
-		</header>
-		{{ if .Hits }}
-			<figure class="figure figure--graph">
-			{{ template "timeBarChart" .Hits }}
-			</figure>
-		{{ else }}
-			<p>No hits yet</p>
-		{{ end }}
-	</section>
-
-	<section class="panel">
-		<header class="panel__header">
-			<h3 class="panel__title">Top 10 pages</h3>
-		</header>
-		{{ if .PageSet }}
-			<figure class="figure figure--graph">
-			{{ template "barChartHorizontal" .PageSet }}
-			</figure>
-
-			<!--
-			<ul class="pages">
-				{{ $pages := .PageSet }}
-				{{ range .PageSet }}
-					{{ template "pageForList" . }}
-					<figure class="figure figure--graph">
-					{{ $pathHits := $pages.GetPage .Path }}
-					{{ template "timeBarChart" $pathHits }}
-					</figure>
-				{{ end }}
-			</ul>
-			-->
-		{{ else }}
-			<p>No page views yet</p>
-		{{ end }}
-	</section>
-
-	<section class="panel">
-		<header class="panel__header">
-			<h3 class="panel__title">Countries</h3>
-		</header>
-		{{ if .CountrySet }}
-			<figure class="figure figure--map">
-			{{ template "worldMap" .CountrySet }}
-			</figure>
-			{{ $sum := .CountrySet.YSum }}
-			<table class="details details--countries">
-				{{ range .CountrySet }}
-					<tr>
-					<td class="details__name">{{ .Name }}</td>
-					<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
-					</tr>
-				{{ end }}
-			</table>
-		{{ else }}
-			<p>No page views yet</p>
-		{{ end }}
-	</section>
-
-	<section class="panel">
-		<header class="panel__header">
-			<h3 class="panel__title">Referrers</h3>
-		</header>
-		{{ if .ReferrerSet }}
-			<figure class="figure figure--graph">
-			{{ template "barChart" .ReferrerSet }}
-			</figure>
-			{{ $sum := .ReferrerSet.YSum }}
-			<table class="details details--referrers">
-				{{ range .ReferrerSet }}
-					<tr>
-					<td class="details__name">{{ .Name }}</td>
-					<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
-					</tr>
-				{{ end }}
-			</table>
-		{{ else }}
-			<p>No referrers yet</p>
-		{{ end }}
-	</section>
-
-	<section class="panel">
-		<header class="panel__header">
-			<h3 class="panel__title">User agents</h3>
-		</header>
-		{{ if .Browsers }}
-			<figure class="figure figure--graph">
-				<img src="{{ piechart .Site.ID  "b" .Begin .End }}" />
-			{{ template "barChart" .Browsers }}
-			</figure>
-			{{ $sum := .Browsers.YSum }}
-			<table class="details details--browsers">
-				{{ range .Browsers }}
-					<tr>
-					<td class="details__name">{{ .Name }}</td>
-					<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
-					</tr>
-				{{ end }}
-			</table>
-		{{ else }}
-			<p>No browsers visits yet</p>
-		{{ end }}
-	</section>
-{{ end }}
-
-{{ define "siteSummary" }}
-	<section class="site__summary">
-		{{ with .Hits }}
-			<div class="summary">
-				<span class="summary__title">Total Hits</span>
-				<span class="summary__count">{{ .Count }}</span>
-				<span class="summary__comparison">for this period</span>
-			</div>
-		{{ end }}
-		{{ with .ReferrerSet }}
-			<div class="summary">
-				<span class="summary__title">Total Referrers</span>
-				<span class="summary__count">{{ .Count }}</span>
-				<!-- <span class="summary__comparison"></span> -->
-			</div>
-		{{ end }}
-		{{ with .Browsers }}
-			<div class="summary">
-				<span class="summary__title">Total Browsers</span>
-				<span class="summary__count">{{ .Count }}</span>
-				<!-- <span class="summary__comparison"></span> -->
-			</div>
-		{{ end }}
-	</section>
-{{ end }}
 
 {{ define "siteEdit" }}
 	<div class="field">
-		<label class="field__label">Name</label>
-		<input class="field__input" type="text" name="name" value="{{ .Name }}" placeholder="example.com" required />
+		<label class="label">Name</label>
+		<input class="input" type="text" name="name" value="{{ .Name }}" placeholder="example.com" required />
 	</div>
 	<div class="field">
-		<label class="field__label">Description</label>
-		<input class="field__input" type="text" name="description" value="{{ .Description }}" placeholder="site description" />
+		<label class="label">Description</label>
+		<input class="input" type="text" name="description" value="{{ .Description }}" placeholder="site description" />
 	</div>
 	<div class="field">
-		<label class="field__label">Aliases</label>
-		<input class="field__input" type="text" name="aliases" value="{{ .Aliases }}" placeholder="www.example.com" />
+		<label class="label">Aliases</label>
+		<input class="input" type="text" name="aliases" value="{{ .Aliases }}" placeholder="www.example.com" />
 	</div>
 {{ end }}
 

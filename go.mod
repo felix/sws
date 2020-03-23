@@ -24,7 +24,7 @@ require (
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	src.userspace.com.au/go-migrate v0.0.0-20200208102934-cf11cf76db3f
-	src.userspace.com.au/templates v0.0.0-20200308073907-e96b7a1f2a49
+	src.userspace.com.au/templates v0.0.0-20200320100635-3f0c3fbfaf31
 	zgo.at/goatcounter v1.0.0 // indirect
 	zgo.at/tz v0.0.0-20200314040300-b1cfaf56ef7e // indirect
 	zgo.at/zdb v0.0.0-20200221072833-2c234b210cf1 // indirect

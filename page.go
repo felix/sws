@@ -14,6 +14,19 @@ type Page struct {
 	Site *Site `json:"-"`
 }
 
+func NewPage(hs *HitSet) *Page {
+	hits := hs.Hits()
+	// Last hit
+	h := hits[len(hits)-1]
+	return &Page{
+		Path:          h.Path,
+		SiteID:        *h.SiteID,
+		Title:         h.Title,
+		LastVisitedAt: h.CreatedAt,
+		hitSet:        hs,
+	}
+}
+
 func (p Page) YMax() int {
 	return p.hitSet.YMax()
 }

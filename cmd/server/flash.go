@@ -14,8 +14,8 @@ type flashCtxKey string
 
 const (
 	flashInfo    flashLvl = "info"
-	flashError   flashLvl = "error"
-	flashWarn    flashLvl = "warn"
+	flashError   flashLvl = "danger"
+	flashWarn    flashLvl = "warning"
 	flashSuccess flashLvl = "success"
 
 	flashQueryKey = "_flash"

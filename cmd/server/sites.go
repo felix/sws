@@ -19,7 +19,7 @@ func handleSites(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 				log("invalid site:", errs)
 				r = flashSet(r, flashError, strings.Join(errs, "<br>"))
 			} else if err := db.SaveSite(site); err != nil {
-				httpError(w, 500, err.Error())
+				httpError(w, http.StatusInternalServerError, err.Error())
 				return
 			}
 			r = flashSet(r, flashSuccess, "site created")
@@ -27,7 +27,7 @@ func handleSites(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 
 		sites, err := db.GetSites()
 		if err != nil {
-			httpError(w, 500, err.Error())
+			httpError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
@@ -35,7 +35,7 @@ func handleSites(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 		payload.Sites = sites
 
 		if err := rndr.Render(w, "sites", payload); err != nil {
-			httpError(w, 500, err.Error())
+			httpError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 	}
@@ -55,7 +55,7 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 
 		begin, end := extractTimeRange(r)
 		if begin == nil || end == nil {
-			httpError(w, 406, "invalid time range")
+			httpError(w, http.StatusBadRequest, "invalid time range")
 			return
 		}
 		payload.Begin = *begin
@@ -68,37 +68,21 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 			"end":   *end,
 		})
 		if err != nil {
-			httpError(w, 500, err.Error())
+			httpError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
 		hitSet, err := sws.NewHitSet(sws.FromHits(hits))
 		if err != nil {
-			httpError(w, 406, err.Error())
+			httpError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 		if hitSet != nil {
 			hitSet.Fill(begin, end)
 			hitSet.SortByDate()
-			payload.Hits = hitSet
-
-			pageSet, err := sws.NewPageSet(hitSet)
-			if err != nil {
-				httpError(w, 406, err.Error())
+			if err := expandPayload(hitSet, payload); err != nil {
+				httpError(w, http.StatusInternalServerError, err.Error())
 				return
-			}
-
-			if pageSet != nil {
-				pageSet.SortByHits()
-				payload.PageSet = pageSet
-			}
-			payload.Browsers = sws.NewBrowserSet(hitSet)
-			payload.CountrySet = sws.NewCountrySet(hitSet)
-
-			refSet := sws.NewReferrerSet(hitSet)
-			if refSet != nil {
-				refSet.SortByHits()
-				payload.ReferrerSet = refSet
 			}
 		}
 

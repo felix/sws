@@ -26,7 +26,9 @@ func init() {
 
 func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
 	tmplsCommon := []string{"flash.tmpl", "navbar.tmpl"}
-	tmplsAuthed := append(tmplsCommon, []string{"layout.tmpl", "charts.tmpl", "timerange.tmpl"}...)
+	tmplsAuthed := append(tmplsCommon, []string{
+		"layout.tmpl", "charts.tmpl", "timerange.tmpl", "hitView.tmpl",
+	}...)
 	tmplsPublic := append(tmplsCommon, "layout.tmpl")
 
 	if override != "" {
@@ -39,6 +41,7 @@ func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
 	tmpls, err := loadHTMLTemplateMap(map[string][]string{
 		"sites": append([]string{"sites.tmpl"}, tmplsAuthed...),
 		"site":  append([]string{"site.tmpl", "worldMap.tmpl"}, tmplsAuthed...),
+		"pages": append([]string{"pages.tmpl", "worldMap.tmpl"}, tmplsAuthed...),
 		"home":  append([]string{"home.tmpl"}, tmplsPublic...),
 		"login": append([]string{"login.tmpl"}, tmplsPublic...),
 		"user":  append([]string{"user.tmpl"}, tmplsAuthed...),
@@ -136,6 +139,7 @@ func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
 					r.Use(getSiteCtx(db))
 					r.Get("/", siteHandler)
 					r.Post("/", siteHandler)
+					r.Get("/pages", handlePages(db, rndr))
 					r.Get("/edit", handleSiteEdit(db, rndr))
 
 					r.Route("/charts", func(r chi.Router) {
@@ -174,7 +178,7 @@ func getUserCtx(db sws.UserStore) func(http.Handler) http.Handler {
 
 			_, claims, err := jwtauth.FromContext(r.Context())
 			if err != nil {
-				log("failed to extract user from context", err)
+				//log("failed to extract user from context", err)
 				return
 			}
 

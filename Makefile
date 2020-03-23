@@ -8,7 +8,7 @@ EXTRAS=	cmd/server/migrations.go \
 	cmd/server/counter.go \
 	cmd/server/templates.go
 TMPL=	$(shell find tmpl -type f -name '*.tmpl')
-STATIC=	$(shell find static -type f)
+STATIC=	static/default.css
 
 .PHONY: build
 build: $(BINARY)
@@ -26,6 +26,9 @@ cmd/server/counter.go: counter/sws.min.js
 	printf "package main\n\nfunc getCounter() string { return \`" >$@
 	cat $< >>$@
 	printf "\`}\n" >>$@
+
+static/default.css: sass/main.scss
+	yarn run node-sass $< $@
 
 %.min.js: %.js node_modules
 	yarn run -s uglifyjs -c -m -o $@ $<
