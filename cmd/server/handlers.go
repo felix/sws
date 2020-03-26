@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -15,17 +16,24 @@ type templateData struct {
 	Endpoint string
 	User     *sws.User
 	Flash    template.HTML
-	Begin    time.Time
-	End      time.Time
+	Begin    *time.Time
+	End      *time.Time
+
+	Query url.Values
 
 	Site        *sws.Site
 	Sites       []*sws.Site
+	Hits        *sws.HitSet
 	PageSet     *sws.PageSet
-	Page        *sws.Page
-	Browsers    *sws.BrowserSet
+	BrowserSet  *sws.BrowserSet
 	ReferrerSet *sws.ReferrerSet
 	CountrySet  *sws.CountrySet
-	Hits        *sws.HitSet
+}
+
+func (td templateData) QuerySetEncode(k, v string) template.URL {
+	qs, _ := url.ParseQuery(td.Query.Encode())
+	qs.Set(k, v)
+	return template.URL(qs.Encode())
 }
 
 func newTemplateData(r *http.Request) *templateData {
@@ -34,24 +42,29 @@ func newTemplateData(r *http.Request) *templateData {
 		Payload:  "//" + domain + "/sws.js",
 		Endpoint: "//" + domain + "/sws.gif",
 	}
-	if r != nil {
-		flashes := flashGet(r)
-		var flash strings.Builder
-		for _, f := range flashes {
-			flash.WriteString(`<span class="notification is-`)
-			flash.WriteString(string(f.Level))
-			flash.WriteString(`">`)
-			flash.WriteString(f.Message)
-			flash.WriteString("</span>")
-		}
-		if len(flashes) > 0 {
-			out.Flash = template.HTML(flash.String())
-		}
-
-		if user := r.Context().Value("user"); user != nil {
-			out.User = user.(*sws.User)
-		}
+	if r == nil {
+		return out
 	}
+
+	flashes := flashGet(r)
+	var flash strings.Builder
+	for _, f := range flashes {
+		flash.WriteString(`<span class="notification is-`)
+		flash.WriteString(string(f.Level))
+		flash.WriteString(`">`)
+		flash.WriteString(f.Message)
+		flash.WriteString("</span>")
+	}
+	if len(flashes) > 0 {
+		out.Flash = template.HTML(flash.String())
+	}
+
+	if user := r.Context().Value("user"); user != nil {
+		out.User = user.(*sws.User)
+	}
+
+	out.Query = r.URL.Query()
+
 	return out
 }
 

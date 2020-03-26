@@ -41,7 +41,7 @@
   <style>
 {{ $max := .YMax }}
 {{ range .XSeries }}
-	#{{ .Label }} { fill: hsla(230, {{ percent .Count $max }}%, 50%, 1) !important; }
+	#{{ .Label }} { fill: hsla(230, 50%, 50%, {{ percent .Count $max }}%) !important; }
 {{ end }}
   </style>
   <defs

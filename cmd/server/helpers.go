@@ -12,13 +12,15 @@ import (
 )
 
 var funcMap = template.FuncMap{
-	"piechart": func(siteID int, dataType string, begin, end time.Time) string {
-		return fmt.Sprintf("/sites/%d/charts/p-%s-%d-%d.svg", siteID, dataType, begin.Unix(), end.Unix())
+	"piechart": func(dataType string, pl templateData) string {
+		pl.Query.Add("begin", strconv.Itoa(int(pl.Begin.Unix())))
+		pl.Query.Add("end", strconv.Itoa(int(pl.End.Unix())))
+		return fmt.Sprintf("/sites/%d/charts/p-%s.svg?%s", *pl.Site.ID, dataType, pl.Query.Encode())
 	},
 	"sparkline": func(id int) string {
 		now := time.Now().Truncate(time.Hour)
 		then := now.Add(-168 * time.Hour) // 7 days
-		return fmt.Sprintf("/sites/%d/charts/s-h-%d-%d.svg", id, then.Unix(), now.Unix())
+		return fmt.Sprintf("/sites/%d/charts/s-h.svg?begin=%d&end=%d", id, then.Unix(), now.Unix())
 	},
 	"tz": func(s string, t time.Time) time.Time {
 		tz, _ := time.LoadLocation(s)
@@ -61,9 +63,9 @@ var funcMap = template.FuncMap{
 	"timeRFC": func(t time.Time) string {
 		return t.Format("15:04")
 	},
-	"datetimeRelative": func(d string) int64 {
+	"datetimeRelative": func(d string) string {
 		dur, _ := time.ParseDuration(d)
-		return time.Now().Add(dur).Unix()
+		return strconv.Itoa(int(time.Now().Add(dur).Unix()))
 	},
 	"percent": func(a, b int) float64 {
 		return (float64(a) / float64(b)) * 100
@@ -82,6 +84,32 @@ func httpError(w http.ResponseWriter, code int, msg string) {
 	http.Error(w, http.StatusText(code), code)
 }
 
+func createHitFilter(r *http.Request) map[string]interface{} {
+	filter := make(map[string]interface{})
+
+	q := r.URL.Query()
+
+	path := q.Get("path")
+	if path != "" {
+		filter["path"] = path
+	}
+	country := q.Get("country")
+	if country != "" {
+		filter["country_code"] = country
+	}
+	browser := q.Get("browser")
+	if browser != "" {
+		filter["ua.browser"] = browser
+	}
+	if bots := q.Get("bots"); bots != "" {
+		filter["ua.bot"] = (bots == "1")
+	}
+	if mobile := q.Get("mobile"); mobile != "" {
+		filter["ua.mobile"] = (mobile == "1")
+	}
+	return filter
+}
+
 func extractTimeRange(r *http.Request) (*time.Time, *time.Time) {
 	// Default to 1 week ago
 	begin := timePtr(time.Now().Truncate(time.Hour).Add(-168 * time.Hour))
@@ -98,29 +126,6 @@ func extractTimeRange(r *http.Request) (*time.Time, *time.Time) {
 		}
 	}
 	return begin, end
-}
-
-func expandPayload(hs *sws.HitSet, pl *templateData) error {
-	pl.Hits = hs
-
-	pageSet, err := sws.NewPageSet(hs)
-	if err != nil {
-		return err
-	}
-
-	if pageSet != nil {
-		pageSet.SortByHits()
-		pl.PageSet = pageSet
-	}
-	pl.Browsers = sws.NewBrowserSet(hs)
-	pl.CountrySet = sws.NewCountrySet(hs)
-
-	refSet := sws.NewReferrerSet(hs)
-	if refSet != nil {
-		refSet.SortByHits()
-		pl.ReferrerSet = refSet
-	}
-	return nil
 }
 
 func stringPtr(s string) *string {

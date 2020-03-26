@@ -3,7 +3,7 @@
 		<header class="header--site">
 			{{ if .Site.ID }}
 				{{ with .Site }}
-					<h1 class="title--site">Site summary for {{ .Name }}</h1>
+					<h1 class="title--site">Hits for {{ .Name }}</h1>
 					<span class="title__description--site">{{ .Description }}</span>
 				{{ end }}
 			{{ else }}
@@ -14,7 +14,7 @@
 		{{ template "siteSummary" . }}
 
 		{{ if .Site.ID }}
-			{{ template "timerange" . }}
+			{{ template "filter" . }}
 		{{ end }}
 		{{ if .Hits }}
 			{{ template "hitView" . }}

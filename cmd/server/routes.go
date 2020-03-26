@@ -27,7 +27,7 @@ func init() {
 func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
 	tmplsCommon := []string{"flash.tmpl", "navbar.tmpl"}
 	tmplsAuthed := append(tmplsCommon, []string{
-		"layout.tmpl", "charts.tmpl", "timerange.tmpl", "hitView.tmpl",
+		"layout.tmpl", "charts.tmpl", "filter.tmpl", "hitView.tmpl",
 	}...)
 	tmplsPublic := append(tmplsCommon, "layout.tmpl")
 
@@ -139,11 +139,10 @@ func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
 					r.Use(getSiteCtx(db))
 					r.Get("/", siteHandler)
 					r.Post("/", siteHandler)
-					r.Get("/pages", handlePages(db, rndr))
 					r.Get("/edit", handleSiteEdit(db, rndr))
 
 					r.Route("/charts", func(r chi.Router) {
-						r.Get("/{type:(p|s|b)}-{data:(h|b|c)}-{begin:\\d+}-{end:\\d+}.svg", chartHandler(db))
+						r.Get("/{type:(p|s|b)}-{data:(h|b|c)}.svg", chartHandler(db))
 						//r.Get("/{b:\\d+}-{e:\\d+}.png", svgChartHandler(db))
 					})
 				})

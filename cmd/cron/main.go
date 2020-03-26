@@ -12,6 +12,7 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+	detector "github.com/mssola/user_agent"
 	"src.userspace.com.au/sws"
 	"src.userspace.com.au/sws/store"
 )
@@ -97,6 +98,8 @@ func main() {
 		panic(err)
 	}
 
+	seenUAs := make(map[string]bool)
+
 	toUpdate := make([]*sws.Hit, 0)
 	log("updating country code")
 	err = st.HitCursor(func(h *sws.Hit) error {
@@ -112,6 +115,27 @@ func main() {
 				cache.Add(h.Addr, cc)
 			}
 			h.CountryCode = cc
+			toUpdate = append(toUpdate, h)
+		}
+
+		// Populate user agent
+		if h.UserAgent != nil {
+			log("hit ID", *h.ID)
+			ua := h.UserAgent
+			if ok := seenUAs[ua.Hash]; ok {
+				return nil
+			}
+			det := detector.New(ua.Name)
+			browser, version := det.Browser()
+
+			h.UserAgent.Browser = browser
+			h.UserAgent.Platform = det.Platform()
+			h.UserAgent.Version = version
+			h.UserAgent.Bot = det.Bot()
+			h.UserAgent.Mobile = strings.Contains(ua.Name, "Mobi") || det.Mobile()
+
+			seenUAs[ua.Hash] = true
+
 			toUpdate = append(toUpdate, h)
 		}
 		return nil

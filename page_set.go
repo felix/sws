@@ -6,7 +6,7 @@ import (
 
 type PageSet []*Page
 
-func NewPageSet(hs *HitSet) (*PageSet, error) {
+func NewPageSet(hs *HitSet) *PageSet {
 	tmp := make(map[string]*Page)
 	for _, h := range hs.Hits() {
 		if _, ok := tmp[h.Path]; ok {
@@ -29,7 +29,7 @@ func NewPageSet(hs *HitSet) (*PageSet, error) {
 		tmp[h.Path] = p
 	}
 	if len(tmp) < 1 {
-		return nil, nil
+		return nil
 	}
 	out := make([]*Page, len(tmp))
 	i := 0
@@ -38,7 +38,7 @@ func NewPageSet(hs *HitSet) (*PageSet, error) {
 		i++
 	}
 	ps := PageSet(out)
-	return &ps, nil
+	return &ps
 }
 
 func (ps *PageSet) Count() int {

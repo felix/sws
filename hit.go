@@ -129,17 +129,8 @@ func HitFromRequest(r *http.Request) (*Hit, error) {
 		out.Referrer = &s
 	}
 
-	agent := q.Get("u")
-	if agent == "" {
-		agent = r.UserAgent()
-	}
-	uaHash := UserAgentHash(agent)
-	out.UserAgentHash = &uaHash
-	out.UserAgent = &UserAgent{
-		Hash:       uaHash,
-		Name:       agent,
-		LastSeenAt: time.Now(),
-	}
+	out.UserAgent = UserAgentFromRequest(r)
+	out.UserAgentHash = &out.UserAgent.Hash
 
 	if view := q.Get("v"); view != "" {
 		out.ViewPort = &view

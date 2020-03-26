@@ -24,7 +24,7 @@ func handleHitCounter(db sws.CounterStore, mmdbPath string) http.HandlerFunc {
 		panic(err)
 	}
 
-	cache, err := lru.New(100)
+	countryCache, err := lru.New(100)
 	if err != nil {
 		panic(err)
 	}
@@ -67,13 +67,13 @@ func handleHitCounter(db sws.CounterStore, mmdbPath string) http.HandlerFunc {
 
 		if err == nil && hit.Addr != "" {
 			var cc *string
-			if v, ok := cache.Get(hit.Addr); ok {
+			if v, ok := countryCache.Get(hit.Addr); ok {
 				cc = v.(*string)
 			} else if mmdbPath != "" {
 				if cc, err = sws.FetchCountryCode(mmdbPath, hit.Addr); err != nil {
 					log("geoip lookup failed:", err)
 				}
-				cache.Add(hit.Addr, cc)
+				countryCache.Add(hit.Addr, cc)
 			}
 			hit.CountryCode = cc
 			debug("geolocated:", hit.Addr, "to", *hit.CountryCode)

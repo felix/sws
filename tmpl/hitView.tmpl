@@ -1,5 +1,6 @@
 {{ define "hitView" }}
 	{{ $siteID := .Site.ID }}
+	{{ $payload := . }}
 	<section class="panel panel--wide">
 		<header class="panel__header">
 			<h3 class="panel__title">Hits</h3>
@@ -29,7 +30,7 @@
 						{{ if lt $i 10 }}
 						<tr>
 							<td class="details__name">
-								<a href="/sites/{{ $siteID }}/pages?path={{ .Path }}">{{ .Path }}</a>
+								<a href="/sites/{{ $siteID }}?{{ $payload.QuerySetEncode "path" .Path }}">{{ .Path }}</a>
 							</td>
 							<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
 						</tr>
@@ -54,7 +55,9 @@
 			<table class="table is-striped details details--countries">
 				{{ range .CountrySet }}
 					<tr>
-						<td class="details__name">{{ .Name | countryName }}</td>
+						<td class="details__name">
+							<a href="/sites/{{ $siteID }}?{{ $payload.QuerySetEncode "country" .Name }}">{{ .Name | countryName }}</a>
+						</td>
 						<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
 					</tr>
 				{{ end }}
@@ -90,16 +93,18 @@
 		<header class="panel__header">
 			<h3 class="panel__title">User agents</h3>
 		</header>
-		{{ if .Browsers }}
+		{{ if .BrowserSet }}
 			<figure class="figure figure--graph">
-				<img src="{{ piechart .Site.ID  "b" .Begin .End }}" />
-				{{ template "barChart" .Browsers }}
+				<img src="{{ piechart "b" . }}" />
+				{{ template "barChart" .BrowserSet }}
 			</figure>
-			{{ $sum := .Browsers.YSum }}
+			{{ $sum := .BrowserSet.YSum }}
 			<table class="table is-striped details details--browsers">
-				{{ range .Browsers }}
+				{{ range .BrowserSet }}
 					<tr>
-						<td class="details__name">{{ .Name }}</td>
+						<td class="details__name">
+							<a href="/sites/{{ $siteID }}?{{ $payload.QuerySetEncode "browser" .Name }}">{{ .Name }}</a>
+						</td>
 						<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
 					</tr>
 				{{ end }}
@@ -125,7 +130,7 @@
 				<!-- <span class="summary__comparison"></span> -->
 			</div>
 		{{ end }}
-		{{ with .Browsers }}
+		{{ with .BrowserSet }}
 			<div class="summary">
 				<span class="summary__title">Total Browsers</span>
 				<span class="summary__count">{{ .Count }}</span>

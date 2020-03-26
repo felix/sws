@@ -1,4 +1,4 @@
-{{ define "timerange" }}
+{{ define "filter" }}
 	<div class="timerange">
 		<!--
 	  <form>
@@ -33,8 +33,11 @@
 	  </select>
 	  </form>
 		-->
-		<a href="?begin={{ datetimeRelative "-24h"}}">last day</a>
-		<a href="?begin={{ datetimeRelative "-168h"}}">last 7 days</a>
-		<a href="?begin={{ datetimeRelative "-720h"}}">last 30 days</a>
+		<a href="?{{ datetimeRelative "-24h" | .QuerySetEncode "begin" }}">last day</a>
+		<a href="?{{ datetimeRelative "-168h" | .QuerySetEncode "begin" }}">last 7 days</a>
+		<a href="?{{ datetimeRelative "-720h" | .QuerySetEncode "begin" }}">last 30 days</a>
+		<a href="?{{ .QuerySetEncode "bots" "0" }}">without bots</a>
+		<a href="?{{ .QuerySetEncode "bots" "" }}">with bots</a>
+		<a href="?{{ .QuerySetEncode "bots" "1" }}">only bots</a>
 	</div>
 {{ end }}

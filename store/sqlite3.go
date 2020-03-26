@@ -72,7 +72,7 @@ func (s *Sqlite3) GetHits(d sws.Site, filter map[string]interface{}) ([]*sws.Hit
 		filter = make(map[string]interface{})
 	}
 
-	sql := stmts["hits"]
+	sql := stmts["hits"] + ` where h.site_id = :site_id`
 	filter["site_id"] = *d.ID
 	processFilter(&sql, filter)
 
@@ -93,10 +93,7 @@ func (s *Sqlite3) GetHits(d sws.Site, filter map[string]interface{}) ([]*sws.Hit
 }
 
 func (s *Sqlite3) HitCursor(f func(h *sws.Hit) error) error {
-	sql := `select h.*,
-ua.hash as "ua.hash", ua.name as "ua.name", ua.last_seen_at as "ua.last_seen_at"
-from hits h
-join user_agents ua on h.user_agent_hash = ua.hash`
+	sql := stmts["hits"]
 
 	rows, err := s.db.Queryx(sql)
 	if err != nil {
@@ -175,9 +172,9 @@ var stmts = map[string]string{
 
 	"siteByID": `select * from sites where id = $1 limit 1`,
 
-	"saveSite": `insert into sites (
-name, description, aliases, enabled, subdomains, ignore_ips, created_at, updated_at)
-values (:name, :description, :aliases, :enabled, :subdomains, :ignore_ips, date('now'), date('now'))
+	"saveSite": `insert into sites
+(id, name, description, aliases, enabled, subdomains, ignore_ips, created_at, updated_at)
+values (:id, :name, :description, :aliases, :enabled, :subdomains, :ignore_ips, date('now'), date('now'))
 on conflict(id) do update set
 name = :name,
 description = :description,
@@ -189,21 +186,30 @@ updated_at = date('now')`,
 where hash = $1 limit 1`,
 
 	"saveUserAgent": `insert into user_agents
-(hash, name, last_seen_at)
-values (:hash, :name, :last_seen_at)
-on conflict(hash) do update set last_seen_at = :last_seen_at`,
+(hash, name, last_seen_at, browser, platform, version, bot, mobile)
+values (:hash, :name, :last_seen_at, :browser, :platform, :version, :bot, :mobile)
+on conflict(hash) do update set
+last_seen_at = :last_seen_at,
+browser = :browser,
+platform = :platform,
+version = :version,
+bot = :bot,
+mobile = :mobile`,
 
-	"saveHit": `insert into hits (
-site_id, addr, scheme, host, path, query, title, referrer, user_agent_hash,
+	"saveHit": `insert into hits
+(id, site_id, addr, scheme, host, path, query, title, referrer, user_agent_hash,
 view_port, country_code, no_script, created_at)
-values (:site_id, :addr, :scheme, :host, :path, :query, :title, :referrer,
-:user_agent_hash, :view_port, :country_code, :no_script, :created_at)`,
+values (:id, :site_id, :addr, :scheme, :host, :path, :query, :title, :referrer,
+:user_agent_hash, :view_port, :country_code, :no_script, :created_at)
+on conflict(id) do nothing`,
 
+	// The explicit useragent stuff is to work around sqlx filling nested structs
 	"hits": `select h.*,
-ua.hash as "ua.hash", ua.name as "ua.name", ua.last_seen_at as "ua.last_seen_at"
+ua.hash as "ua.hash", ua.name as "ua.name", ua.last_seen_at as "ua.last_seen_at",
+ua.browser as "ua.browser", ua.platform as "ua.platform", ua.bot as "ua.bot",
+ua.mobile as "ua.mobile"
 from hits h
-join user_agents ua on h.user_agent_hash = ua.hash
-where h.site_id = :site_id`,
+join user_agents ua on h.user_agent_hash = ua.hash`,
 
 	"userByEmail": `select id, email, first_name, last_name, pw_hash, pw_salt, enabled,
 created_at, updated_at, last_login_at

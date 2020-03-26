@@ -16,8 +16,12 @@ type UserAgent struct {
 	Hash       string    `json:"hash"`
 	Name       string    `json:"name"`
 	LastSeenAt time.Time `json:"last_seen_at" db:"last_seen_at"`
+	Browser    string    `json:"browser"`
+	Platform   string    `json:"platform"`
+	Version    string    `json:"version"`
+	Bot        bool      `json:"bot"`
+	Mobile     bool      `json:"mobile"`
 	hitSet     *HitSet
-	ua         *detector.UserAgent
 }
 
 var (
@@ -37,19 +41,27 @@ func UserAgentHash(s string) string {
 }
 
 // UserAgentFromRequest extracts a UA from a request.
-func UserAgentFromRequest(r *http.Request) (*UserAgent, error) {
+func UserAgentFromRequest(r *http.Request) *UserAgent {
 	q := r.URL.Query()
 	ua := q.Get("u")
 	if ua == "" {
 		ua = r.UserAgent()
 	}
+	hash := UserAgentHash(ua)
+
+	det := detector.New(ua)
+	browser, version := det.Browser()
 
 	return &UserAgent{
 		Name:       ua,
 		LastSeenAt: time.Now(),
-		Hash:       UserAgentHash(ua),
-		ua:         detector.New(ua),
-	}, nil
+		Hash:       hash,
+		Browser:    browser,
+		Platform:   det.Platform(),
+		Version:    version,
+		Bot:        det.Bot(),
+		Mobile:     strings.Contains(ua, "Mobi") || det.Mobile(),
+	}
 }
 
 func (ua UserAgent) Count() int {
@@ -57,28 +69,5 @@ func (ua UserAgent) Count() int {
 }
 
 func (ua UserAgent) Label() string {
-	return ua.Browser() // + "/" + ua.BrowserVersion()
-}
-
-func (ua UserAgent) IsBot() bool {
-	return ua.ua.Bot()
-}
-
-func (ua UserAgent) IsMobile() bool {
-	//return ua.ua.Mobile()
-	return strings.Contains(ua.Name, "Mobi")
-}
-
-func (ua UserAgent) Platform() string {
-	return ua.ua.Platform()
-}
-
-func (ua UserAgent) Browser() string {
-	n, _ := ua.ua.Browser()
-	return n
-}
-
-func (ua UserAgent) BrowserVersion() string {
-	_, v := ua.ua.Browser()
-	return v
+	return ua.Browser
 }

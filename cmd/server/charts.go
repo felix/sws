@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -22,23 +21,9 @@ func chartHandler(db sws.HitStore) http.HandlerFunc {
 			return
 		}
 
-		chartType := chi.URLParam(r, "type")
-		dataType := chi.URLParam(r, "data")
-		beginSecs, err := strconv.ParseInt(chi.URLParam(r, "begin"), 10, 64)
-		if err != nil {
-			httpError(w, http.StatusNotFound, err.Error())
-			return
-		}
-		endSecs, err := strconv.ParseInt(chi.URLParam(r, "end"), 10, 64)
-		if err != nil {
-			httpError(w, http.StatusNotFound, err.Error())
-			return
-		}
-		begin := time.Unix(beginSecs, 0)
-		end := time.Unix(endSecs, 0)
-
 		var b strings.Builder
 		b.WriteString(r.URL.Path)
+		b.WriteString(r.URL.Query().Encode())
 		// FIXME
 		b.WriteString(time.Now().Truncate(30 * time.Minute).String())
 		etag := fmt.Sprintf(`"%x"`, sha1.Sum([]byte(b.String())))
@@ -50,10 +35,18 @@ func chartHandler(db sws.HitStore) http.HandlerFunc {
 			}
 		}
 
-		filter := map[string]interface{}{
-			"begin": begin,
-			"end":   end,
+		filter := createHitFilter(r)
+		begin, end := extractTimeRange(r)
+		if begin == nil || end == nil {
+			log("charts: empty times")
+			httpError(w, http.StatusNotFound, "not found")
+			return
 		}
+		filter["begin"] = *begin
+		filter["end"] = *end
+
+		chartType := chi.URLParam(r, "type")
+		dataType := chi.URLParam(r, "data")
 
 		hits, err := db.GetHits(*site, filter)
 		if err != nil {
@@ -71,7 +64,7 @@ func chartHandler(db sws.HitStore) http.HandlerFunc {
 			return
 		}
 
-		hitSet.Fill(&begin, &end)
+		hitSet.Fill(begin, end)
 		hitSet.SortByDate()
 
 		w.Header().Set("Etag", etag)
@@ -96,6 +89,9 @@ func chartHandler(db sws.HitStore) http.HandlerFunc {
 			}
 		case "b":
 			browsers := sws.NewBrowserSet(hitSet)
+			if browsers == nil {
+				return
+			}
 			browsers.SortByHits()
 			w.Header().Set("Content-Type", "image/svg+xml")
 			switch chartType {
