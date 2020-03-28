@@ -5,33 +5,12 @@
 		<title>Simple Web Stats</title>
 		<link rel="stylesheet" href="/default.css">
 	</head>
-	<body>
+	<body class="has-navbar-fixed-top">
 		{{ template "navbar" . }}
-		<section class="page">
-			{{ if .User }}
-				<div class="sidebar">
-					{{ if .Site }}
-						<nav class="nav nav--site">
-							<span class="nav__link nav__link--name">{{ .Site.Name }}</span>
-							{{ if .Site.ID }}
-								<a class="nav__link" href="/sites/{{ .Site.ID }}">Summary</a>
-								<a class="nav__link" href="/sites/{{ .Site.ID }}/pages">Pages</a>
-								<a class="nav__link" href="/sites/{{ .Site.ID }}/browsers">Browsers</a>
-								<a class="nav__link" href="/sites/{{ .Site.ID }}/locations">Locations</a>
-								<a class="nav__link" href="/sites/{{ .Site.ID }}/edit">Settings</a>
-							{{ end }}
-						</nav>
-					{{ else }}
-						<nav class="nav nav--sites">
-							<a class="nav__link" href="/sites">Sites</a>
-							<a class="nav__link" href="/sites/new"><i class="plus">&#43;</i> New site</a>
-						</nav>
-					{{ end }}
-				</div>
-			{{ end }}
+		<main class="page">
 			{{ template "flash" . }}
 			{{ template "content" . }}
-		</section>
+		</main>
 		<footer></footer>
 	</body>
 </html>

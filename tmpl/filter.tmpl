@@ -37,7 +37,31 @@
 		<a href="?{{ datetimeRelative "-168h" | .QuerySetEncode "begin" }}">last 7 days</a>
 		<a href="?{{ datetimeRelative "-720h" | .QuerySetEncode "begin" }}">last 30 days</a>
 		<a href="?{{ .QuerySetEncode "bots" "0" }}">without bots</a>
-		<a href="?{{ .QuerySetEncode "bots" "" }}">with bots</a>
 		<a href="?{{ .QuerySetEncode "bots" "1" }}">only bots</a>
+	</div>
+	<div class="field is-grouped is-grouped-multiline">
+		<div class="control">
+			{{ if .QuerySetContains "bots" }}
+				{{ $bots := .Query.Get "bots" }}
+				{{ if eq $bots "0" }}
+					<div class="tags has-addons">
+						<a class="tag is-link">No bots</a>
+						<a class="tag is-delete" href="?{{ .QuerySetEncode "bots" "" }}"></a>
+					</div>
+				{{ end }}
+				{{ if eq $bots "1" }}
+					<div class="tags has-addons">
+						<a class="tag is-link">Only bots</a>
+						<a class="tag is-delete" href="?{{ .QuerySetEncode "bots" "" }}"></a>
+					</div>
+				{{ end }}
+			{{ end }}
+			{{ if .QuerySetContains "begin" }}
+				<div class="tags has-addons">
+					<a class="tag is-link">Time filter</a>
+					<a class="tag is-delete"></a>
+				</div>
+			{{ end }}
+		</div>
 	</div>
 {{ end }}

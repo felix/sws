@@ -32,8 +32,21 @@ type templateData struct {
 
 func (td templateData) QuerySetEncode(k, v string) template.URL {
 	qs, _ := url.ParseQuery(td.Query.Encode())
-	qs.Set(k, v)
+	if v == "" {
+		qs.Del(k)
+	} else {
+		qs.Set(k, v)
+	}
 	return template.URL(qs.Encode())
+}
+
+func (td templateData) QuerySetContains(s string) bool {
+	for k, _ := range td.Query {
+		if k == s {
+			return true
+		}
+	}
+	return false
 }
 
 func newTemplateData(r *http.Request) *templateData {

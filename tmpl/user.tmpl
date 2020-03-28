@@ -1,18 +1,16 @@
 {{ define "content" }}
-	<main>
-		<header>
-			{{ with .User }}
-				<h1>Profile</h1>
-				<span>{{ .Email }}</span>
-			{{ end }}
-		</header>
-		<form method="post">
-			{{ template "userEdit" .User }}
-			<div class="field">
-				<input type="submit" />
-			</div>
-		</form>
-	</main>
+	<header>
+		{{ with .User }}
+			<h1>Profile</h1>
+			<span>{{ .Email }}</span>
+		{{ end }}
+	</header>
+	<form method="post">
+		{{ template "userEdit" .User }}
+		<div class="field">
+			<input type="submit" />
+		</div>
+	</form>
 {{ end }}
 
 {{ define "userEdit" }}

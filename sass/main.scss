@@ -13,156 +13,44 @@ $black: #120c13;
 @import "../node_modules/bulma/sass/elements/content";
 @import "../node_modules/bulma/sass/elements/button";
 @import "../node_modules/bulma/sass/elements/table";
+@import "../node_modules/bulma/sass/elements/tag";
 @import "../node_modules/bulma/sass/elements/notification";
 @import "../node_modules/bulma/sass/form/_all";
+@import "../node_modules/bulma/sass/components/level";
 @import "../node_modules/bulma/sass/components/navbar";
+@import "../node_modules/bulma/sass/components/menu";
 
+.navbar {
+	position: fixed;
+	width: 100%;
+}
 .page {
 	display: flex;
-	flex-direction: row;
-	position: relative;
-}
-.content {
-	flex: 1;
-}
-.sidebar {
-	flex: 0 0 250px;
+	flex-direction: column;
 }
 
-// .sidebar {
-// 	background-color: #120c13;
-// }
-// .navbar {
-// 	align-items: center;
-// 	background: #120c13;
-// 	border-bottom: 1px solid #d9dee4;
-// 	display: flex;
-// 	justify-content: flex-end;
-// }
-// .nav {
-// 	display: flex;
-// 	flex-wrap: wrap;
-// 	justify-content: left;
-// }
-// .nav__link {
-// 	color: white;
-// 	display: block;
-// 	font-weight: 500;
-// 	text-decoration: none;
-// 	text-transform: lowercase;
-// 	padding-left: 15px;
-// 	padding-right: 15px;
-// 	padding-top: 7px;
-// 	padding-bottom: 7px;
-// }
-// .nav__link--name {
-// 	flex: 1;
-// }
-// .nav__link--close {
-// }
-// .nav__link--logo {
-// 	flex: 1;
-// }
-
-// .content {
-// 	background-color: #f7f7f7;
-// 	display: flex;
-// 	flex-wrap: wrap;
-// 	flex: 1;
-// 	justify-content: space-between;
-// 	padding-left: 16px;
-// 	padding-right: 16px;
-// 	position: relative;
-// }
-//
-
-.content--login {
-	display: flex;
-	align-content: center;
-	justify-content: center;
+.panel {
+	// 	background-color: #fff;
+	border: 1px solid #e6e9ed;
+	flex: 0 1 33%;
+	margin-bottom: .5em;
+	margin-top: .5em;
+	padding: .5em;
 }
-
-// @media (min-width: 768px) {
-// 	.page {
-// 		flex-direction: row;
-// 		flex: 1;
-// 	}
-// 	main {
-// 		flex: 1;
-// 	}
-// 	.navmain {
-// 		/* 12em is the width of the columns */
-// 		flex: 0 0 12em;
-// 	}
-// }
-
-// .site__header {
-// 	margin-bottom: 1em;
-// 	flex: 1 0 100%;
-// }
-// .site__title {
-// 	margin-bottom: 0;
-// }
-
-// .site__summary {
-// 	display: inline-block;
-// 	flex: 1 0 100%;
-// }
-// .summary {
-// 	float: left;
-// 	overflow: hidden;
-// 	padding-bottom: 0px;
-// 	padding: 0 10px 0 20px;
-// 	position: relative;
-// 	text-overflow: ellipsis;
-// 	white-space: nowrap;
-// }
-// .summary__title {
-// 	font-size: 13px;
-// }
-// .summary__count {
-// 	display: block;
-// 	font-size: 40px;
-// 	font-weight: 600;
-// 	line-height: 1.25;
-// }
-// .summary__comparison {
-// 	font-size: 13px;
-// }
-// .summary:before {
-// 	border-left: 2px solid #adb2b5;
-// 	content: "";
-// 	height: 65px;
-// 	left: 0;
-// 	margin-top: 10px;
-// 	position: absolute;
-// }
-// .summary:first-child::before {
-// 	border-left: 0;
-// }
-
-// .panel {
-// 	background-color: #fff;
-// 	border: 1px solid #e6e9ed;
-// 	flex: 0 1 33%;
-// 	margin-bottom: .5em;
-// 	margin-top: .5em;
-// 	padding: .5em;
-// }
-// .panel--wide {
-// 	flex: 1 0 100%;
-// }
-// .panel__header {
-// 	border-bottom: 2px solid #e6e9ed;
-// 	font-size: 1.75em;
-// 	margin-bottom: 10px;
-// }
-// .panel__title {
-// 	font-size: 18px;
-// 	font-weight: 400;
-// 	margin: 0;
-// 	padding: .25em;
-// }
+.panel--wide {
+	flex: 1 0 100%;
+}
+.panel__header {
+	border-bottom: 2px solid #e6e9ed;
+	font-size: 1.75em;
+	margin-bottom: 10px;
+}
+.panel__title {
+	// 	font-size: 18px;
+	// 	font-weight: 400;
+	margin: 0;
+	padding: .25em;
+}
 
 .flash {
 	display: block;
@@ -178,22 +66,6 @@ $black: #120c13;
 	display: block;
 }
 
-// .timerange {
-// 	position: absolute;
-// 	right: 0;
-// 	top: 0;
-// }
-
-// .details__percent {
-// 	font-weight: bold;
-// }
-
-// /* Figures */
-// .figure {
-// 	margin: 1em .5em;
-// }
-// .figure--graph {
-// }
 .figure svg {
 	max-width: 100%;
 	max-height: 400px;
@@ -266,6 +138,13 @@ $black: #120c13;
 	height: 100%;
 	right: unset;
 	top: 0;
+}
+.chart.horizontal .slot:after {
+	display:block;
+	color: #555;
+}
+.chart.horizontal .slot:hover:after {
+	color: #000;
 }
 .chart .slot:hover .bar {
 	background: #88b6ff;

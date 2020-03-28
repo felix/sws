@@ -1,7 +1,7 @@
 {{ define "hitView" }}
 	{{ $siteID := .Site.ID }}
 	{{ $payload := . }}
-	<section class="panel panel--wide">
+	<section id="hits" class="panel panel--wide">
 		<header class="panel__header">
 			<h3 class="panel__title">Hits</h3>
 		</header>
@@ -15,7 +15,7 @@
 	</section>
 
 	{{ if .PageSet }}
-		<section class="panel">
+		<section id="pages" class="panel">
 			<header class="panel__header">
 				<h3 class="panel__title">Top 10 pages</h3>
 			</header>
@@ -28,12 +28,12 @@
 				<table class="table is-striped details details--pages">
 					{{range $i, $ps := .PageSet }}
 						{{ if lt $i 10 }}
-						<tr>
-							<td class="details__name">
-								<a href="/sites/{{ $siteID }}?{{ $payload.QuerySetEncode "path" .Path }}">{{ .Path }}</a>
-							</td>
-							<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
-						</tr>
+							<tr>
+								<td class="details__name">
+									<a href="/sites/{{ $siteID }}?{{ $payload.QuerySetEncode "path" .Path }}">{{ .Path }}</a>
+								</td>
+								<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
+							</tr>
 						{{ end }}
 					{{ end }}
 				</table>
@@ -43,7 +43,7 @@
 		</section>
 	{{ end }}
 
-	<section class="panel">
+	<section id="countries" class="panel">
 		<header class="panel__header">
 			<h3 class="panel__title">Countries</h3>
 		</header>
@@ -67,7 +67,7 @@
 		{{ end }}
 	</section>
 
-	<section class="panel">
+	<section id="referrers" class="panel">
 		<header class="panel__header">
 			<h3 class="panel__title">Referrers</h3>
 		</header>
@@ -89,7 +89,7 @@
 		{{ end }}
 	</section>
 
-	<section class="panel">
+	<section id="useragents" class="panel">
 		<header class="panel__header">
 			<h3 class="panel__title">User agents</h3>
 		</header>
@@ -115,26 +115,37 @@
 {{ end }}
 
 {{ define "siteSummary" }}
-	<section class="site__summary">
+	<section class="level">
 		{{ with .Hits }}
-			<div class="summary">
-				<span class="summary__title">Total Hits</span>
-				<span class="summary__count">{{ .Count }}</span>
-				<span class="summary__comparison">for this period</span>
+			<div class="level-item has-text-centered">
+				<div>
+					<p class="heading">Hits</p>
+					<p class="title">{{ .Count }}</p>
+				</div>
 			</div>
 		{{ end }}
 		{{ with .ReferrerSet }}
-			<div class="summary">
-				<span class="summary__title">Total Referrers</span>
-				<span class="summary__count">{{ .Count }}</span>
-				<!-- <span class="summary__comparison"></span> -->
+			<div class="level-item has-text-centered">
+				<div>
+					<p class="heading">Referrers</p>
+					<p class="title">{{ .Count }}</p>
+				</div>
 			</div>
 		{{ end }}
 		{{ with .BrowserSet }}
-			<div class="summary">
-				<span class="summary__title">Total Browsers</span>
-				<span class="summary__count">{{ .Count }}</span>
-				<!-- <span class="summary__comparison"></span> -->
+			<div class="level-item has-text-centered">
+				<div>
+					<p class="heading">Browsers</p>
+					<p class="title">{{ .Count }}</p>
+				</div>
+			</div>
+		{{ end }}
+		{{ with .CountrySet }}
+			<div class="level-item has-text-centered">
+				<div>
+					<p class="heading">Countries</p>
+					<p class="title">{{ .Count }}</p>
+				</div>
 			</div>
 		{{ end }}
 	</section>

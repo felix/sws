@@ -1,35 +1,33 @@
 {{ define "content" }}
-	<main class="content content--site">
-		<header class="header--site">
-			{{ if .Site.ID }}
-				{{ with .Site }}
-					<h1 class="title--site">Hits for {{ .Name }}</h1>
-					<span class="title__description--site">{{ .Description }}</span>
-				{{ end }}
-			{{ else }}
-				<h1 class="title--site">New Site</h1>
-			{{ end }}
-		</header>
-
-		{{ template "siteSummary" . }}
-
+	<header class="header--site">
 		{{ if .Site.ID }}
-			{{ template "filter" . }}
-		{{ end }}
-		{{ if .Hits }}
-			{{ template "hitView" . }}
-		{{ else }}
-			<form method="post" action="/sites{{ if .Site.ID }}/{{ .Site.ID }}{{ end }}">
-				{{ template "siteEdit" .Site }}
-				<div class="field">
-					<input class="button" type="submit" name="Save" />
-				</div>
-			</form>
-			{{ if .Site.ID }}
-				{{ template "siteConfig" . }}
+			{{ with .Site }}
+				<h1 class="title title--site">Hits for {{ .Name }}</h1>
+				<span class="subtitle">{{ .Description }}</span>
 			{{ end }}
+		{{ else }}
+			<h1 class="title--site">New Site</h1>
 		{{ end }}
-	</main>
+	</header>
+
+	{{ template "siteSummary" . }}
+
+	{{ if .Site.ID }}
+		{{ template "filter" . }}
+	{{ end }}
+	{{ if .Hits }}
+		{{ template "hitView" . }}
+	{{ else }}
+		<form method="post" action="/sites{{ if .Site.ID }}/{{ .Site.ID }}{{ end }}">
+			{{ template "siteEdit" .Site }}
+			<div class="field">
+				<input class="button" type="submit" name="Save" />
+			</div>
+		</form>
+		{{ if .Site.ID }}
+			{{ template "siteConfig" . }}
+		{{ end }}
+	{{ end }}
 {{ end }}
 
 {{ define "pageForList" }}

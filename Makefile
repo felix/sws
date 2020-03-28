@@ -28,7 +28,7 @@ cmd/server/counter.go: counter/sws.min.js
 	printf "\`}\n" >>$@
 
 static/default.css: sass/main.scss
-	yarn run node-sass $< $@
+	yarn run -s node-sass $< $@
 
 %.min.js: %.js node_modules
 	yarn run -s uglifyjs -c -m -o $@ $<

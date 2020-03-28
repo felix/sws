@@ -1,20 +1,18 @@
 {{ define "content" }}
-	<main class="content content--sites">
-		<header>
-			<h1>Sites</h1>
-		</header>
-		<ul class="sites">
-			{{ range .Sites }}
-				{{ template "siteForList" . }}
-			{{ end }}
-		</ul>
-	</main>
+	<header>
+		<h1 class="title">Sites</h1>
+	</header>
+	<ul class="sites">
+		{{ range .Sites }}
+			{{ template "siteForList" . }}
+		{{ end }}
+	</ul>
 {{ end }}
 
 {{ define "siteForList" }}
-<li>
-	<a href="/sites/{{ .ID }}/">{{ .Name }}</a>
-	<span>{{ .Description }}</span>
-	<img src="{{ sparkline .ID }}" />
-</li>
+	<li>
+		<a href="/sites/{{ .ID }}/">{{ .Name }}</a>
+		<span>{{ .Description }}</span>
+		<img src="{{ sparkline .ID }}" />
+	</li>
 {{ end }}

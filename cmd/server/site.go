@@ -53,6 +53,12 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 				payload.PageSet = ps
 			}
 		}
+		if _, ok := filter["referrer"]; !ok {
+			if rs := sws.NewReferrerSet(hitSet); rs != nil {
+				rs.SortByName()
+				payload.ReferrerSet = rs
+			}
+		}
 		if _, ok := filter["country"]; !ok {
 			if cs := sws.NewCountrySet(hitSet); cs != nil {
 				cs.SortByHits()
