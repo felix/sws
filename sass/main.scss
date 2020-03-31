@@ -4,6 +4,7 @@
 
 $family-sans-serif: "Helvetica", "Arial", sans-serif;
 $black: #120c13;
+$card-header-shadow: 0;
 
 //@import "../node_modules/bulma/bulma";
 @import "../node_modules/bulma/sass/utilities/_all";
@@ -19,6 +20,7 @@ $black: #120c13;
 @import "../node_modules/bulma/sass/components/level";
 @import "../node_modules/bulma/sass/components/navbar";
 @import "../node_modules/bulma/sass/components/menu";
+@import "../node_modules/bulma/sass/components/card";
 
 .navbar {
 	position: fixed;
@@ -26,30 +28,30 @@ $black: #120c13;
 }
 .page {
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	margin-left: 24px;
+	margin-right: 24px;
 }
-
-.panel {
+.header {
+	width: 100%;
+}
+.level {
+	width: 100%;
+}
+.card {
 	// 	background-color: #fff;
 	border: 1px solid #e6e9ed;
-	flex: 0 1 33%;
-	margin-bottom: .5em;
-	margin-top: .5em;
+	flex: 1 1 400px;
+	margin: .5em;
 	padding: .5em;
 }
-.panel--wide {
-	flex: 1 0 100%;
+.card--wide {
+	flex: 1 1 100%;
 }
-.panel__header {
-	border-bottom: 2px solid #e6e9ed;
-	font-size: 1.75em;
-	margin-bottom: 10px;
-}
-.panel__title {
-	// 	font-size: 18px;
-	// 	font-weight: 400;
-	margin: 0;
-	padding: .25em;
+.card .table {
+	font-size: .825em;
 }
 
 .flash {
@@ -139,6 +141,10 @@ $black: #120c13;
 	right: unset;
 	top: 0;
 }
+.chart.horizontal .slot {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
 .chart.horizontal .slot:after {
 	display:block;
 	color: #555;
@@ -184,18 +190,18 @@ $black: #120c13;
 .chart.horizontal .slot:after {
 	font-size: 1em;
 	height: 100%;
-	margin-left: 10px;
+	margin-left: 0;
 	margin-bottom: 0;
 	position: absolute;
 }
 .chart.horizontal .slot:before {
-	left: -20px;
-	margin-left: 0;
+	left: -25px;
 	text-align: center;
 	width: 20px;
 }
 .chart.horizontal .slot:after {
 	left: 0;
+	margin-left: 10px;
 	width: auto;
 	z-index: 10;
 }

@@ -56,10 +56,16 @@
 					</div>
 				{{ end }}
 			{{ end }}
+			{{ if .QuerySetContains "country" }}
+				<div class="tags has-addons">
+					<a class="tag is-link">Country {{ .Query.Get "country" }}</a>
+					<a class="tag is-delete" href="?{{ .QuerySetEncode "country" "" }}"></a>
+				</div>
+			{{ end }}
 			{{ if .QuerySetContains "begin" }}
 				<div class="tags has-addons">
 					<a class="tag is-link">Time filter</a>
-					<a class="tag is-delete"></a>
+					<a class="tag is-delete" href="?{{ .QuerySetEncode "begin" "" }}"></a>
 				</div>
 			{{ end }}
 		</div>

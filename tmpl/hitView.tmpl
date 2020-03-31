@@ -1,116 +1,126 @@
 {{ define "hitView" }}
 	{{ $siteID := .Site.ID }}
 	{{ $payload := . }}
-	<section id="hits" class="panel panel--wide">
-		<header class="panel__header">
-			<h3 class="panel__title">Hits</h3>
+	<section id="hits" class="card card--wide">
+		<header class="card-header">
+			<h3 class="card-header-title">Hits</h3>
 		</header>
-		{{ if .Hits }}
-			<figure class="figure figure--graph">
-				{{ template "timeBarChart" .Hits }}
-			</figure>
-		{{ else }}
-			<p>No hits yet</p>
-		{{ end }}
+		<div class="card-content">
+			{{ if .Hits }}
+				<figure class="figure figure--graph">
+					{{ template "timeBarChart" .Hits }}
+				</figure>
+			{{ else }}
+				<p>No hits yet</p>
+			{{ end }}
+		</div>
 	</section>
 
 	{{ if .PageSet }}
-		<section id="pages" class="panel">
-			<header class="panel__header">
-				<h3 class="panel__title">Top 10 pages</h3>
+		<section id="pages" class="card">
+			<header class="card-header">
+				<h3 class="card-header-title">Top 10 pages</h3>
 			</header>
-			{{ if .PageSet.Count }}
-				<figure class="figure figure--graph">
-					{{ template "barChartHorizontal" .PageSet }}
-				</figure>
+			<div class="card-content">
+				{{ if .PageSet.Count }}
+					<figure class="figure figure--graph">
+						{{ template "barChartHorizontal" .PageSet }}
+					</figure>
 
-				{{ $sum := .PageSet.YSum }}
-				<table class="table is-striped details details--pages">
-					{{range $i, $ps := .PageSet }}
-						{{ if lt $i 10 }}
-							<tr>
-								<td class="details__name">
-									<a href="/sites/{{ $siteID }}?{{ $payload.QuerySetEncode "path" .Path }}">{{ .Path }}</a>
-								</td>
-								<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
-							</tr>
+					{{ $sum := .PageSet.YSum }}
+					<table class="table is-striped is-fullwidth details details--pages">
+						{{range $i, $ps := .PageSet }}
+							{{ if lt $i 10 }}
+								<tr>
+									<td class="details__name">
+										<a href="/sites/{{ $siteID }}?{{ $payload.QuerySetEncode "path" .Path }}">{{ .Path }}</a>
+									</td>
+									<td class="details__count"><span class="details__percent has-text-right">{{ percent .Count $sum | round 1 }}%</span>&nbsp;({{ .Count }})</td>
+								</tr>
+							{{ end }}
 						{{ end }}
+					</table>
+				{{ else }}
+					<p>No page views yet</p>
+				{{ end }}
+			</div>
+		</section>
+	{{ end }}
+
+	<section id="countries" class="card">
+		<header class="card-header">
+			<h3 class="card-header-title">Countries</h3>
+		</header>
+		<div class="card-content">
+			{{ if .CountrySet }}
+				<figure class="figure figure--map">
+					{{ template "worldMap" .CountrySet }}
+				</figure>
+				{{ $sum := .CountrySet.YSum }}
+				<table class="table is-striped is-fullwidth details details--countries">
+					{{ range .CountrySet }}
+						<tr>
+							<td class="details__name">
+								<a href="/sites/{{ $siteID }}?{{ $payload.QuerySetEncode "country" .Name }}">{{ .Name | countryName }}</a>
+							</td>
+							<td class="details__count"><span class="details__percent has-text-right">{{ percent .Count $sum | round 1 }}%</span>&nbsp;({{ .Count }})</td>
+						</tr>
 					{{ end }}
 				</table>
 			{{ else }}
 				<p>No page views yet</p>
 			{{ end }}
-		</section>
-	{{ end }}
-
-	<section id="countries" class="panel">
-		<header class="panel__header">
-			<h3 class="panel__title">Countries</h3>
-		</header>
-		{{ if .CountrySet }}
-			<figure class="figure figure--map">
-				{{ template "worldMap" .CountrySet }}
-			</figure>
-			{{ $sum := .CountrySet.YSum }}
-			<table class="table is-striped details details--countries">
-				{{ range .CountrySet }}
-					<tr>
-						<td class="details__name">
-							<a href="/sites/{{ $siteID }}?{{ $payload.QuerySetEncode "country" .Name }}">{{ .Name | countryName }}</a>
-						</td>
-						<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
-					</tr>
-				{{ end }}
-			</table>
-		{{ else }}
-			<p>No page views yet</p>
-		{{ end }}
+		</div>
 	</section>
 
-	<section id="referrers" class="panel">
-		<header class="panel__header">
-			<h3 class="panel__title">Referrers</h3>
+	<section id="referrers" class="card">
+		<header class="card-header">
+			<h3 class="card-header-title">Referrers</h3>
 		</header>
-		{{ if .ReferrerSet }}
-			<figure class="figure figure--graph">
-				{{ template "barChart" .ReferrerSet }}
-			</figure>
-			{{ $sum := .ReferrerSet.YSum }}
-			<table class="table is-striped details details--referrers">
-				{{ range .ReferrerSet }}
-					<tr>
-						<td class="details__name">{{ .Name }}</td>
-						<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
-					</tr>
-				{{ end }}
-			</table>
-		{{ else }}
-			<p>No referrers yet</p>
-		{{ end }}
+		<div class="card-content">
+			{{ if .ReferrerSet }}
+				<figure class="figure figure--graph">
+					{{ template "barChart" .ReferrerSet }}
+				</figure>
+				{{ $sum := .ReferrerSet.YSum }}
+				<table class="table is-striped is-fullwidth details details--referrers">
+					{{ range .ReferrerSet }}
+						<tr>
+							<td class="details__name">{{ .Name }}</td>
+							<td class="details__count"><span class="details__percent has-text-right">{{ percent .Count $sum | round 1 }}%</span>&nbsp;({{ .Count }})</td>
+						</tr>
+					{{ end }}
+				</table>
+			{{ else }}
+				<p>No referrers yet</p>
+			{{ end }}
+		</div>
 	</section>
 
-	<section id="useragents" class="panel">
-		<header class="panel__header">
-			<h3 class="panel__title">User agents</h3>
+	<section id="useragents" class="card">
+		<header class="card-header">
+			<h3 class="card-header-title">User agents</h3>
 		</header>
-		{{ if .BrowserSet }}
-			<figure class="figure figure--graph">
-				<img src="{{ piechart "b" . }}" />
-				{{ template "barChart" .BrowserSet }}
-			</figure>
-			{{ $sum := .BrowserSet.YSum }}
-			<table class="table is-striped details details--browsers">
-				{{ range .BrowserSet }}
-					<tr>
-						<td class="details__name">
-							<a href="/sites/{{ $siteID }}?{{ $payload.QuerySetEncode "browser" .Name }}">{{ .Name }}</a>
-						</td>
-						<td class="details__count"><span class="details__percent">{{ percent .Count $sum | round 1 }}%</span> ({{ .Count }})</td>
-					</tr>
-				{{ end }}
-			</table>
-		{{ else }} <p>No browsers visits yet</p>
-		{{ end }}
+		<div class="card-content">
+			{{ if .BrowserSet }}
+				<figure class="figure figure--graph">
+					<img src="{{ piechart "b" . }}" />
+					{{ template "barChart" .BrowserSet }}
+				</figure>
+				{{ $sum := .BrowserSet.YSum }}
+				<table class="table is-striped is-fullwidth details details--browsers">
+					{{ range .BrowserSet }}
+						<tr>
+							<td class="details__name">
+								<a href="/sites/{{ $siteID }}?{{ $payload.QuerySetEncode "browser" .Name }}">{{ .Name }}</a>
+							</td>
+							<td class="details__count"><span class="details__percent has-text-right">{{ percent .Count $sum | round 1 }}%</span>&nbsp;({{ .Count }})</td>
+						</tr>
+					{{ end }}
+				</table>
+			{{ else }} <p>No browsers visits yet</p>
+			{{ end }}
+		</div>
 	</section>
 {{ end }}
 

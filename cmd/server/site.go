@@ -55,7 +55,7 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 		}
 		if _, ok := filter["referrer"]; !ok {
 			if rs := sws.NewReferrerSet(hitSet); rs != nil {
-				rs.SortByName()
+				rs.SortByHits()
 				payload.ReferrerSet = rs
 			}
 		}
