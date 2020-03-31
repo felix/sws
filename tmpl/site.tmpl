@@ -1,20 +1,23 @@
 {{ define "content" }}
-	<header class="header header--site">
-		{{ if .Site.ID }}
-			{{ with .Site }}
-				<h1 class="title title--site">Hits for {{ .Name }}</h1>
-				<span class="subtitle">{{ .Description }}</span>
+	{{ if .Site.ID }}
+		<header class="header header--site">
+			<div class="header__title">
+				{{ with .Site }}
+					<h1 class="title title--site">{{ .Name }}</h1>
+				{{ end }}
+			</div>
+			{{ if .Site.ID }}
+				{{ template "filter" . }}
 			{{ end }}
-		{{ else }}
+		</header>
+	{{ else }}
+		<header class="header header--site">
 			<h1 class="title--site">New Site</h1>
-		{{ end }}
-	</header>
+		</header>
+	{{ end }}
 
 	{{ template "siteSummary" . }}
 
-	{{ if .Site.ID }}
-		{{ template "filter" . }}
-	{{ end }}
 	{{ if .Hits }}
 		{{ template "hitView" . }}
 	{{ else }}

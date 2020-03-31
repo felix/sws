@@ -17,7 +17,7 @@
 	</section>
 
 	{{ if .PageSet }}
-		<section id="pages" class="card">
+		<section id="pages" class="card card--narrow">
 			<header class="card-header">
 				<h3 class="card-header-title">Top 10 pages</h3>
 			</header>
@@ -47,7 +47,7 @@
 		</section>
 	{{ end }}
 
-	<section id="countries" class="card">
+	<section id="countries" class="card card--narrow">
 		<header class="card-header">
 			<h3 class="card-header-title">Countries</h3>
 		</header>
@@ -73,7 +73,7 @@
 		</div>
 	</section>
 
-	<section id="referrers" class="card">
+	<section id="referrers" class="card card--narrow">
 		<header class="card-header">
 			<h3 class="card-header-title">Referrers</h3>
 		</header>
@@ -97,7 +97,7 @@
 		</div>
 	</section>
 
-	<section id="useragents" class="card">
+	<section id="useragents" class="card card--narrow">
 		<header class="card-header">
 			<h3 class="card-header-title">User agents</h3>
 		</header>
@@ -125,7 +125,7 @@
 {{ end }}
 
 {{ define "siteSummary" }}
-	<section class="level">
+	<section class="site__summary level">
 		{{ with .Hits }}
 			<div class="level-item has-text-centered">
 				<div>

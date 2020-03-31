@@ -7,4 +7,5 @@ counter/sws.min.js
 cmd/server/migrations.go
 cmd/server/counter.go
 cmd/server/templates.go
+static/default.css
 *.db

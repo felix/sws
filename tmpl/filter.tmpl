@@ -1,73 +1,96 @@
 {{ define "filter" }}
-	<div class="timerange">
-		<!--
-	  <form>
-	  <input type="date" name="bdate" value="{{ .Begin|dateRFC }}" />
-	  <input type="time" name="btime" value="{{ .Begin|timeRFC }}" />
-	  <input type="date" name="edate" value="{{ .End|dateRFC }}" />
-	  <input type="time" name="etime" value="{{ .End|timeRFC }}" />
-	  <select name="timezone">
-	  <option value="-39600">-1100</option>
-	  <option value="-36000">-1000</option>
-	  <option value="-32400">-0900</option>
-	  <option value="-28800">-0800</option>
-	  <option value="-25200">-0700</option>
-	  <option value="-21600">-0600</option>
-	  <option value="-18000">-0500</option>
-	  <option value="-14400">-0400</option>
-	  <option value="-10800">-0300</option>
-	  <option value="-7200">-0200</option>
-	  <option value="-3600">-0100</option>
-	  <option value="0">UTC</option>
-	  <option value="3600">+0100</option>
-	  <option value="7200">+0200</option>
-	  <option value="10800">+0300</option>
-	  <option value="14400">+0400</option>
-	  <option value="18000">+0500</option>
-	  <option value="21600">+0600</option>
-	  <option value="25200">+0700</option>
-	  <option value="28800">+0800</option>
-	  <option value="32400">+0900</option>
-	  <option value="36000">+1000</option>
-	  <option value="39600">+1100</option>
-	  </select>
-	  </form>
-		-->
-		<a href="?{{ datetimeRelative "-24h" | .QuerySetEncode "begin" }}">last day</a>
-		<a href="?{{ datetimeRelative "-168h" | .QuerySetEncode "begin" }}">last 7 days</a>
-		<a href="?{{ datetimeRelative "-720h" | .QuerySetEncode "begin" }}">last 30 days</a>
-		<a href="?{{ .QuerySetEncode "bots" "0" }}">without bots</a>
-		<a href="?{{ .QuerySetEncode "bots" "1" }}">only bots</a>
-	</div>
-	<div class="field is-grouped is-grouped-multiline">
-		<div class="control">
-			{{ if .QuerySetContains "bots" }}
-				{{ $bots := .Query.Get "bots" }}
-				{{ if eq $bots "0" }}
-					<div class="tags has-addons">
-						<a class="tag is-link">No bots</a>
+	<div class="filter tags field is-grouped">
+		<span>Filters:</span>
+		{{ if .QuerySetContains "bots" }}
+			{{ $bots := .Query.Get "bots" }}
+			{{ if eq $bots "0" }}
+				<div class="control">
+					<span class="tags has-addons">
+						<a class="tag is-danger" href="?{{ .QuerySetEncode "bots" "" }}">no bots</a>
 						<a class="tag is-delete" href="?{{ .QuerySetEncode "bots" "" }}"></a>
-					</div>
-				{{ end }}
-				{{ if eq $bots "1" }}
-					<div class="tags has-addons">
-						<a class="tag is-link">Only bots</a>
-						<a class="tag is-delete" href="?{{ .QuerySetEncode "bots" "" }}"></a>
-					</div>
-				{{ end }}
+					</span>
+				</div>
 			{{ end }}
-			{{ if .QuerySetContains "country" }}
-				<div class="tags has-addons">
-					<a class="tag is-link">Country {{ .Query.Get "country" }}</a>
+			{{ if eq $bots "1" }}
+				<div class="control">
+					<span class="tags has-addons">
+						<a class="tag is-danger" href="?{{ .QuerySetEncode "bots" "" }}">only bots</a>
+						<a class="tag is-delete" href="?{{ .QuerySetEncode "bots" "" }}"></a>
+					</span>
+				</div>
+			{{ end }}
+		{{ else }}
+			<div class="control">
+				<span class="tags has-addons">
+					<a class="tag is-info" href="?{{ .QuerySetEncode "bots" "0" }}">bots</a>
+					<a class="tag is-light" href="?{{ .QuerySetEncode "bots" "0" }}">without</a>
+				</span>
+			</div>
+			<div class="control">
+				<span class="tags has-addons">
+					<a class="tag is-info" href="?{{ .QuerySetEncode "bots" "1" }}">bots</a>
+					<a class="tag is-light" href="?{{ .QuerySetEncode "bots" "1" }}">only</a>
+				</span>
+			</div>
+		{{ end }}
+		{{ if .QuerySetContains "country" }}
+			<div class="control">
+				<span class="tags has-addons">
+					<a class="tag is-danger" href="?{{ .QuerySetEncode "country" "" }}">country {{ .Query.Get "country" }}</a>
 					<a class="tag is-delete" href="?{{ .QuerySetEncode "country" "" }}"></a>
-				</div>
-			{{ end }}
-			{{ if .QuerySetContains "begin" }}
-				<div class="tags has-addons">
-					<a class="tag is-link">Time filter</a>
+				</span>
+			</div>
+		{{ end }}
+		{{ if .QuerySetContains "path" }}
+			<div class="control">
+				<span class="tags has-addons">
+					<a class="tag is-danger" href="?{{ .QuerySetEncode "path" "" }}">path</a>
+					<a class="tag is-delete" href="?{{ .QuerySetEncode "path" "" }}"></a>
+				</span>
+			</div>
+		{{ end }}
+		{{ if .QuerySetContains "browser" }}
+			<div class="control">
+				<span class="tags has-addons">
+					<a class="tag is-danger" href="?{{ .QuerySetEncode "browser" "" }}">browser</a>
+					<a class="tag is-delete" href="?{{ .QuerySetEncode "browser" "" }}"></a>
+				</span>
+			</div>
+		{{ end }}
+		{{ if .QuerySetContains "referrer" }}
+			<div class="control">
+				<span class="tags has-addons">
+					<a class="tag is-danger" href="?{{ .QuerySetEncode "referrer" "" }}">referrer</a>
+					<a class="tag is-delete" href="?{{ .QuerySetEncode "referrer" "" }}"></a>
+				</span>
+			</div>
+		{{ end }}
+		{{ if .QuerySetContains "begin" }}
+			<div class="control">
+				<span class="tags has-addons">
+					<a class="tag is-danger" href="?{{ .QuerySetEncode "begin" "" }}">time</a>
 					<a class="tag is-delete" href="?{{ .QuerySetEncode "begin" "" }}"></a>
-				</div>
-			{{ end }}
-		</div>
+				</span>
+			</div>
+		{{ else }}
+			<div class="control">
+				<span class="tags has-addons">
+					<a class="tag is-info" href="?{{ datetimeRelative "-24h" | .QuerySetEncode "begin" }}">days</a>
+					<a class="tag is-light" href="?{{ datetimeRelative "-24h" | .QuerySetEncode "begin" }}">1</a>
+				</span>
+			</div>
+			<div class="control">
+				<span class="tags has-addons">
+					<a class="tag is-info" href="?{{ datetimeRelative "-168h" | .QuerySetEncode "begin" }}">days</a>
+					<a class="tag is-light" href="?{{ datetimeRelative "-168h" | .QuerySetEncode "begin" }}">7</a>
+				</span>
+			</div>
+			<div class="control">
+				<span class="tags has-addons">
+					<a class="tag is-info" href="?{{ datetimeRelative "-720h" | .QuerySetEncode "begin" }}">days</a>
+					<a class="tag is-light" href="?{{ datetimeRelative "-720h" | .QuerySetEncode "begin" }}">30</a>
+				</span>
+			</div>
+		{{ end }}
 	</div>
 {{ end }}

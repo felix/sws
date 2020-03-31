@@ -22,30 +22,53 @@ $card-header-shadow: 0;
 @import "../node_modules/bulma/sass/components/menu";
 @import "../node_modules/bulma/sass/components/card";
 
+$gutter: 1rem;
+$header-height: 3.25rem;
+
 .navbar {
 	position: fixed;
 	width: 100%;
 }
 .page {
 	display: flex;
-	flex-direction: row;
 	flex-wrap: wrap;
 	justify-content: space-between;
-	margin-left: 24px;
-	margin-right: 24px;
+	margin-left: $gutter;
+	margin-right: $gutter;
 }
-.header {
-	width: 100%;
+.page--sites {
+	flex-direction: column;
 }
-.level {
+.page--site {
+	flex-direction: row;
+	padding-top: $navbar-height + $header-height + $gutter;
+}
+.header--site {
+	display: flex;
+	position: fixed;
+	top: $header-height;
+	left: $gutter;
+	right: $gutter;
+	z-index: 100;
+	background-color: white;
+	padding: .5em;
+}
+.header__title {
+	flex: 1;
+}
+.filter {
+	flex: 1;
+}
+.site__summary {
 	width: 100%;
 }
 .card {
-	// 	background-color: #fff;
 	border: 1px solid #e6e9ed;
-	flex: 1 1 400px;
 	margin: .5em;
 	padding: .5em;
+}
+.card--narrow {
+	flex: 1 1 400px;
 }
 .card--wide {
 	flex: 1 1 100%;

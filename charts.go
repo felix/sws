@@ -95,7 +95,7 @@ func SparklineSVG(w io.Writer, data *HitSet, d time.Duration) error {
 	hits.XValues, hits.YValues = xVals, yVals
 
 	graph := gochart.Chart{
-		Width:  300,
+		Width:  600,
 		Height: 50,
 		Series: []gochart.Series{hits},
 		// Background: gochart.Style{

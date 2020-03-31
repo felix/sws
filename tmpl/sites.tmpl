@@ -2,17 +2,22 @@
 	<header>
 		<h1 class="title">Sites</h1>
 	</header>
-	<ul class="sites">
-		{{ range .Sites }}
-			{{ template "siteForList" . }}
-		{{ end }}
-	</ul>
+	{{ range .Sites }}
+		{{ template "siteForList" . }}
+	{{ end }}
 {{ end }}
 
 {{ define "siteForList" }}
-	<li>
-		<a href="/sites/{{ .ID }}/">{{ .Name }}</a>
-		<span>{{ .Description }}</span>
-		<img src="{{ sparkline .ID }}" />
-	</li>
+	<a class="site card" href="/sites/{{ .ID }}/">
+		<div class="card-header">
+			<object data="/favicon64.png" type="image/png">
+				<img class="card-header-icon" src="//{{ .Name }}/favicon.ico" alt="{{ .Name }} favicon" />
+			</object>
+			<span class="card-header-title">{{ .Name }}</span>
+			<img src="{{ sparkline .ID }}" />
+		</div>
+		<div class="card-content">
+			{{ .Description }}
+		</div>
+	</a>
 {{ end }}

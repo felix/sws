@@ -7,7 +7,7 @@
 	</head>
 	<body class="has-navbar-fixed-top">
 		{{ template "navbar" . }}
-		<main class="page">
+		<main class="page{{ if .Sites }} page--sites{{ end }}{{ if .Site }} page--site{{ end }}">
 			{{ template "flash" . }}
 			{{ template "content" . }}
 		</main>
