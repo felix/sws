@@ -3,6 +3,7 @@ dist/
 node_modules/
 
 # Generated content
+static/default.css
 counter/sws.min.js
 cmd/server/migrations.go
 cmd/server/counter.go

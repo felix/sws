@@ -4,7 +4,9 @@
 
 $family-sans-serif: "Helvetica", "Arial", sans-serif;
 $black: #120c13;
+$card-header-padding: 0.75rem 1rem 0;
 $card-header-shadow: 0;
+$card-shadow: 0;
 
 //@import "../node_modules/bulma/bulma";
 @import "../node_modules/bulma/sass/utilities/_all";
@@ -24,6 +26,9 @@ $card-header-shadow: 0;
 
 $gutter: 1rem;
 $header-height: 3.25rem;
+body {
+	background-color: #fcfcfc;
+}
 
 .navbar {
 	position: fixed;
@@ -35,29 +40,29 @@ $header-height: 3.25rem;
 	justify-content: space-between;
 	margin-left: $gutter;
 	margin-right: $gutter;
+	margin-top: $gutter;
 }
 .page--sites {
 	flex-direction: column;
 }
 .page--site {
 	flex-direction: row;
-	padding-top: $navbar-height + $header-height + $gutter;
 }
 .header--site {
 	display: flex;
-	position: fixed;
-	top: $header-height;
-	left: $gutter;
-	right: $gutter;
-	z-index: 100;
-	background-color: white;
-	padding: .5em;
 }
 .header__title {
 	flex: 1;
 }
 .filter {
-	flex: 1;
+	background-color: #66666680;
+	border-bottom-left-radius: 3px;
+	border-bottom-right-radius: 3px;
+	padding: $gutter;
+	position: fixed;
+	right: 1em;
+	top: $header-height;
+	z-index: 100;
 }
 .site__summary {
 	width: 100%;
@@ -93,7 +98,7 @@ $header-height: 3.25rem;
 
 .figure svg {
 	max-width: 100%;
-	max-height: 400px;
+	max-height: 290px;
 }
 
 .chart {

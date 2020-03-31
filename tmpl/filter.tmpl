@@ -1,6 +1,6 @@
 {{ define "filter" }}
 	<div class="filter tags field is-grouped">
-		<span>Filters:</span>
+		<span class="control">Filter:</span>
 		{{ if .QuerySetContains "bots" }}
 			{{ $bots := .Query.Get "bots" }}
 			{{ if eq $bots "0" }}
@@ -22,14 +22,14 @@
 		{{ else }}
 			<div class="control">
 				<span class="tags has-addons">
-					<a class="tag is-info" href="?{{ .QuerySetEncode "bots" "0" }}">bots</a>
-					<a class="tag is-light" href="?{{ .QuerySetEncode "bots" "0" }}">without</a>
+					<a class="tag is-info" href="?{{ .QuerySetEncode "bots" "0" }}">no</a>
+					<a class="tag is-light" href="?{{ .QuerySetEncode "bots" "0" }}">bots</a>
 				</span>
 			</div>
 			<div class="control">
 				<span class="tags has-addons">
-					<a class="tag is-info" href="?{{ .QuerySetEncode "bots" "1" }}">bots</a>
-					<a class="tag is-light" href="?{{ .QuerySetEncode "bots" "1" }}">only</a>
+					<a class="tag is-info" href="?{{ .QuerySetEncode "bots" "1" }}">only</a>
+					<a class="tag is-light" href="?{{ .QuerySetEncode "bots" "1" }}">bots</a>
 				</span>
 			</div>
 		{{ end }}
@@ -75,20 +75,20 @@
 		{{ else }}
 			<div class="control">
 				<span class="tags has-addons">
-					<a class="tag is-info" href="?{{ datetimeRelative "-24h" | .QuerySetEncode "begin" }}">days</a>
-					<a class="tag is-light" href="?{{ datetimeRelative "-24h" | .QuerySetEncode "begin" }}">1</a>
+					<a class="tag is-info" href="?{{ datetimeRelative "-24h" | .QuerySetEncode "begin" }}">1</a>
+					<a class="tag is-light" href="?{{ datetimeRelative "-24h" | .QuerySetEncode "begin" }}">day</a>
 				</span>
 			</div>
 			<div class="control">
 				<span class="tags has-addons">
-					<a class="tag is-info" href="?{{ datetimeRelative "-168h" | .QuerySetEncode "begin" }}">days</a>
-					<a class="tag is-light" href="?{{ datetimeRelative "-168h" | .QuerySetEncode "begin" }}">7</a>
+					<a class="tag is-info" href="?{{ datetimeRelative "-168h" | .QuerySetEncode "begin" }}">7</a>
+					<a class="tag is-light" href="?{{ datetimeRelative "-168h" | .QuerySetEncode "begin" }}">days</a>
 				</span>
 			</div>
 			<div class="control">
 				<span class="tags has-addons">
-					<a class="tag is-info" href="?{{ datetimeRelative "-720h" | .QuerySetEncode "begin" }}">days</a>
-					<a class="tag is-light" href="?{{ datetimeRelative "-720h" | .QuerySetEncode "begin" }}">30</a>
+					<a class="tag is-info" href="?{{ datetimeRelative "-720h" | .QuerySetEncode "begin" }}">30</a>
+					<a class="tag is-light" href="?{{ datetimeRelative "-720h" | .QuerySetEncode "begin" }}">days</a>
 				</span>
 			</div>
 		{{ end }}
