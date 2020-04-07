@@ -86,7 +86,9 @@
 				<table class="table is-striped is-fullwidth details details--referrers">
 					{{ range .ReferrerSet }}
 						<tr>
-							<td class="details__name">{{ .Name }}</td>
+							<td class="details__name">
+								<a href="/sites/{{ $siteID }}?{{ $payload.QuerySetEncode "referrer" .Name }}">{{ .Name }}</a>
+							</td>
 							<td class="details__count"><span class="details__percent has-text-right">{{ percent .Count $sum | round 1 }}%</span>&nbsp;({{ .Count }})</td>
 						</tr>
 					{{ end }}
