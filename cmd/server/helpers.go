@@ -89,17 +89,17 @@ func createHitFilter(r *http.Request) map[string]interface{} {
 
 	q := r.URL.Query()
 
-	path := q.Get("path")
-	if path != "" {
+	if path := q.Get("path"); path != "" {
 		filter["path"] = path
 	}
-	country := q.Get("country")
-	if country != "" {
+	if country := q.Get("country"); country != "" {
 		filter["country_code"] = country
 	}
-	browser := q.Get("browser")
-	if browser != "" {
+	if browser := q.Get("browser"); browser != "" {
 		filter["ua.browser"] = browser
+	}
+	if referrer := q.Get("referrer"); referrer != "" {
+		filter["referrer"] = referrer
 	}
 	if bots := q.Get("bots"); bots != "" {
 		filter["ua.bot"] = (bots == "1")
