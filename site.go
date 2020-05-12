@@ -1,6 +1,7 @@
 package sws
 
 import (
+	"strings"
 	"time"
 )
 
@@ -18,10 +19,25 @@ type Site struct {
 	UpdatedAt        *time.Time `json:"updated_at,omitempty" db:"updated_at"`
 }
 
-func (d *Site) Validate() []string {
+func (s *Site) Validate() []string {
 	var out []string
-	if d.Name == "" {
+	if s.Name == "" {
 		out = append(out, "missing name")
 	}
 	return out
+}
+
+func (s *Site) IncludesDomain(fqdn string) bool {
+	if fqdn == s.Name {
+		return true
+	}
+	for _, a := range strings.Split(s.Aliases, ",") {
+		if a == fqdn {
+			return true
+		}
+	}
+	if s.AcceptSubdomains && strings.HasSuffix(fqdn, s.Name) {
+		return true
+	}
+	return false
 }

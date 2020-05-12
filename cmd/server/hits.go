@@ -5,12 +5,11 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
-	"net"
 	"net/http"
 	"strings"
 	"text/template"
 
-	"github.com/hashicorp/golang-lru"
+	lru "github.com/hashicorp/golang-lru"
 	"src.userspace.com.au/sws"
 )
 
@@ -45,11 +44,6 @@ func handleHitCounter(db sws.CounterStore, mmdbPath string) http.HandlerFunc {
 			log("failed to verify site", err)
 			http.Error(w, "invalid site", http.StatusBadRequest)
 			return
-		}
-
-		hit.Addr = r.RemoteAddr
-		if strings.Contains(r.RemoteAddr, ":") {
-			hit.Addr, _, err = net.SplitHostPort(r.RemoteAddr)
 		}
 
 		if r.Header.Get("X-Moz") == "prefetch" || r.Header.Get("X-Purpose") == "preview" {
@@ -105,12 +99,8 @@ func verifyHit(db sws.SiteGetter, h *sws.Hit) (*sws.Site, error) {
 		debug(h.Host, "equals site name:", site.Name)
 		return site, nil
 	}
-	if strings.Contains(site.Aliases, h.Host) {
-		debug(h.Host, "equals site alias:", site.Name)
-		return site, nil
-	}
-	if site.AcceptSubdomains && strings.HasSuffix(h.Host, site.Name) {
-		debug(h.Host, "is subdomain:", site.Name)
+	if site.IncludesDomain(h.Host) {
+		debug(h.Host, "includes:", site.Name)
 		return site, nil
 	}
 	return nil, fmt.Errorf("invalid host")

@@ -3,48 +3,51 @@ package sws
 import (
 	"net/url"
 	"sort"
-	"strings"
 	"time"
 )
 
 type Referrer struct {
 	Name       string    `json:"name"`
+	URL        string    `json:"url"`
 	LastSeenAt time.Time `json:"last_seen_at" db:"last_seen_at"`
 	hitSet     *HitSet
 }
 
 type ReferrerSet []*Referrer
 
-func NewReferrerSet(hs *HitSet) *ReferrerSet {
+func NewReferrerSet(hs *HitSet, site Site) *ReferrerSet {
 	tmp := make(map[string]*Referrer)
 	for _, h := range hs.Hits() {
-		if h.Referrer == nil {
-			continue
-		}
+		host := "direct"
+		u := ""
 
-		u, err := url.Parse(*h.Referrer)
-		if err != nil || h.Host == u.Host {
+		if h.Referrer != nil {
+			if r, err := url.Parse(*h.Referrer); err == nil {
+				host = r.Host
+			}
+			u = *h.Referrer
+		}
+		// Check for internal referrer
+		if site.IncludesDomain(host) {
+			//host = "internal"
 			continue
 		}
-		host := u.Host
-		if u.Host == "" {
-			host = "direct"
-		}
-		r := &Referrer{
-			Name:       host,
-			LastSeenAt: h.CreatedAt,
+		tmp[host] = &Referrer{
+			Name: host,
+			URL:  u,
 			hitSet: hs.Filter(func(t *Hit) bool {
-				if t.Referrer == nil {
+				if h.Referrer == nil && t.Referrer == nil {
+					return true
+				}
+				if h.Referrer == nil && t.Referrer != nil {
 					return false
 				}
-				return strings.Contains(*t.Referrer, u.Host)
+				if h.Referrer != nil && t.Referrer == nil {
+					return false
+				}
+				return *t.Referrer == *t.Referrer
 			}),
 		}
-		// if b.LastSeenAt.Before(h.CreatedAt) {
-		// 	b.LastSeenAt = h.CreatedAt
-		// }
-		//b.hitSet.Add(h)
-		tmp[u.Host] = r
 	}
 	if len(tmp) < 1 {
 		return nil

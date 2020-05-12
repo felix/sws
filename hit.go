@@ -2,6 +2,7 @@ package sws
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"sort"
@@ -61,9 +62,14 @@ func SortHits(hits []*Hit) {
 }
 
 func HitFromRequest(r *http.Request) (*Hit, error) {
+	// Strip port from remote address
+	addr := r.RemoteAddr
+	if strings.Contains(r.RemoteAddr, ":") {
+		addr, _, _ = net.SplitHostPort(r.RemoteAddr)
+	}
 	out := &Hit{
 		CreatedAt: time.Now(),
-		Addr:      r.RemoteAddr,
+		Addr:      addr,
 	}
 
 	q := r.URL.Query()
