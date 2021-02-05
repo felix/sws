@@ -1,27 +1,26 @@
-package main
+package store
 
 import (
 	"database/sql"
+	"embed"
 	"fmt"
 
-	"src.userspace.com.au/go-migrate"
+	"src.userspace.com.au/migrate"
 )
 
-func migrateDatabase(driver, dsn string) (int64, error) {
-	var version int64
+func Migrate(driver, dsn string) (int, error) {
+	var version int
 	db, err := sql.Open(driver, dsn)
 	if err != nil {
 		return version, err
 	}
 	defer db.Close()
 
-	// Load migrations from generated file
-	ms, err := decodeMigrations(driver)
-	if err != nil {
-		return 0, err
-	}
-	debug("found", len(ms), "migrations for driver", driver)
-	migrator, err := migrate.NewStringMigrator(db, ms)
+	//go:embed sql/*
+	var ms embed.FS
+
+	//debug("found", len(ms), "migrations for driver", driver)
+	migrator, err := migrate.NewFSMigrator(db, ms)
 	if err != nil {
 		return version, fmt.Errorf("failed to initialise: %w", err)
 	}

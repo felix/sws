@@ -12,6 +12,7 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+
 	"src.userspace.com.au/sws"
 	"src.userspace.com.au/sws/store"
 )
@@ -85,7 +86,7 @@ func main() {
 	}
 
 	if !noMigrate {
-		v, err := migrateDatabase(driver, dsn)
+		v, err := store.Migrate(driver, dsn)
 		if err != nil {
 			log("failed to migrate:", err)
 			os.Exit(2)

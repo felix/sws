@@ -13,6 +13,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	detector "github.com/mssola/user_agent"
+
 	"src.userspace.com.au/sws"
 	"src.userspace.com.au/sws/store"
 )
