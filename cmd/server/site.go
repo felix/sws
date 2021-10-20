@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strings"
 
+	"src.userspace.com.au/render"
+
 	"src.userspace.com.au/sws"
 )
 
@@ -72,10 +74,11 @@ func handleSite(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 			}
 		}
 
-		if err := rndr.Render(w, "site", payload); err != nil {
-			httpError(w, 500, err.Error())
-			return
-		}
+		rndr.HTML(
+			w, 200, payload,
+			render.Template("site.tmpl"),
+			render.Layout("layout.tmpl"),
+		)
 	}
 }
 
@@ -106,9 +109,10 @@ func handleSiteEdit(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 		payload := newTemplateData(r)
 		payload.Site = site
 
-		if err := rndr.Render(w, "site", payload); err != nil {
-			httpError(w, 500, err.Error())
-			return
-		}
+		rndr.HTML(
+			w, 200, payload,
+			render.Template("site.tmpl"),
+			render.Layout("layout.tmpl"),
+		)
 	}
 }

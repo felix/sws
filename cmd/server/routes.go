@@ -1,21 +1,18 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"crypto/sha1"
-	"fmt"
+	"io/fs"
 	"net/http"
-	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/jwtauth"
+	"src.userspace.com.au/render"
+
 	"src.userspace.com.au/sws"
-	"src.userspace.com.au/templates"
 )
 
 var tokenAuth *jwtauth.JWTAuth
@@ -25,35 +22,15 @@ func init() {
 }
 
 func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
-	tmplsCommon := []string{"flash.tmpl", "navbar.tmpl"}
-	tmplsAuthed := append(tmplsCommon, []string{
-		"layout.tmpl", "charts.tmpl", "filter.tmpl", "hitView.tmpl",
-	}...)
-	tmplsPublic := append(tmplsCommon, "layout.tmpl")
 
-	if override != "" {
-		log("using overrider", override)
-		loadOverrider = func(s string) string {
-			return filepath.Join(override, s)
-		}
-	}
-
-	tmpls, err := loadHTMLTemplateMap(map[string][]string{
-		"sites": append([]string{"sites.tmpl"}, tmplsAuthed...),
-		"site":  append([]string{"site.tmpl", "worldMap.tmpl"}, tmplsAuthed...),
-		"pages": append([]string{"pages.tmpl", "worldMap.tmpl"}, tmplsAuthed...),
-		"home":  append([]string{"home.tmpl"}, tmplsPublic...),
-		"login": append([]string{"login.tmpl"}, tmplsPublic...),
-		"user":  append([]string{"user.tmpl"}, tmplsAuthed...),
-		"404":   append([]string{"404.tmpl"}, tmplsPublic...),
-	}, funcMap)
+	src, err := fs.Sub(fs.FS(tmpl), "tmpl")
 	if err != nil {
 		return nil, err
 	}
-	debug(tmpls["login"].DefinedTemplates())
-	debug(tmpls["home"].DefinedTemplates())
-
-	rndr := templates.NewRenderer(tmpls)
+	rndr, err := render.New(render.AddTemplates(src, render.Root("root")))
+	if err != nil {
+		return nil, err
+	}
 
 	r := chi.NewRouter()
 	r.Use(middleware.RealIP)
@@ -107,10 +84,11 @@ func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
 				r.Get("/new", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					payload := newTemplateData(r)
 					payload.Site = &sws.Site{}
-					if err := rndr.Render(w, "site", payload); err != nil {
-						httpError(w, 500, err.Error())
-						return
-					}
+					rndr.HTML(
+						w, 200, payload,
+						render.Template("site.tmpl"),
+						render.Layout("layout.tmpl"),
+					)
 				}))
 				r.Route("/{siteID}", func(r chi.Router) {
 					siteHandler := handleSite(db, rndr)
@@ -139,22 +117,22 @@ func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
 		r.Get("/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			p := strings.TrimPrefix(r.URL.Path, "/")
 			debug("loading static", p)
-			b, err := loadTemplate(p)
-			if err == nil {
-				name := filepath.Base(p)
-				etag := fmt.Sprintf(`"%x"`, sha1.Sum(b))
+			// b, err := loadTemplate(p)
+			// if err == nil {
+			// 	name := filepath.Base(p)
+			// 	etag := fmt.Sprintf(`"%x"`, sha1.Sum(b))
 
-				if match := r.Header.Get("If-None-Match"); match != "" {
-					if strings.Contains(match, etag) {
-						w.WriteHeader(http.StatusNotModified)
-						return
-					}
-				}
+			// 	if match := r.Header.Get("If-None-Match"); match != "" {
+			// 		if strings.Contains(match, etag) {
+			// 			w.WriteHeader(http.StatusNotModified)
+			// 			return
+			// 		}
+			// 	}
 
-				w.Header().Set("Etag", etag)
-				w.Header().Set("Cache-Control", "no-cache")
-				http.ServeContent(w, r, name, time.Now(), bytes.NewReader(b))
-			}
+			// 	w.Header().Set("Etag", etag)
+			// 	w.Header().Set("Cache-Control", "no-cache")
+			// 	http.ServeContent(w, r, name, time.Now(), bytes.NewReader(b))
+			// }
 			debug("no template found, trying files")
 			fs := http.FileServer(http.Dir("public"))
 			fs.ServeHTTP(w, r)
@@ -164,10 +142,11 @@ func createRouter(db sws.Store, mmdbPath string) (chi.Router, error) {
 
 	r.NotFound(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		payload := newTemplateData(r)
-		if err := rndr.Render(w, "404", payload); err != nil {
-			httpError(w, 500, err.Error())
-			return
-		}
+		rndr.HTML(
+			w, 404, payload,
+			render.Template("404.tmpl"),
+			render.Layout("layout.tmpl"),
+		)
 	}))
 
 	return r, nil

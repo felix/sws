@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strings"
 
+	"src.userspace.com.au/render"
+
 	"src.userspace.com.au/sws"
 )
 
@@ -34,9 +36,10 @@ func handleSites(db sws.SiteStore, rndr Renderer) http.HandlerFunc {
 		payload := newTemplateData(r)
 		payload.Sites = sites
 
-		if err := rndr.Render(w, "sites", payload); err != nil {
-			httpError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
+		rndr.HTML(
+			w, 200, payload,
+			render.Template("sites.tmpl"),
+			render.Layout("layout.tmpl"),
+		)
 	}
 }

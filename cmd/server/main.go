@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"fmt"
 	"io"
@@ -12,6 +13,7 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+	"src.userspace.com.au/render"
 
 	"src.userspace.com.au/sws"
 	"src.userspace.com.au/sws/store"
@@ -34,6 +36,9 @@ var (
 	noMigrate bool
 )
 
+//go:embed tmpl
+var tmpl embed.FS
+
 func init() {
 	flag.BoolVar(&verbose, "verbose", false, "enable verbose output")
 	flag.StringVar(&addr, "listen", "localhost:5000", "listen address")
@@ -51,7 +56,7 @@ func init() {
 }
 
 type Renderer interface {
-	Render(http.ResponseWriter, string, interface{}) error
+	HTML(io.Writer, int, interface{}, ...render.ResponseModifier) error
 }
 
 func main() {

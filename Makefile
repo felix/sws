@@ -2,22 +2,17 @@
 VERSION	!= git describe --tags --always
 BINARY	= $(patsubst %,dist/%,$(shell find cmd/* -maxdepth 0 -type d -exec basename {} \;))
 SRC	!= find . -type f -name '*.go'
-SQL	!= find sql -type f
-GO	?= go1.16beta1
+SQL	!= find store/sql -type f
 EXTRAS	= counter/sws.min.js \
-	  cmd/server/counter.go \
-	  cmd/server/templates.go
-TMPL	!= find tmpl -type f -name '*.tmpl'
+	  cmd/server/counter.go
+TMPL	!= find cmd/server/tmpl -type f -name '*.tmpl'
 STATIC	= static/default.css
 
 .PHONY: build
 build: $(BINARY)
 
 dist/%: $(SRC) $(EXTRAS)
-	$(GO) build -ldflags "-X main.Version=$(VERSION)" -o $@ ./cmd/$*
-
-cmd/server/templates.go: $(TMPL)  $(STATIC)
-	$(GO)  generate ./scripts >$@
+	go build -ldflags "-X main.Version=$(VERSION)" -o $@ ./cmd/$*
 
 cmd/server/counter.go: counter/sws.min.js
 	printf "package main\n\nfunc getCounter() string { return \`" >$@
@@ -35,11 +30,11 @@ node_modules: package.json
 
 .PHONY: test
 test: lint
-	$(GO) test -v -short -coverprofile=coverage.out -cover ./... \
-		&& $(GO) tool cover -html=coverage.out -o coverage.html
+	go test -v -short -coverprofile=coverage.out -cover ./... \
+		&& go tool cover -html=coverage.out -o coverage.html
 
 .PHONY: lint
-lint: ; $(GO) vet ./...
+lint: ; go vet ./...
 
 .PHONY: clean
 clean:

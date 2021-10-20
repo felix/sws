@@ -8,6 +8,9 @@ import (
 	"src.userspace.com.au/migrate"
 )
 
+//go:embed sql/*
+var ms embed.FS
+
 func Migrate(driver, dsn string) (int, error) {
 	var version int
 	db, err := sql.Open(driver, dsn)
@@ -15,9 +18,6 @@ func Migrate(driver, dsn string) (int, error) {
 		return version, err
 	}
 	defer db.Close()
-
-	//go:embed sql/*
-	var ms embed.FS
 
 	//debug("found", len(ms), "migrations for driver", driver)
 	migrator, err := migrate.NewFSMigrator(db, ms)

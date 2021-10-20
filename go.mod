@@ -26,7 +26,10 @@ require (
 	golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	src.userspace.com.au/migrate v0.2.0
+	src.userspace.com.au/render v0.0.0-00010101000000-000000000000
 	src.userspace.com.au/templates v0.0.0-20200320100635-3f0c3fbfaf31
 )
 
 go 1.16
+
+replace src.userspace.com.au/render => ../render

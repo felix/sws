@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"src.userspace.com.au/render"
+
 	"src.userspace.com.au/sws"
 )
 
@@ -84,9 +86,10 @@ func newTemplateData(r *http.Request) *templateData {
 func handleIndex(rndr Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		payload := newTemplateData(r)
-		if err := rndr.Render(w, "home", payload); err != nil {
-			log(err)
-			http.Error(w, http.StatusText(500), 500)
-		}
+		rndr.HTML(
+			w, 200, payload,
+			render.Template("home.tmpl"),
+			render.Layout("layout.tmpl"),
+		)
 	}
 }

@@ -6,6 +6,8 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"src.userspace.com.au/render"
+
 	"src.userspace.com.au/sws"
 )
 
@@ -55,9 +57,11 @@ func handleLogin(db sws.UserStore, rndr Renderer) http.HandlerFunc {
 		}
 
 		payload := newTemplateData(r)
-		if err := rndr.Render(w, "login", payload); err != nil {
-			httpError(w, 500, err.Error())
-		}
+		rndr.HTML(
+			w, 200, payload,
+			render.Template("login.tmpl"),
+			render.Layout("layout.tmpl"),
+		)
 	}
 }
 

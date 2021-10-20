@@ -5,6 +5,8 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi"
+	"src.userspace.com.au/render"
+
 	"src.userspace.com.au/sws"
 )
 
@@ -54,9 +56,10 @@ func handleUsers(db sws.UserStore, rndr Renderer) http.HandlerFunc {
 		payload := newTemplateData(r)
 		payload.User = user
 
-		if err := rndr.Render(w, "user", payload); err != nil {
-			httpError(w, 500, err.Error())
-			return
-		}
+		rndr.HTML(
+			w, 200, payload,
+			render.Template("user.tmpl"),
+			render.Layout("layout.tmpl"),
+		)
 	}
 }
